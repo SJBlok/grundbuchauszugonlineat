@@ -41,68 +41,83 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`Searching for address: ${query}`);
 
-    // Call Wirtschafts-Compass API searchAddress endpoint
-    const apiResponse = await fetch(
-      `https://api.wirtschaftscompass.at/v1/landregister/address/search?query=${encodeURIComponent(query)}&pageSize=20`,
-      {
+    // Try multiple possible endpoint formats for the Wirtschafts-Compass API
+    const endpoints = [
+      `https://api.wirtschaftscompass.at/v1/landregister/searchAddress?query=${encodeURIComponent(query)}&pageSize=20`,
+      `https://api.wirtschaftscompass.at/v1/landregister/address?query=${encodeURIComponent(query)}&pageSize=20`,
+      `https://api.wirtschaftscompass.at/v1/grundbuch/searchAddress?query=${encodeURIComponent(query)}&pageSize=20`,
+      `https://api.wirtschaftscompass.at/v1/grundbuch/address/search?query=${encodeURIComponent(query)}&pageSize=20`,
+    ];
+
+    let apiResponse: Response | null = null;
+    let successEndpoint = "";
+
+    for (const endpoint of endpoints) {
+      console.log(`Trying endpoint: ${endpoint}`);
+      
+      const response = await fetch(endpoint, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
           "Accept": "application/json",
         },
-      }
-    );
+      });
 
-    if (!apiResponse.ok) {
-      const errorText = await apiResponse.text();
-      console.error("Wirtschafts-Compass API error:", apiResponse.status, errorText);
-      
-      // Return empty results instead of error for better UX
-      if (apiResponse.status === 404) {
-        return new Response(
-          JSON.stringify({ results: [], message: "No results found" }),
-          {
-            status: 200,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          }
-        );
+      console.log(`Response status for ${endpoint}: ${response.status}`);
+
+      if (response.ok) {
+        apiResponse = response;
+        successEndpoint = endpoint;
+        break;
+      } else if (response.status !== 404) {
+        // Log non-404 errors for debugging
+        const errorText = await response.text();
+        console.error(`API error (${response.status}):`, errorText.substring(0, 500));
       }
-      
-      throw new Error(`API request failed: ${apiResponse.status}`);
     }
 
+    if (!apiResponse) {
+      console.log("No valid endpoint found, returning empty results");
+      return new Response(
+        JSON.stringify({ 
+          results: [], 
+          message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe.",
+          debug: "No valid API endpoint found"
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    console.log(`Success with endpoint: ${successEndpoint}`);
     const data = await apiResponse.json();
-    console.log("API response:", JSON.stringify(data).substring(0, 500));
+    console.log("API response:", JSON.stringify(data).substring(0, 1000));
 
     // Transform API response to our format
-    // The API response structure may vary - adapting based on typical Compass response format
     const results: AddressSearchResult[] = [];
     
-    if (data.data?.results?.addressResult) {
-      for (const result of data.data.results.addressResult) {
+    // Try different response structures
+    const resultArray = 
+      data.data?.results?.addressResult || 
+      data.data?.results?.result ||
+      data.results?.addressResult ||
+      data.results ||
+      data.data?.addressResult ||
+      [];
+
+    if (Array.isArray(resultArray)) {
+      for (const result of resultArray) {
         results.push({
-          kgNummer: result.kgNummer || result.kg || "",
-          kgName: result.kgName || result.katastralgemeinde || "",
-          ez: result.ez || result.einlagezahl || "",
-          gst: result.gst || result.grundstuecksnummer || "",
-          adresse: result.adresse || result.address || `${result.strasse || ""} ${result.hausnummer || ""}`.trim(),
-          plz: result.plz || result.postalCode || "",
-          ort: result.ort || result.place || "",
-          bundesland: result.bundesland || result.state || "",
-        });
-      }
-    } else if (data.results) {
-      // Alternative response format
-      for (const result of data.results) {
-        results.push({
-          kgNummer: result.kgNummer || result.kg || "",
-          kgName: result.kgName || result.katastralgemeinde || "",
-          ez: result.ez || result.einlagezahl || "",
-          gst: result.gst || result.grundstuecksnummer || "",
-          adresse: result.adresse || result.address || "",
-          plz: result.plz || "",
-          ort: result.ort || "",
-          bundesland: result.bundesland || "",
+          kgNummer: result.kgNummer || result.kg || result.cadastralNumber || "",
+          kgName: result.kgName || result.katastralgemeinde || result.cadastralCommunity || "",
+          ez: result.ez || result.einlagezahl || result.depositNumber || "",
+          gst: result.gst || result.grundstuecksnummer || result.parcelNumber || "",
+          adresse: result.adresse || result.address || `${result.strasse || result.street || ""} ${result.hausnummer || result.houseNumber || ""}`.trim(),
+          plz: result.plz || result.postalCode || result.zipCode || "",
+          ort: result.ort || result.place || result.city || "",
+          bundesland: result.bundesland || result.state || result.federalState || "",
         });
       }
     }
@@ -122,9 +137,13 @@ serve(async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in search-address:", error);
     return new Response(
-      JSON.stringify({ error: error.message, results: [] }),
+      JSON.stringify({ 
+        error: error.message, 
+        results: [],
+        message: "Fehler bei der Suche. Bitte nutzen Sie die manuelle Eingabe."
+      }),
       {
-        status: 500,
+        status: 200, // Return 200 so frontend doesn't break
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
