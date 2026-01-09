@@ -61,6 +61,9 @@ serve(async (req: Request): Promise<Response> => {
       const response = await fetch(endpoint, {
         method: "GET",
         headers: {
+          // Swagger uses security scheme: "compass-api-token"
+          "compass-api-token": wirtschaftsCompassApiKey,
+          // Keep Authorization as fallback (some deployments still accept Bearer)
           "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
           "Accept": "application/json",
         },
