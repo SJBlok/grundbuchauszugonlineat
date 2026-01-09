@@ -47,8 +47,8 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`Searching for address: ${query}`);
 
-    // Try test environment first (token might be for test)
-    const endpoint = `https://api-test.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
+    // Production API endpoint
+    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
     
     console.log(`Calling endpoint: ${endpoint}`);
     console.log(`Token length: ${wirtschaftsCompassApiKey.length}`);
