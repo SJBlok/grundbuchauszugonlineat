@@ -42,11 +42,14 @@ serve(async (req: Request): Promise<Response> => {
     console.log(`Searching for address: ${query}`);
 
     // Try multiple possible endpoint formats for the Wirtschafts-Compass API
+    // Base URL from Swagger: https://api.wirtschaftscompass.at/landregister
     const endpoints = [
-      `https://api.wirtschaftscompass.at/v1/landregister/searchAddress?query=${encodeURIComponent(query)}&pageSize=20`,
-      `https://api.wirtschaftscompass.at/v1/landregister/address?query=${encodeURIComponent(query)}&pageSize=20`,
-      `https://api.wirtschaftscompass.at/v1/grundbuch/searchAddress?query=${encodeURIComponent(query)}&pageSize=20`,
-      `https://api.wirtschaftscompass.at/v1/grundbuch/address/search?query=${encodeURIComponent(query)}&pageSize=20`,
+      // Using the correct base URL from swagger definition
+      `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`,
+      `https://api.wirtschaftscompass.at/landregister/v1/address?query=${encodeURIComponent(query)}&size=20`,
+      // Alternative paths
+      `https://api.wirtschaftscompass.at/v1/address?term=${encodeURIComponent(query)}&size=20`,
+      `https://api.wirtschaftscompass.at/landregister/address?term=${encodeURIComponent(query)}&size=20`,
     ];
 
     let apiResponse: Response | null = null;
