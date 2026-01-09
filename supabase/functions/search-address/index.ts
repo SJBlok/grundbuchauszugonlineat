@@ -16,6 +16,9 @@ interface AddressSearchResult {
   bundesland: string;
 }
 
+// Base URL according to spec: https://api.wirtschaftscompass.at/landregister
+const API_BASE = "https://api.wirtschaftscompass.at/landregister";
+
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -34,89 +37,50 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    let wirtschaftsCompassApiKey = Deno.env.get("WIRTSCHAFTSCOMPASS_API_KEY");
-    if (!wirtschaftsCompassApiKey) {
+    let apiKey = Deno.env.get("WIRTSCHAFTSCOMPASS_API_KEY");
+    if (!apiKey) {
       throw new Error("WIRTSCHAFTSCOMPASS_API_KEY not configured");
     }
     
     // Auto-format UUID if dashes are missing (32 chars -> 36 chars with dashes)
-    if (wirtschaftsCompassApiKey.length === 32 && !wirtschaftsCompassApiKey.includes("-")) {
-      wirtschaftsCompassApiKey = `${wirtschaftsCompassApiKey.slice(0, 8)}-${wirtschaftsCompassApiKey.slice(8, 12)}-${wirtschaftsCompassApiKey.slice(12, 16)}-${wirtschaftsCompassApiKey.slice(16, 20)}-${wirtschaftsCompassApiKey.slice(20)}`;
+    if (apiKey.length === 32 && !apiKey.includes("-")) {
+      apiKey = `${apiKey.slice(0, 8)}-${apiKey.slice(8, 12)}-${apiKey.slice(12, 16)}-${apiKey.slice(16, 20)}-${apiKey.slice(20)}`;
       console.log("Auto-formatted API key to UUID format");
     }
 
-    console.log(`Searching for: ${query}`);
-    console.log(`Token length: ${wirtschaftsCompassApiKey.length}`);
-    console.log(`Token format valid: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(wirtschaftsCompassApiKey)}`);
+    console.log(`=== Address Search ===`);
+    console.log(`Query: ${query}`);
+    console.log(`Token length: ${apiKey.length}`);
+    console.log(`Token valid UUID: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey)}`);
     
-    // Test with a documented endpoint: /v1/{kg}/{ez} (Grundbuchauszug)
-    // Using a known test KG/EZ from Vienna: KG 01004 (Innere Stadt), EZ 1
-    const testKg = "01004";
-    const testEz = "1";
-    const testEndpoint = `https://api.wirtschaftscompass.at/landregister/v1/${testKg}/${testEz}`;
-    
-    console.log(`Testing documented endpoint: ${testEndpoint}`);
-    
-    const authHeader = `Bearer ${wirtschaftsCompassApiKey}`;
-    
-    // First test with documented endpoint to verify token works
-    const testResponse = await fetch(testEndpoint, {
-      method: "GET",
-      headers: {
-        "Authorization": authHeader,
-        "Accept": "application/json",
-      },
-    });
-    
-    console.log(`Test endpoint response: ${testResponse.status}`);
-    
-    if (testResponse.status === 401) {
-      console.error("Token is not valid - 401 on documented endpoint");
-      return new Response(
-        JSON.stringify({ 
-          results: [], 
-          message: "API-Authentifizierung fehlgeschlagen. Token ist ungültig.",
-          debug: `Test endpoint returned 401`
-        }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
-    }
-    
-    if (testResponse.ok) {
-      console.log("Token works! Documented endpoint returned 200");
-      const testData = await testResponse.text();
-      console.log(`Test data: ${testData.substring(0, 500)}`);
-    } else {
-      const testError = await testResponse.text();
-      console.log(`Test endpoint error (${testResponse.status}): ${testError.substring(0, 200)}`);
-    }
-
-    // Now try the address endpoint
-    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
-    console.log(`Calling address endpoint: ${endpoint}`);
+    // Address search endpoint: GET /v1/address?term=...&size=...
+    const endpoint = `${API_BASE}/v1/address?term=${encodeURIComponent(query)}&size=20`;
+    console.log(`Endpoint: ${endpoint}`);
     
     const response = await fetch(endpoint, {
       method: "GET",
       headers: {
-        "Authorization": authHeader,
+        "Authorization": `Bearer ${apiKey}`,
         "Accept": "application/json",
       },
     });
     
     console.log(`Response status: ${response.status}`);
+    const responseText = await response.text();
+    console.log(`Response body: ${responseText.substring(0, 500)}`);
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API error (${response.status}):`, errorText);
+      console.error(`API error: ${response.status}`);
       
       return new Response(
         JSON.stringify({ 
           results: [], 
           message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe.",
-          debug: `API returned ${response.status}: ${errorText.substring(0, 100)}`
+          debug: {
+            status: response.status,
+            endpoint: endpoint,
+            response: responseText.substring(0, 200)
+          }
         }),
         {
           status: 200,
@@ -125,50 +89,40 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API error (${response.status}):`, errorText.substring(0, 500));
-      
+    // Parse response
+    let apiData;
+    try {
+      apiData = JSON.parse(responseText);
+    } catch {
+      console.error("Failed to parse JSON response");
       return new Response(
-        JSON.stringify({ 
-          results: [], 
-          message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe.",
-          debug: `API returned ${response.status}`
-        }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        JSON.stringify({ results: [], message: "Ongeldige API response" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+    
+    console.log("Parsed API data:", JSON.stringify(apiData).substring(0, 500));
 
-    const apiData = await response.json();
-    console.log("API response:", JSON.stringify(apiData).substring(0, 1000));
-
-    // Transform API response to our format based on documented structure:
-    // results[] with address, folios[] (kg + ez), plots[] (kg + gstNr)
+    // Transform API response according to spec:
+    // data.results[].address, data.results[].folios[], data.results[].plots[]
     const results: AddressSearchResult[] = [];
-    
-    const resultArray = apiData.results || apiData.data?.results || [];
+    const resultArray = apiData.data?.results || apiData.results || [];
 
     if (Array.isArray(resultArray)) {
       for (const item of resultArray) {
-        // Each result has address info and folios/plots arrays
         const address = item.address || {};
         const folios = item.folios || [];
         const plots = item.plots || [];
         
-        // Build full address string
-        const fullAddress = [
-          address.street,
-          address.houseNumber,
-        ].filter(Boolean).join(" ");
+        // Build address string
+        const streetParts = [address.streetAddress, address.houseNumber].filter(Boolean);
+        const fullAddress = streetParts.join(" ") || address.street || "";
         
-        const plz = address.postalCode || address.postcode || "";
-        const ort = address.place || address.city || "";
-        const bundesland = address.federalState || address.state || "";
+        const plz = address.postalCode || "";
+        const ort = address.place || "";
+        const bundesland = address.state || address.federalState || "";
         
-        // Create entries for each folio (KG + EZ combination)
+        // Create entries for each folio (KG + EZ)
         if (folios.length > 0) {
           for (const folio of folios) {
             results.push({
@@ -184,7 +138,7 @@ serve(async (req: Request): Promise<Response> => {
           }
         }
         
-        // Also handle plots (GST) if no folios
+        // Handle plots (GST) if no folios
         if (folios.length === 0 && plots.length > 0) {
           for (const plot of plots) {
             results.push({
@@ -199,24 +153,10 @@ serve(async (req: Request): Promise<Response> => {
             });
           }
         }
-        
-        // Fallback if no folios/plots but still want to show address
-        if (folios.length === 0 && plots.length === 0 && fullAddress) {
-          results.push({
-            kgNummer: item.kg || "",
-            kgName: item.kgName || "",
-            ez: item.ez || "",
-            gst: item.gstNr || "",
-            adresse: fullAddress,
-            plz,
-            ort,
-            bundesland,
-          });
-        }
       }
     }
 
-    console.log(`Found ${results.length} results`);
+    console.log(`Transformed ${results.length} results`);
 
     return new Response(
       JSON.stringify({ 
@@ -237,7 +177,7 @@ serve(async (req: Request): Promise<Response> => {
         message: "Fehler bei der Suche. Bitte nutzen Sie die manuelle Eingabe."
       }),
       {
-        status: 200, // Return 200 so frontend doesn't break
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
