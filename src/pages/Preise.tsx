@@ -9,21 +9,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ChevronRight } from "lucide-react";
+import iconDocument from "@/assets/icon-document.png";
 
 const productFeatures = [
   "Vollständige Eigentumsinformationen (B-Blatt)",
   "Detaillierte Grundstücks- und Objektdaten (A1- und A2-Blatt)",
   "Übersicht über Lasten und Beschränkungen (C-Blatt)",
   "Zustellung per E-Mail innerhalb weniger Minuten",
+  "Elektronisch signiertes PDF-Dokument",
 ];
 
 export default function Preise() {
   return (
     <Layout>
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
               Preise
             </h1>
@@ -31,53 +33,50 @@ export default function Preise() {
               Transparente Preisgestaltung ohne versteckte Kosten.
             </p>
 
-            <div className="bg-card border rounded-lg overflow-hidden mb-12">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted">
-                    <TableHead className="font-semibold">Produkt</TableHead>
-                    <TableHead className="font-semibold text-right">Preis</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-medium">
-                      Aktueller Grundbuchauszug
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">
-                      19,90 €
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            {/* Product Card */}
+            <div className="bg-background border rounded-lg overflow-hidden mb-8">
+              <div className="bg-primary text-primary-foreground px-6 py-3">
+                <h2 className="font-semibold">Produkt</h2>
+              </div>
+              <div className="p-6">
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  <img src={iconDocument} alt="" className="w-20 h-20 object-contain" />
+                  <div className="flex-1">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                      <h3 className="text-xl font-semibold text-foreground">
+                        Aktueller Grundbuchauszug
+                      </h3>
+                      <span className="text-3xl font-bold text-primary">19,90 €</span>
+                    </div>
+                    <ul className="space-y-2">
+                      {productFeatures.map((feature) => (
+                        <li key={feature} className="flex items-start gap-2 text-sm">
+                          <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+                          <span className="text-foreground">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="bg-info p-6 rounded-lg mb-12">
-              <h2 className="text-xl font-semibold text-foreground mb-4">
-                Im Preis enthalten
-              </h2>
-              <ul className="space-y-3">
-                {productFeatures.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span className="text-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="bg-muted p-6 rounded-lg mb-12">
-              <h2 className="text-lg font-semibold text-foreground mb-2">
+            {/* Payment Info */}
+            <div className="bg-info p-6 rounded border mb-8">
+              <h3 className="font-semibold text-foreground mb-2">
                 Zahlungsart
-              </h2>
+              </h3>
               <p className="text-muted-foreground">
-                Die Zahlung erfolgt auf Rechnung (Überweisung). Die Rechnung wird nach Abschluss der Bestellung per E-Mail übermittelt.
+                Die Zahlung erfolgt auf Rechnung (Überweisung). Die Rechnung wird nach Abschluss der Bestellung per E-Mail übermittelt. Die Zahlungsfrist beträgt 14 Tage.
               </p>
             </div>
 
             <div className="text-center">
               <Button asChild size="lg">
-                <Link to="/anfordern">Jetzt anfordern</Link>
+                <Link to="/anfordern" className="hover:no-underline">
+                  Jetzt anfordern
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </div>
           </div>
