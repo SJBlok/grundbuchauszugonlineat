@@ -46,13 +46,51 @@ serve(async (req: Request): Promise<Response> => {
     
     console.log(`Calling endpoint: ${endpoint}`);
     
-    const response = await fetch(endpoint, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
-        "Accept": "application/json",
-      },
-    });
+    // Try multiple auth header formats
+    type AuthMethod = { name: string; headers: Record<string, string> };
+    const authMethods: AuthMethod[] = [
+      { name: "compass-api-token", headers: { "compass-api-token": wirtschaftsCompassApiKey, "Accept": "application/json" } },
+      { name: "Bearer", headers: { "Authorization": `Bearer ${wirtschaftsCompassApiKey}`, "Accept": "application/json" } },
+      { name: "X-API-Key", headers: { "X-API-Key": wirtschaftsCompassApiKey, "Accept": "application/json" } },
+      { name: "apikey", headers: { "apikey": wirtschaftsCompassApiKey, "Accept": "application/json" } },
+    ];
+    
+    let response: Response | null = null;
+    let lastError = "";
+    
+    for (const auth of authMethods) {
+      console.log(`Trying auth header: ${auth.name}`);
+      
+      const resp = await fetch(endpoint, {
+        method: "GET",
+        headers: auth.headers,
+      });
+      
+      console.log(`Response status: ${resp.status}`);
+      
+      if (resp.ok) {
+        response = resp;
+        break;
+      } else {
+        lastError = await resp.text();
+        console.error(`Auth failed with ${auth.name}: ${lastError.substring(0, 200)}`);
+      }
+    }
+    
+    if (!response) {
+      console.error("All auth methods failed");
+      return new Response(
+        JSON.stringify({ 
+          results: [], 
+          message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe.",
+          debug: `API authentication failed. Last error: ${lastError.substring(0, 100)}`
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     console.log(`Response status: ${response.status}`);
 
