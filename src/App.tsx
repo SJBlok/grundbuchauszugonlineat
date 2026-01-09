@@ -9,6 +9,7 @@ import Ablauf from "./pages/Ablauf";
 import Preise from "./pages/Preise";
 import FAQ from "./pages/FAQ";
 import Kontakt from "./pages/Kontakt";
+import Lexikon from "./pages/Lexikon";
 import Anfordern from "./pages/Anfordern";
 import Datenschutz from "./pages/Datenschutz";
 import AGB from "./pages/AGB";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/preise" element={<Preise />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/kontakt" element={<Kontakt />} />
+          <Route path="/lexikon" element={<Lexikon />} />
           <Route path="/anfordern" element={<Anfordern />} />
           <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/agb" element={<AGB />} />

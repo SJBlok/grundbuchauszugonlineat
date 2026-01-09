@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -8,6 +8,7 @@ const navItems = [
   { label: "Grundbuchauszug", href: "/grundbuchauszug" },
   { label: "Ablauf", href: "/ablauf" },
   { label: "Preise", href: "/preise" },
+  { label: "Lexikon", href: "/lexikon" },
   { label: "FAQ", href: "/faq" },
   { label: "Kontakt", href: "/kontakt" },
 ];
@@ -15,6 +16,8 @@ const navItems = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  const currentPageLabel = navItems.find(item => item.href === location.pathname)?.label;
 
   return (
     <header className="sticky top-0 z-50">
@@ -27,12 +30,15 @@ export function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 text-foreground hover:no-underline">
-              <div className="flex items-center gap-1">
-                <div className="w-1 h-8 bg-primary" />
-                <div className="w-1 h-8 bg-background border border-border" />
-                <div className="w-1 h-8 bg-primary" />
+              <div className="flex items-center gap-0.5">
+                <div className="w-1.5 h-8 bg-primary" />
+                <div className="w-1.5 h-8 bg-background border border-border" />
+                <div className="w-1.5 h-8 bg-primary" />
               </div>
-              <span className="text-lg font-semibold">GrundbuchauszugOnline</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-semibold leading-tight">Grundbuchauszug</span>
+                <span className="text-xs text-muted-foreground leading-tight">Österreich</span>
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -92,12 +98,10 @@ export function Header() {
         <div className="container mx-auto px-4 py-2">
           <nav className="text-sm text-muted-foreground">
             <Link to="/" className="hover:text-secondary">Startseite</Link>
-            {location.pathname !== "/" && (
+            {location.pathname !== "/" && currentPageLabel && (
               <>
                 <span className="mx-2">›</span>
-                <span className="text-foreground">
-                  {navItems.find(item => item.href === location.pathname)?.label || "Seite"}
-                </span>
+                <span className="text-foreground">{currentPageLabel}</span>
               </>
             )}
           </nav>
