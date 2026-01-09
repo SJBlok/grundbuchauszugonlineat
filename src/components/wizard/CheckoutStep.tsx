@@ -105,10 +105,21 @@ export function CheckoutStep({
           firma: data.firma || null,
           order_number: "",
         }])
-        .select("order_number")
+        .select("id, order_number")
         .single();
 
       if (error) throw error;
+
+      // Trigger document delivery via edge function
+      const { error: deliveryError } = await supabase.functions.invoke(
+        "send-grundbuch-document",
+        { body: { orderId: orderResult.id } }
+      );
+
+      if (deliveryError) {
+        console.error("Document delivery error:", deliveryError);
+        // Don't block the order completion, just log the error
+      }
 
       onSubmit(data, orderResult.order_number);
     } catch (error) {
