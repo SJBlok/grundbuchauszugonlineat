@@ -1,7 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, MapPin, Loader2, Building } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -26,79 +25,83 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearch = useCallback(async () => {
+  // Debounced search as user types
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
     if (query.length < 3) {
-      setError("Bitte geben Sie mindestens 3 Zeichen ein.");
+      setResults([]);
+      setHasSearched(false);
+      setError(null);
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
-    setHasSearched(true);
+    debounceRef.current = setTimeout(async () => {
+      setIsLoading(true);
+      setError(null);
+      setHasSearched(true);
 
-    try {
-      const { data, error: fetchError } = await supabase.functions.invoke("search-address", {
-        body: { query },
-      });
+      try {
+        const { data, error: fetchError } = await supabase.functions.invoke("search-address", {
+          body: { query },
+        });
 
-      if (fetchError) {
-        throw fetchError;
+        if (fetchError) {
+          throw fetchError;
+        }
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        setResults(data.results || []);
+      } catch (err: any) {
+        console.error("Search error:", err);
+        setError("Fehler bei der Suche. Bitte versuchen Sie es erneut.");
+        setResults([]);
+      } finally {
+        setIsLoading(false);
       }
+    }, 400); // 400ms debounce
 
-      if (data.error) {
-        throw new Error(data.error);
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
       }
-
-      setResults(data.results || []);
-    } catch (err: any) {
-      console.error("Search error:", err);
-      setError("Fehler bei der Suche. Bitte versuchen Sie es erneut.");
-      setResults([]);
-    } finally {
-      setIsLoading(false);
-    }
+    };
   }, [query]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSearch();
-    }
-  };
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Adresse eingeben (z.B. Hauptstraße 1, 1010 Wien)"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="pl-10"
-          />
-        </div>
-        <Button 
-          onClick={handleSearch} 
-          disabled={isLoading || query.length < 3}
-          className="shrink-0"
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            "Suchen"
-          )}
-        </Button>
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Adresse eingeben (z.B. Hauptstraße 1, 1010 Wien)"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="pl-10 pr-10"
+        />
+        {isLoading && (
+          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+        )}
       </div>
+
+      {query.length > 0 && query.length < 3 && (
+        <p className="text-sm text-muted-foreground">
+          Noch {3 - query.length} Zeichen eingeben...
+        </p>
+      )}
 
       {error && (
         <p className="text-sm text-destructive">{error}</p>
       )}
 
-      {hasSearched && !isLoading && results.length === 0 && !error && (
+      {hasSearched && !isLoading && results.length === 0 && !error && query.length >= 3 && (
         <div className="text-center py-6 text-muted-foreground">
           <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
           <p>Keine Ergebnisse gefunden.</p>
