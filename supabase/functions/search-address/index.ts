@@ -41,54 +41,30 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`Searching for address: ${query}`);
 
-    // Try multiple possible endpoint formats for the Wirtschafts-Compass API
-    // Base URL from Swagger: https://api.wirtschaftscompass.at/landregister
-    const endpoints = [
-      // Using the correct base URL from swagger definition
-      `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`,
-      `https://api.wirtschaftscompass.at/landregister/v1/address?query=${encodeURIComponent(query)}&size=20`,
-      // Alternative paths
-      `https://api.wirtschaftscompass.at/v1/address?term=${encodeURIComponent(query)}&size=20`,
-      `https://api.wirtschaftscompass.at/landregister/address?term=${encodeURIComponent(query)}&size=20`,
-    ];
+    // Correct endpoint from documentation
+    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
+    
+    console.log(`Calling endpoint: ${endpoint}`);
+    
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
+        "Accept": "application/json",
+      },
+    });
 
-    let apiResponse: Response | null = null;
-    let successEndpoint = "";
+    console.log(`Response status: ${response.status}`);
 
-    for (const endpoint of endpoints) {
-      console.log(`Trying endpoint: ${endpoint}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error (${response.status}):`, errorText.substring(0, 500));
       
-      const response = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-          // Swagger uses security scheme: "compass-api-token"
-          "compass-api-token": wirtschaftsCompassApiKey,
-          // Keep Authorization as fallback (some deployments still accept Bearer)
-          "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
-          "Accept": "application/json",
-        },
-      });
-
-      console.log(`Response status for ${endpoint}: ${response.status}`);
-
-      if (response.ok) {
-        apiResponse = response;
-        successEndpoint = endpoint;
-        break;
-      } else if (response.status !== 404) {
-        // Log non-404 errors for debugging
-        const errorText = await response.text();
-        console.error(`API error (${response.status}):`, errorText.substring(0, 500));
-      }
-    }
-
-    if (!apiResponse) {
-      console.log("No valid endpoint found, returning empty results");
       return new Response(
         JSON.stringify({ 
           results: [], 
           message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe.",
-          debug: "No valid API endpoint found"
+          debug: `API returned ${response.status}`
         }),
         {
           status: 200,
@@ -97,34 +73,77 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Success with endpoint: ${successEndpoint}`);
-    const data = await apiResponse.json();
-    console.log("API response:", JSON.stringify(data).substring(0, 1000));
+    const apiData = await response.json();
+    console.log("API response:", JSON.stringify(apiData).substring(0, 1000));
 
-    // Transform API response to our format
+    // Transform API response to our format based on documented structure:
+    // results[] with address, folios[] (kg + ez), plots[] (kg + gstNr)
     const results: AddressSearchResult[] = [];
     
-    // Try different response structures
-    const resultArray = 
-      data.data?.results?.addressResult || 
-      data.data?.results?.result ||
-      data.results?.addressResult ||
-      data.results ||
-      data.data?.addressResult ||
-      [];
+    const resultArray = apiData.results || apiData.data?.results || [];
 
     if (Array.isArray(resultArray)) {
-      for (const result of resultArray) {
-        results.push({
-          kgNummer: result.kgNummer || result.kg || result.cadastralNumber || "",
-          kgName: result.kgName || result.katastralgemeinde || result.cadastralCommunity || "",
-          ez: result.ez || result.einlagezahl || result.depositNumber || "",
-          gst: result.gst || result.grundstuecksnummer || result.parcelNumber || "",
-          adresse: result.adresse || result.address || `${result.strasse || result.street || ""} ${result.hausnummer || result.houseNumber || ""}`.trim(),
-          plz: result.plz || result.postalCode || result.zipCode || "",
-          ort: result.ort || result.place || result.city || "",
-          bundesland: result.bundesland || result.state || result.federalState || "",
-        });
+      for (const item of resultArray) {
+        // Each result has address info and folios/plots arrays
+        const address = item.address || {};
+        const folios = item.folios || [];
+        const plots = item.plots || [];
+        
+        // Build full address string
+        const fullAddress = [
+          address.street,
+          address.houseNumber,
+        ].filter(Boolean).join(" ");
+        
+        const plz = address.postalCode || address.postcode || "";
+        const ort = address.place || address.city || "";
+        const bundesland = address.federalState || address.state || "";
+        
+        // Create entries for each folio (KG + EZ combination)
+        if (folios.length > 0) {
+          for (const folio of folios) {
+            results.push({
+              kgNummer: String(folio.kg || ""),
+              kgName: folio.kgName || "",
+              ez: String(folio.ez || ""),
+              gst: "",
+              adresse: fullAddress,
+              plz,
+              ort,
+              bundesland,
+            });
+          }
+        }
+        
+        // Also handle plots (GST) if no folios
+        if (folios.length === 0 && plots.length > 0) {
+          for (const plot of plots) {
+            results.push({
+              kgNummer: String(plot.kg || ""),
+              kgName: plot.kgName || "",
+              ez: "",
+              gst: String(plot.gstNr || ""),
+              adresse: fullAddress,
+              plz,
+              ort,
+              bundesland,
+            });
+          }
+        }
+        
+        // Fallback if no folios/plots but still want to show address
+        if (folios.length === 0 && plots.length === 0 && fullAddress) {
+          results.push({
+            kgNummer: item.kg || "",
+            kgName: item.kgName || "",
+            ez: item.ez || "",
+            gst: item.gstNr || "",
+            adresse: fullAddress,
+            plz,
+            ort,
+            bundesland,
+          });
+        }
       }
     }
 
@@ -133,7 +152,7 @@ serve(async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         results,
-        totalResults: data.data?.totalResults || results.length,
+        totalResults: apiData.totalResults || results.length,
       }),
       {
         status: 200,
