@@ -41,58 +41,36 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`Searching for address: ${query}`);
 
-    // Try both production and test environments
-    const baseUrls = [
-      "https://api-test.wirtschaftscompass.at/landregister",
-      "https://api.wirtschaftscompass.at/landregister",
-    ];
+    // Test environment URL (token is for test environment)
+    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
     
-    const queryPath = `/v1/address?term=${encodeURIComponent(query)}&size=20`;
+    console.log(`Calling endpoint: ${endpoint}`);
+    console.log(`Token length: ${wirtschaftsCompassApiKey.length}`);
+    console.log(`Token format check: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(wirtschaftsCompassApiKey)}`);
     
-    // Try multiple auth header formats
-    type AuthMethod = { name: string; headers: Record<string, string> };
-    const authMethods: AuthMethod[] = [
-      { name: "compass-api-token", headers: { "compass-api-token": wirtschaftsCompassApiKey, "Accept": "application/json" } },
-      { name: "Bearer", headers: { "Authorization": `Bearer ${wirtschaftsCompassApiKey}`, "Accept": "application/json" } },
-      { name: "X-API-Key", headers: { "X-API-Key": wirtschaftsCompassApiKey, "Accept": "application/json" } },
-    ];
+    // Exact format: Authorization: Bearer <UUID>
+    const authHeader = `Bearer ${wirtschaftsCompassApiKey}`;
+    console.log(`Auth header: Authorization: Bearer ${wirtschaftsCompassApiKey.substring(0, 8)}...`);
     
-    let response: Response | null = null;
-    let lastError = "";
-    let successUrl = "";
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Authorization": authHeader,
+        "Accept": "application/json",
+      },
+    });
     
-    // Try each base URL with each auth method
-    urlLoop:
-    for (const baseUrl of baseUrls) {
-      for (const auth of authMethods) {
-        const endpoint = `${baseUrl}${queryPath}`;
-        console.log(`Trying: ${endpoint} with ${auth.name}`);
-        
-        const resp = await fetch(endpoint, {
-          method: "GET",
-          headers: auth.headers,
-        });
-        
-        console.log(`Response status: ${resp.status}`);
-        
-        if (resp.ok) {
-          response = resp;
-          successUrl = endpoint;
-          break urlLoop;
-        } else {
-          lastError = await resp.text();
-          console.error(`Failed ${baseUrl} + ${auth.name}: ${lastError.substring(0, 100)}`);
-        }
-      }
-    }
+    console.log(`Response status: ${response.status}`);
     
-    if (!response) {
-      console.error("All combinations failed");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error (${response.status}):`, errorText);
+      
       return new Response(
         JSON.stringify({ 
           results: [], 
           message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe.",
-          debug: `API authentication failed. Last error: ${lastError.substring(0, 100)}`
+          debug: `API returned ${response.status}: ${errorText.substring(0, 100)}`
         }),
         {
           status: 200,
@@ -100,8 +78,6 @@ serve(async (req: Request): Promise<Response> => {
         }
       );
     }
-    
-    console.log(`Success with: ${successUrl}`);
 
     if (!response.ok) {
       const errorText = await response.text();
