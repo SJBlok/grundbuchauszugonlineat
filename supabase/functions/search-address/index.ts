@@ -41,10 +41,13 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`Searching for address: ${query}`);
 
-    // Correct endpoint from documentation
-    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
+    // Try both production and test environments
+    const baseUrls = [
+      "https://api-test.wirtschaftscompass.at/landregister",
+      "https://api.wirtschaftscompass.at/landregister",
+    ];
     
-    console.log(`Calling endpoint: ${endpoint}`);
+    const queryPath = `/v1/address?term=${encodeURIComponent(query)}&size=20`;
     
     // Try multiple auth header formats
     type AuthMethod = { name: string; headers: Record<string, string> };
@@ -52,33 +55,39 @@ serve(async (req: Request): Promise<Response> => {
       { name: "compass-api-token", headers: { "compass-api-token": wirtschaftsCompassApiKey, "Accept": "application/json" } },
       { name: "Bearer", headers: { "Authorization": `Bearer ${wirtschaftsCompassApiKey}`, "Accept": "application/json" } },
       { name: "X-API-Key", headers: { "X-API-Key": wirtschaftsCompassApiKey, "Accept": "application/json" } },
-      { name: "apikey", headers: { "apikey": wirtschaftsCompassApiKey, "Accept": "application/json" } },
     ];
     
     let response: Response | null = null;
     let lastError = "";
+    let successUrl = "";
     
-    for (const auth of authMethods) {
-      console.log(`Trying auth header: ${auth.name}`);
-      
-      const resp = await fetch(endpoint, {
-        method: "GET",
-        headers: auth.headers,
-      });
-      
-      console.log(`Response status: ${resp.status}`);
-      
-      if (resp.ok) {
-        response = resp;
-        break;
-      } else {
-        lastError = await resp.text();
-        console.error(`Auth failed with ${auth.name}: ${lastError.substring(0, 200)}`);
+    // Try each base URL with each auth method
+    urlLoop:
+    for (const baseUrl of baseUrls) {
+      for (const auth of authMethods) {
+        const endpoint = `${baseUrl}${queryPath}`;
+        console.log(`Trying: ${endpoint} with ${auth.name}`);
+        
+        const resp = await fetch(endpoint, {
+          method: "GET",
+          headers: auth.headers,
+        });
+        
+        console.log(`Response status: ${resp.status}`);
+        
+        if (resp.ok) {
+          response = resp;
+          successUrl = endpoint;
+          break urlLoop;
+        } else {
+          lastError = await resp.text();
+          console.error(`Failed ${baseUrl} + ${auth.name}: ${lastError.substring(0, 100)}`);
+        }
       }
     }
     
     if (!response) {
-      console.error("All auth methods failed");
+      console.error("All combinations failed");
       return new Response(
         JSON.stringify({ 
           results: [], 
@@ -91,8 +100,8 @@ serve(async (req: Request): Promise<Response> => {
         }
       );
     }
-
-    console.log(`Response status: ${response.status}`);
+    
+    console.log(`Success with: ${successUrl}`);
 
     if (!response.ok) {
       const errorText = await response.text();
