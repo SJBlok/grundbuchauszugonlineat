@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { KatastralgemeindeCombobox } from "@/components/KatastralgemeindeCombobox";
 import type { PropertyData } from "@/pages/Anfordern";
 
 const propertySchema = z.object({
@@ -51,6 +52,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   });
 
   const bundesland = watch("bundesland");
+  const katastralgemeinde = watch("katastralgemeinde");
 
   return (
     <div>
@@ -63,11 +65,34 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
+          <Label htmlFor="bundesland">Bundesland *</Label>
+          <Select
+            value={bundesland}
+            onValueChange={(value) => setValue("bundesland", value, { shouldValidate: true })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Bundesland auswählen" />
+            </SelectTrigger>
+            <SelectContent>
+              {bundeslaender.map((land) => (
+                <SelectItem key={land} value={land}>
+                  {land}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.bundesland && (
+            <p className="text-sm text-destructive">{errors.bundesland.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="katastralgemeinde">Katastralgemeinde *</Label>
-          <Input
-            id="katastralgemeinde"
-            {...register("katastralgemeinde")}
-            placeholder="z.B. Innere Stadt"
+          <KatastralgemeindeCombobox
+            value={katastralgemeinde}
+            onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
+            bundesland={bundesland}
+            placeholder="Katastralgemeinde suchen..."
           />
           {errors.katastralgemeinde && (
             <p className="text-sm text-destructive">{errors.katastralgemeinde.message}</p>
@@ -99,28 +124,6 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="bundesland">Bundesland *</Label>
-          <Select
-            value={bundesland}
-            onValueChange={(value) => setValue("bundesland", value, { shouldValidate: true })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Bundesland auswählen" />
-            </SelectTrigger>
-            <SelectContent>
-              {bundeslaender.map((land) => (
-                <SelectItem key={land} value={land}>
-                  {land}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.bundesland && (
-            <p className="text-sm text-destructive">{errors.bundesland.message}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
           <Label htmlFor="wohnungsHinweis">Wohnungs- / Anteilshinweis (optional)</Label>
           <Input
             id="wohnungsHinweis"
@@ -135,6 +138,15 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
         <div className="bg-info p-4 rounded-lg">
           <p className="text-sm text-muted-foreground">
             <strong>Hinweis:</strong> Genaue Angaben erleichtern die eindeutige Zuordnung im Grundbuch.
+            Die Katastralgemeinde und Grundstücksnummer finden Sie auf Ihrem Grundbuchauszug oder im{" "}
+            <a 
+              href="https://www.bev.gv.at/Services/Produkte/Kataster-und-Verzeichnisse/Katastralgemeindesuche.html" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              BEV-Katasterverzeichnis
+            </a>.
           </p>
         </div>
 
