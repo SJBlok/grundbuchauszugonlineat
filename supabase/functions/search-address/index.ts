@@ -45,18 +45,58 @@ serve(async (req: Request): Promise<Response> => {
       console.log("Auto-formatted API key to UUID format");
     }
 
-    console.log(`Searching for address: ${query}`);
-
-    // Production API endpoint
-    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
-    
-    console.log(`Calling endpoint: ${endpoint}`);
+    console.log(`Searching for: ${query}`);
     console.log(`Token length: ${wirtschaftsCompassApiKey.length}`);
     console.log(`Token format valid: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(wirtschaftsCompassApiKey)}`);
     
-    // Exact format: Authorization: Bearer <UUID>
+    // Test with a documented endpoint: /v1/{kg}/{ez} (Grundbuchauszug)
+    // Using a known test KG/EZ from Vienna: KG 01004 (Innere Stadt), EZ 1
+    const testKg = "01004";
+    const testEz = "1";
+    const testEndpoint = `https://api.wirtschaftscompass.at/landregister/v1/${testKg}/${testEz}`;
+    
+    console.log(`Testing documented endpoint: ${testEndpoint}`);
+    
     const authHeader = `Bearer ${wirtschaftsCompassApiKey}`;
-    console.log(`Auth header: Authorization: Bearer ${wirtschaftsCompassApiKey.substring(0, 8)}...`);
+    
+    // First test with documented endpoint to verify token works
+    const testResponse = await fetch(testEndpoint, {
+      method: "GET",
+      headers: {
+        "Authorization": authHeader,
+        "Accept": "application/json",
+      },
+    });
+    
+    console.log(`Test endpoint response: ${testResponse.status}`);
+    
+    if (testResponse.status === 401) {
+      console.error("Token is not valid - 401 on documented endpoint");
+      return new Response(
+        JSON.stringify({ 
+          results: [], 
+          message: "API-Authentifizierung fehlgeschlagen. Token ist ungültig.",
+          debug: `Test endpoint returned 401`
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+    
+    if (testResponse.ok) {
+      console.log("Token works! Documented endpoint returned 200");
+      const testData = await testResponse.text();
+      console.log(`Test data: ${testData.substring(0, 500)}`);
+    } else {
+      const testError = await testResponse.text();
+      console.log(`Test endpoint error (${testResponse.status}): ${testError.substring(0, 200)}`);
+    }
+
+    // Now try the address endpoint
+    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
+    console.log(`Calling address endpoint: ${endpoint}`);
     
     const response = await fetch(endpoint, {
       method: "GET",
