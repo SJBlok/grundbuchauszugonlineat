@@ -34,19 +34,25 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    const wirtschaftsCompassApiKey = Deno.env.get("WIRTSCHAFTSCOMPASS_API_KEY");
+    let wirtschaftsCompassApiKey = Deno.env.get("WIRTSCHAFTSCOMPASS_API_KEY");
     if (!wirtschaftsCompassApiKey) {
       throw new Error("WIRTSCHAFTSCOMPASS_API_KEY not configured");
+    }
+    
+    // Auto-format UUID if dashes are missing (32 chars -> 36 chars with dashes)
+    if (wirtschaftsCompassApiKey.length === 32 && !wirtschaftsCompassApiKey.includes("-")) {
+      wirtschaftsCompassApiKey = `${wirtschaftsCompassApiKey.slice(0, 8)}-${wirtschaftsCompassApiKey.slice(8, 12)}-${wirtschaftsCompassApiKey.slice(12, 16)}-${wirtschaftsCompassApiKey.slice(16, 20)}-${wirtschaftsCompassApiKey.slice(20)}`;
+      console.log("Auto-formatted API key to UUID format");
     }
 
     console.log(`Searching for address: ${query}`);
 
-    // Test environment URL (token is for test environment)
-    const endpoint = `https://api.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
+    // Try test environment first (token might be for test)
+    const endpoint = `https://api-test.wirtschaftscompass.at/landregister/v1/address?term=${encodeURIComponent(query)}&size=20`;
     
     console.log(`Calling endpoint: ${endpoint}`);
     console.log(`Token length: ${wirtschaftsCompassApiKey.length}`);
-    console.log(`Token format check: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(wirtschaftsCompassApiKey)}`);
+    console.log(`Token format valid: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(wirtschaftsCompassApiKey)}`);
     
     // Exact format: Authorization: Bearer <UUID>
     const authHeader = `Bearer ${wirtschaftsCompassApiKey}`;
