@@ -21,8 +21,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Top bar with Austrian red */}
-      <div className="h-1 bg-[hsl(0,70%,45%)]" />
+      {/* Top accent bar */}
+      <div className="h-1 bg-primary" />
       
       {/* Main header */}
       <div className="bg-background border-b">

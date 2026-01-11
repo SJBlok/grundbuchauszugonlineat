@@ -10,8 +10,8 @@ const footerLinks = [
 export function Footer() {
   return (
     <footer className="bg-header text-header-foreground mt-auto">
-      {/* Austrian flag stripe - red */}
-      <div className="h-1 bg-[hsl(0,70%,45%)]" />
+      {/* Top accent bar */}
+      <div className="h-1 bg-primary" />
       
       <div className="py-8">
         <div className="container mx-auto px-4">
