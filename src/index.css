@@ -15,26 +15,26 @@
     --popover: 0 0% 100%;
     --popover-foreground: 210 11% 15%;
 
-    /* Professional Green - Austrian nature/government inspired */
-    --primary: 152 55% 32%;
+    /* Friendly teal-green - professional and approachable */
+    --primary: 162 48% 40%;
     --primary-foreground: 0 0% 100%;
 
     /* Blue for links - government style */
     --secondary: 214 84% 35%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 150 15% 96%;
+    --muted: 160 15% 96%;
     --muted-foreground: 210 11% 40%;
 
-    --accent: 150 15% 94%;
+    --accent: 160 15% 94%;
     --accent-foreground: 210 11% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 15% 88%;
-    --input: 150 15% 88%;
-    --ring: 152 55% 32%;
+    --border: 160 12% 88%;
+    --input: 160 12% 88%;
+    --ring: 162 48% 40%;
 
     --radius: 0.375rem;
 
@@ -42,22 +42,22 @@
     --header: 210 11% 20%;
     --header-foreground: 0 0% 100%;
 
-    /* Info boxes - light green-gray */
-    --info: 150 20% 96%;
+    /* Info boxes - light teal-gray */
+    --info: 160 20% 97%;
     --info-foreground: 210 11% 15%;
 
-    /* Success/green accent */
-    --success: 152 55% 32%;
+    /* Success accent - same as primary for consistency */
+    --success: 162 48% 40%;
     --success-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 210 11% 30%;
-    --sidebar-primary: 152 55% 32%;
+    --sidebar-primary: 162 48% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 15% 94%;
+    --sidebar-accent: 160 15% 94%;
     --sidebar-accent-foreground: 210 11% 15%;
-    --sidebar-border: 150 15% 88%;
-    --sidebar-ring: 152 55% 32%;
+    --sidebar-border: 160 12% 88%;
+    --sidebar-ring: 162 48% 40%;
   }
 
   .dark {
@@ -70,7 +70,7 @@
     --popover: 210 15% 12%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 152 50% 40%;
+    --primary: 162 45% 45%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 214 70% 50%;
@@ -87,7 +87,7 @@
 
     --border: 210 15% 22%;
     --input: 210 15% 22%;
-    --ring: 152 50% 40%;
+    --ring: 162 45% 45%;
 
     --header: 210 15% 8%;
     --header-foreground: 0 0% 100%;
@@ -95,7 +95,7 @@
     --info: 210 15% 18%;
     --info-foreground: 0 0% 95%;
 
-    --success: 152 50% 40%;
+    --success: 162 45% 45%;
     --success-foreground: 0 0% 100%;
   }
 }
