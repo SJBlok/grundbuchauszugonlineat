@@ -18,13 +18,16 @@ export function Footer() {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left column */}
             <div>
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="flex items-center gap-0.5">
-                  <div className="w-1 h-6 bg-primary" />
-                  <div className="w-1 h-6 bg-header-foreground" />
-                  <div className="w-1 h-6 bg-primary" />
+                  <div className="w-1.5 h-7 bg-primary rounded-sm" />
+                  <div className="w-1.5 h-7 bg-header-foreground rounded-sm" />
+                  <div className="w-1.5 h-7 bg-primary rounded-sm" />
                 </div>
-                <span className="font-semibold">GrundbuchauszugOnline</span>
+                <div className="flex flex-col">
+                  <span className="font-bold">GrundbuchauszugOnline</span>
+                  <span className="text-xs text-header-foreground/70">Ihr Grundbuchservice für Österreich</span>
+                </div>
               </div>
               <p className="text-sm text-header-foreground/70 max-w-md">
                 Ihr Service für die Anforderung von Grundbuchauszügen aus dem österreichischen Grundbuch.
