@@ -29,15 +29,15 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 text-foreground hover:no-underline">
+            <Link to="/" className="flex items-center gap-3 text-foreground hover:no-underline">
               <div className="flex items-center gap-0.5">
-                <div className="w-1.5 h-8 bg-primary" />
-                <div className="w-1.5 h-8 bg-background border border-border" />
-                <div className="w-1.5 h-8 bg-primary" />
+                <div className="w-2 h-10 bg-primary rounded-sm" />
+                <div className="w-2 h-10 bg-background border border-border rounded-sm" />
+                <div className="w-2 h-10 bg-primary rounded-sm" />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-semibold leading-tight">Grundbuchauszug</span>
-                <span className="text-xs text-muted-foreground leading-tight">Österreich</span>
+                <span className="text-xl font-bold leading-tight tracking-tight">GrundbuchauszugOnline</span>
+                <span className="text-xs text-muted-foreground leading-tight">Ihr Grundbuchservice für Österreich</span>
               </div>
             </Link>
 
