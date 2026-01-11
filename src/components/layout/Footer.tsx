@@ -10,8 +10,8 @@ const footerLinks = [
 export function Footer() {
   return (
     <footer className="bg-header text-header-foreground mt-auto">
-      {/* Austrian flag stripe */}
-      <div className="h-1 bg-primary" />
+      {/* Austrian flag stripe - red */}
+      <div className="h-1 bg-[hsl(0,70%,45%)]" />
       
       <div className="py-8">
         <div className="container mx-auto px-4">
@@ -19,10 +19,11 @@ export function Footer() {
             {/* Left column */}
             <div>
               <div className="flex items-center gap-3 mb-4">
+                {/* Austrian flag colors in footer */}
                 <div className="flex items-center gap-0.5">
-                  <div className="w-1.5 h-7 bg-primary rounded-sm" />
+                  <div className="w-1.5 h-7 bg-[hsl(0,70%,45%)] rounded-sm" />
                   <div className="w-1.5 h-7 bg-header-foreground rounded-sm" />
-                  <div className="w-1.5 h-7 bg-primary rounded-sm" />
+                  <div className="w-1.5 h-7 bg-[hsl(0,70%,45%)] rounded-sm" />
                 </div>
                 <div className="flex flex-col">
                   <span className="font-bold">GrundbuchauszugOnline</span>
