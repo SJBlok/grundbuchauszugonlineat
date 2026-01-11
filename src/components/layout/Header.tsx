@@ -21,8 +21,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Top bar with Austrian colors */}
-      <div className="h-1 bg-primary" />
+      {/* Top bar with Austrian red */}
+      <div className="h-1 bg-[hsl(0,70%,45%)]" />
       
       {/* Main header */}
       <div className="bg-background border-b">
@@ -30,10 +30,11 @@ export function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 text-foreground hover:no-underline">
+              {/* Austrian flag colors: red-white-red */}
               <div className="flex items-center gap-0.5">
-                <div className="w-2 h-10 bg-primary rounded-sm" />
-                <div className="w-2 h-10 bg-background border border-border rounded-sm" />
-                <div className="w-2 h-10 bg-primary rounded-sm" />
+                <div className="w-2 h-10 bg-[hsl(0,70%,45%)] rounded-sm" />
+                <div className="w-2 h-10 bg-white border border-border rounded-sm" />
+                <div className="w-2 h-10 bg-[hsl(0,70%,45%)] rounded-sm" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold leading-tight tracking-tight">GrundbuchauszugOnline</span>
