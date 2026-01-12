@@ -75,9 +75,17 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
   const handleAddressSelect = (result: AddressSearchResult) => {
     // Fill in the form with the selected result
-    setValue("katastralgemeinde", result.kgName || result.kgNummer, { shouldValidate: true });
-    setValue("grundstuecksnummer", result.gst || result.ez, { shouldValidate: true });
-    setValue("bundesland", result.bundesland, { shouldValidate: true });
+    // Note: Photon API only provides address data, not KG/EZ data
+    // KG data needs to be looked up separately
+    if (result.kgName || result.kgNummer) {
+      setValue("katastralgemeinde", result.kgName || result.kgNummer, { shouldValidate: true });
+    }
+    if (result.gst || result.ez) {
+      setValue("grundstuecksnummer", result.gst || result.ez, { shouldValidate: true });
+    }
+    if (result.bundesland) {
+      setValue("bundesland", result.bundesland, { shouldValidate: true });
+    }
     
     // Auto-generate Grundbuchsgericht based on Bundesland
     const gerichtMap: Record<string, string> = {
@@ -91,10 +99,12 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
       "Steiermark": "Bezirksgericht " + (result.ort || "Graz"),
       "Burgenland": "Bezirksgericht " + (result.ort || "Eisenstadt"),
     };
-    setValue("grundbuchsgericht", gerichtMap[result.bundesland] || "", { shouldValidate: true });
+    if (result.bundesland) {
+      setValue("grundbuchsgericht", gerichtMap[result.bundesland] || "", { shouldValidate: true });
+    }
     
     setSelectedFromSearch(true);
-    setActiveTab("manual"); // Switch to manual tab to show/edit the filled data
+    setActiveTab("manual"); // Switch to manual tab to complete the missing KG data
   };
 
   return (
@@ -136,10 +146,20 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
             <TabsContent value="address" className="mt-0 space-y-6">
               <div className="flex items-start gap-3 bg-info p-4 rounded-lg border border-primary/10">
                 <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-foreground">
-                  <strong>Tipp:</strong> Geben Sie eine Adresse ein (z.B. "Ringstraße 1, 1010 Wien") um das zugehörige Grundstück zu finden. 
-                  Die Daten werden automatisch in das Formular übernommen.
-                </p>
+                <div className="text-sm text-foreground">
+                  <p><strong>Tipp:</strong> Suchen Sie nach einer Adresse in Österreich. Na het selecteren vult u de Katastralgemeinde en Grundstücksnummer handmatig aan.</p>
+                  <p className="mt-1 text-muted-foreground text-xs">
+                    De KG-gegevens vindt u op{" "}
+                    <a 
+                      href="https://kataster.bev.gv.at/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-secondary hover:underline"
+                    >
+                      kataster.bev.gv.at
+                    </a>
+                  </p>
+                </div>
               </div>
               
               <AddressSearch onSelectResult={handleAddressSelect} />
@@ -151,9 +171,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <p className="text-sm text-foreground font-medium">
-                    Grundstücksdaten wurden übernommen. Sie können diese im Tab "Manuelle Eingabe" überprüfen und anpassen.
-                  </p>
+                  <div className="text-sm text-foreground">
+                    <p className="font-medium">Adres geselecteerd! Ga naar "Manuelle Eingabe" om de ontbrekende KG-gegevens in te vullen.</p>
+                  </div>
                 </div>
               )}
             </TabsContent>
