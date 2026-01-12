@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, User, Mail, Building2, MapPin, ChevronRight, Shield, FileText } from "lucide-react";
+import { ProductCard } from "./ProductCard";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 
 const applicantSchema = z.object({
@@ -94,6 +95,9 @@ export function ContactDetailsStep({
         </div>
 
         <div className="p-6">
+          {/* Product Card */}
+          <ProductCard />
+
           {/* Property Summary */}
           <div className="bg-muted/30 border rounded-lg p-4 mb-6">
             <div className="flex items-start gap-3">
