@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, User, Mail, Building2, MapPin, ChevronRight, Shield, FileText } from "lucide-react";
+import { ArrowLeft, User, Mail, Building2, ChevronRight, Shield } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 
@@ -95,34 +95,8 @@ export function ContactDetailsStep({
         </div>
 
         <div className="p-6">
-          {/* Product Card */}
-          <ProductCard />
-
-          {/* Property Summary */}
-          <div className="bg-muted/30 border rounded-lg p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <FileText className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-sm">Ausgewähltes Grundstück</p>
-                <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
-                  <p>KG: {propertyData.katastralgemeinde}</p>
-                  <p>EZ/GST: {propertyData.grundstuecksnummer}</p>
-                  <p>{propertyData.bundesland}</p>
-                </div>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onBack}
-                className="shrink-0"
-              >
-                Ändern
-              </Button>
-            </div>
-          </div>
+          {/* Product Card with Property Data */}
+          <ProductCard propertyData={propertyData} />
 
           {/* Contact Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -226,15 +200,26 @@ export function ContactDetailsStep({
               </div>
             </div>
 
-            {/* Submit Button */}
-            <Button 
-              type="submit" 
-              className="w-full h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all" 
-              size="lg"
-            >
-              Weiter zur Zahlung
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={onBack}
+                className="h-14"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Zurück
+              </Button>
+              <Button 
+                type="submit" 
+                className="flex-1 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all" 
+                size="lg"
+              >
+                Weiter zur Zahlung
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
           </form>
         </div>
 

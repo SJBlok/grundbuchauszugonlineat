@@ -6,9 +6,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Info } from "lucide-react";
+import { Info, MapPin } from "lucide-react";
 
-export function ProductCard() {
+interface PropertyData {
+  katastralgemeinde: string;
+  grundstuecksnummer: string;
+  bundesland: string;
+  grundbuchsgericht: string;
+  wohnungsHinweis?: string;
+}
+
+interface ProductCardProps {
+  propertyData?: PropertyData;
+}
+
+export function ProductCard({ propertyData }: ProductCardProps) {
   return (
     <div className="bg-card border rounded-lg p-4 mb-6">
       <div className="flex items-center justify-between">
@@ -63,6 +75,18 @@ export function ProductCard() {
           </Dialog>
         </div>
       </div>
+      
+      {propertyData && (
+        <div className="mt-3 pt-3 border-t">
+          <div className="flex items-start gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <p>KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}</p>
+              <p>{propertyData.bundesland} • {propertyData.grundbuchsgericht}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
