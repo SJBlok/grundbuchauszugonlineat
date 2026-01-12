@@ -261,7 +261,7 @@ serve(async (req: Request): Promise<Response> => {
         "X-Postmark-Server-Token": postmarkApiKey,
       },
       body: JSON.stringify({
-        From: "info@grundbuchauszug.at",
+        From: "info@grundbuchauszugonline.at",
         To: order.email,
         Subject: `Ihr Grundbuchauszug - Bestellung ${order.order_number}`,
         HtmlBody: `
