@@ -155,12 +155,6 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
         {/* Search Method Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="px-6 pt-6">
-            {/* Info badge */}
-            <div className="bg-info/50 border border-info rounded-lg p-3 mb-4 text-center">
-              <p className="text-sm text-foreground">
-                <strong>Tipp:</strong> Sie müssen nur <strong>eine</strong> der beiden Optionen ausfüllen
-              </p>
-            </div>
             
             <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/60 rounded-lg">
               <TabsTrigger 
