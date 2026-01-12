@@ -18,11 +18,12 @@ import { KatastralgemeindeCombobox } from "@/components/KatastralgemeindeCombobo
 import type { PropertyData } from "@/pages/Anfordern";
 import { Search, FileText, MapPin, Building2, Hash, Scale, Info, ChevronRight, Clock, Shield, Mail, CheckCircle2, ExternalLink } from "lucide-react";
 
+// Schema is now optional - validation depends on which method is used
 const propertySchema = z.object({
-  katastralgemeinde: z.string().min(1, "Katastralgemeinde ist erforderlich").max(100),
-  grundstuecksnummer: z.string().min(1, "Grundstücksnummer ist erforderlich").max(50),
-  grundbuchsgericht: z.string().min(1, "Grundbuchsgericht ist erforderlich").max(100),
-  bundesland: z.string().min(1, "Bundesland ist erforderlich"),
+  katastralgemeinde: z.string().max(100).optional(),
+  grundstuecksnummer: z.string().max(50).optional(),
+  grundbuchsgericht: z.string().max(100).optional(),
+  bundesland: z.string().optional(),
   wohnungsHinweis: z.string().max(200).optional(),
 });
 
@@ -218,13 +219,16 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                   </div>
                   
                   <Button 
-                    onClick={async () => {
-                      const isValid = await trigger();
-                      if (isValid) {
-                        handleSubmit(onSubmit)();
-                      } else {
-                        setActiveTab("manual");
-                      }
+                    onClick={() => {
+                      // When address is selected, submit directly without form validation
+                      const formData = {
+                        katastralgemeinde: watch("katastralgemeinde") || "",
+                        grundstuecksnummer: watch("grundstuecksnummer") || "",
+                        grundbuchsgericht: watch("grundbuchsgericht") || "",
+                        bundesland: watch("bundesland") || "",
+                        wohnungsHinweis: watch("wohnungsHinweis") || "",
+                      };
+                      onSubmit(formData);
                     }} 
                     className="w-full h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all" 
                     size="lg"
@@ -254,7 +258,28 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
             {/* Manual Entry Tab */}
             <TabsContent value="manual" className="mt-0">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={handleSubmit((data) => {
+                // Manual validation for the manual tab
+                const formData = {
+                  katastralgemeinde: data.katastralgemeinde || "",
+                  grundstuecksnummer: data.grundstuecksnummer || "",
+                  grundbuchsgericht: data.grundbuchsgericht || "",
+                  bundesland: data.bundesland || "",
+                  wohnungsHinweis: data.wohnungsHinweis || "",
+                };
+                
+                // Check if all required fields are filled
+                if (!formData.katastralgemeinde || !formData.grundstuecksnummer || !formData.grundbuchsgericht || !formData.bundesland) {
+                  // Trigger validation errors manually
+                  if (!formData.katastralgemeinde) trigger("katastralgemeinde");
+                  if (!formData.grundstuecksnummer) trigger("grundstuecksnummer");
+                  if (!formData.grundbuchsgericht) trigger("grundbuchsgericht");
+                  if (!formData.bundesland) trigger("bundesland");
+                  return;
+                }
+                
+                onSubmit(formData);
+              })} className="space-y-6">
                 {/* Selected address indicator */}
                 {selectedFromSearch && selectedAddress && (
                   <div className="flex items-center gap-3 bg-success/10 border border-success/30 p-4 rounded-lg">
@@ -288,8 +313,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.bundesland && (
-                      <p className="text-sm text-destructive">{errors.bundesland.message}</p>
+                    {errors.bundesland && !selectedFromSearch && (
+                      <p className="text-sm text-destructive">Bundesland ist erforderlich</p>
                     )}
                   </div>
 
@@ -304,8 +329,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       bundesland={bundesland}
                       placeholder="KG suchen..."
                     />
-                    {errors.katastralgemeinde && (
-                      <p className="text-sm text-destructive">{errors.katastralgemeinde.message}</p>
+                    {errors.katastralgemeinde && !selectedFromSearch && (
+                      <p className="text-sm text-destructive">Katastralgemeinde ist erforderlich</p>
                     )}
                   </div>
                 </div>
@@ -323,8 +348,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       placeholder="z.B. 123 oder 123/4"
                       className="h-12 bg-background"
                     />
-                    {errors.grundstuecksnummer && (
-                      <p className="text-sm text-destructive">{errors.grundstuecksnummer.message}</p>
+                    {errors.grundstuecksnummer && !selectedFromSearch && (
+                      <p className="text-sm text-destructive">Grundstücksnummer ist erforderlich</p>
                     )}
                   </div>
 
@@ -339,8 +364,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       placeholder="z.B. BG Innere Stadt Wien"
                       className="h-12 bg-background"
                     />
-                    {errors.grundbuchsgericht && (
-                      <p className="text-sm text-destructive">{errors.grundbuchsgericht.message}</p>
+                    {errors.grundbuchsgericht && !selectedFromSearch && (
+                      <p className="text-sm text-destructive">Grundbuchsgericht ist erforderlich</p>
                     )}
                   </div>
                 </div>
