@@ -29,9 +29,10 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
 
   const handleSelectResult = (result: AddressSearchResult) => {
     onSelectResult(result);
-    // Close dropdown after selection
+    // Show selected address in search bar and close dropdown
+    const addressDisplay = [result.adresse, result.plz, result.ort].filter(Boolean).join(", ");
+    setQuery(addressDisplay);
     setResults([]);
-    setQuery("");
     setHasSearched(false);
   };
 
