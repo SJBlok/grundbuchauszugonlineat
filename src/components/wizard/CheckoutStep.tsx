@@ -13,16 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Info, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ProductCard } from "./ProductCard";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 
 const applicantSchema = z.object({
@@ -150,70 +144,7 @@ export function CheckoutStep({
       </h1>
 
       {/* Product Card */}
-      <div className="bg-card border rounded-lg p-6 mb-8">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">
-              Aktueller Grundbuchauszug
-            </h2>
-            <p className="text-2xl font-bold text-primary mt-1">19,90 €</p>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-muted-foreground">
-                <Info className="h-5 w-5" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Aktueller Grundbuchauszug</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 text-sm">
-                <p className="font-semibold">
-                  Der Grundbuchauszug enthält folgende Informationen:
-                </p>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>
-                    <strong>A-Blatt:</strong> Grundstücksbeschreibung, Katastralgemeinde, Fläche
-                  </li>
-                  <li>
-                    <strong>B-Blatt:</strong> Eigentümer, Eigentumsanteile, Rechtsgrundlage
-                  </li>
-                  <li>
-                    <strong>C-Blatt:</strong> Hypotheken, Dienstbarkeiten, Pfandrechte
-                  </li>
-                </ul>
-                <p className="text-muted-foreground">
-                  Die Zustellung erfolgt per E-Mail innerhalb weniger Minuten nach Bestellabschluss.
-                </p>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        <div className="space-y-2 text-sm">
-          <p className="font-semibold text-foreground">
-            Vollständige Eigentumsinformationen
-          </p>
-          <p className="text-muted-foreground">
-            Enthält alle im Grundbuch eingetragenen Eigentümer, Eigentumsanteile sowie die rechtliche Grundlage des Eigentumserwerbs (B-Blatt).
-          </p>
-
-          <p className="font-semibold text-foreground mt-4">
-            Detaillierte Grundstücks- und Objektdaten
-          </p>
-          <p className="text-muted-foreground">
-            Zeigt die Katastralgemeinde, Grundstücksnummern, Flächenangaben und sonstige objektspezifische Informationen gemäß A1- und A2-Blatt.
-          </p>
-
-          <p className="font-semibold text-foreground mt-4">
-            Übersicht über Lasten und Beschränkungen
-          </p>
-          <p className="text-muted-foreground">
-            Gibt Auskunft über Hypotheken, Dienstbarkeiten, Pfandrechte sowie weitere im C-Blatt eingetragene Belastungen.
-          </p>
-        </div>
-      </div>
+      <ProductCard />
 
       {/* Delivery Info */}
       <div className="bg-info p-4 rounded-lg mb-8">
