@@ -21,16 +21,19 @@ export function CheckoutStep({
   onSubmit,
   onBack,
 }: CheckoutStepProps) {
-  const [confirmData, setConfirmData] = useState(false);
+  const [confirmAGB, setConfirmAGB] = useState(false);
   const [confirmPrivacy, setConfirmPrivacy] = useState(false);
+  const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  const allConfirmed = confirmAGB && confirmPrivacy && confirmNoRefund;
+
   const handleFormSubmit = async () => {
-    if (!confirmData || !confirmPrivacy) {
+    if (!allConfirmed) {
       toast({
         title: "Bestätigungen erforderlich",
-        description: "Bitte bestätigen Sie beide Checkboxen.",
+        description: "Bitte bestätigen Sie alle Checkboxen.",
         variant: "destructive",
       });
       return;
@@ -147,7 +150,7 @@ export function CheckoutStep({
           {/* Delivery Info */}
           <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
             <p className="text-sm text-foreground">
-              📧 Der Grundbuchauszug wird innerhalb weniger Minuten per E-Mail an <strong>{applicantData.email}</strong> versendet.
+              Der Grundbuchauszug wird innerhalb weniger Minuten per E-Mail an <strong>{applicantData.email}</strong> versendet.
             </p>
           </div>
 
@@ -168,16 +171,18 @@ export function CheckoutStep({
             </p>
           </div>
 
-          {/* Confirmations */}
-          <div className="space-y-4">
+          {/* Legal Confirmations */}
+          <div className="space-y-4 bg-muted/30 border rounded-lg p-4">
+            <p className="text-sm font-medium text-foreground mb-3">Bitte bestätigen Sie folgende Punkte:</p>
+            
             <div className="flex items-start gap-3">
               <Checkbox
-                id="confirmData"
-                checked={confirmData}
-                onCheckedChange={(checked) => setConfirmData(checked as boolean)}
+                id="confirmAGB"
+                checked={confirmAGB}
+                onCheckedChange={(checked) => setConfirmAGB(checked as boolean)}
               />
-              <Label htmlFor="confirmData" className="font-normal text-sm leading-relaxed cursor-pointer">
-                Ich bestätige die Richtigkeit meiner Angaben
+              <Label htmlFor="confirmAGB" className="font-normal text-sm leading-relaxed cursor-pointer">
+                Ich habe die <a href="/agb" target="_blank" className="text-primary underline hover:no-underline">Allgemeinen Geschäftsbedingungen (AGB)</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
               </Label>
             </div>
 
@@ -188,7 +193,18 @@ export function CheckoutStep({
                 onCheckedChange={(checked) => setConfirmPrivacy(checked as boolean)}
               />
               <Label htmlFor="confirmPrivacy" className="font-normal text-sm leading-relaxed cursor-pointer">
-                Ich stimme der Verarbeitung meiner Daten zur Bestellabwicklung zu
+                Ich habe die <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Daten zur Bestellabwicklung zu. <span className="text-destructive">*</span>
+              </Label>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="confirmNoRefund"
+                checked={confirmNoRefund}
+                onCheckedChange={(checked) => setConfirmNoRefund(checked as boolean)}
+              />
+              <Label htmlFor="confirmNoRefund" className="font-normal text-sm leading-relaxed cursor-pointer">
+                Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung des digitalen Grundbuchauszugs besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
               </Label>
             </div>
           </div>
@@ -208,7 +224,7 @@ export function CheckoutStep({
               onClick={handleFormSubmit}
               className="flex-1 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all"
               size="lg"
-              disabled={isSubmitting || !confirmData || !confirmPrivacy}
+              disabled={isSubmitting || !allConfirmed}
             >
               {isSubmitting ? "Wird verarbeitet..." : "Kostenpflichtig bestellen"}
             </Button>
