@@ -27,6 +27,14 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
   const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
+  const handleSelectResult = (result: AddressSearchResult) => {
+    onSelectResult(result);
+    // Close dropdown after selection
+    setResults([]);
+    setQuery("");
+    setHasSearched(false);
+  };
+
   // Debounced search as user types
   useEffect(() => {
     if (debounceRef.current) {
@@ -118,7 +126,7 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
             {results.map((result, index) => (
               <button
                 key={`${result.kgNummer}-${result.gst}-${index}`}
-                onClick={() => onSelectResult(result)}
+                onClick={() => handleSelectResult(result)}
                 type="button"
                 className={cn(
                   "w-full text-left p-4 transition-all duration-150 cursor-pointer",
