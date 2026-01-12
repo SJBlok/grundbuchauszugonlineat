@@ -55,7 +55,7 @@ interface PropertyDetailsStepProps {
 }
 
 export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsStepProps) {
-  const [activeTab, setActiveTab] = useState<string>("manual");
+  const [activeTab, setActiveTab] = useState<string>("address");
   const [selectedFromSearch, setSelectedFromSearch] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
 
@@ -146,7 +146,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
             </div>
             <div>
               <h2 className="font-semibold text-foreground">Grundstück identifizieren</h2>
-              <p className="text-sm text-muted-foreground">Wählen Sie eine Suchmethode</p>
+              <p className="text-sm text-muted-foreground">Wählen Sie <strong>eine</strong> der beiden Methoden</p>
             </div>
           </div>
         </div>
@@ -154,6 +154,13 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
         {/* Search Method Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="px-6 pt-6">
+            {/* Info badge */}
+            <div className="bg-info/50 border border-info rounded-lg p-3 mb-4 text-center">
+              <p className="text-sm text-foreground">
+                <strong>Tipp:</strong> Sie müssen nur <strong>eine</strong> der beiden Optionen ausfüllen
+              </p>
+            </div>
+            
             <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/60 rounded-lg">
               <TabsTrigger 
                 value="address" 
@@ -162,7 +169,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                 <MapPin className="h-5 w-5" />
                 <div className="text-left">
                   <div className="font-semibold">Adresse</div>
-                  <div className="text-xs text-muted-foreground hidden sm:block">Suchen über Straße & Ort</div>
+                  <div className="text-xs text-muted-foreground hidden sm:block">Einfach & schnell</div>
                 </div>
               </TabsTrigger>
               <TabsTrigger 
@@ -172,7 +179,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                 <Hash className="h-5 w-5" />
                 <div className="text-left">
                   <div className="font-semibold">Grundstücksnummer</div>
-                  <div className="text-xs text-muted-foreground hidden sm:block">Direkt mit KG & EZ/GST</div>
+                  <div className="text-xs text-muted-foreground hidden sm:block">Für Experten</div>
                 </div>
               </TabsTrigger>
             </TabsList>
