@@ -263,55 +263,122 @@ serve(async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         From: "info@grundbuchauszugonline.at",
         To: order.email,
-        Subject: `Ihr Grundbuchauszug - Bestellung ${order.order_number}`,
+        Subject: `Ihre Bestellung ${order.order_number} - Grundbuchauszug`,
         HtmlBody: `
           <html>
-            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-              <h2>Guten Tag ${order.vorname} ${order.nachname},</h2>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+              <div style="background-color: #1a365d; color: white; padding: 20px; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px;">GrundbuchauszugOnline.at</h1>
+              </div>
               
-              <p>vielen Dank für Ihre Bestellung bei grundbuchauszug.at!</p>
+              <div style="padding: 30px; background-color: #f8f9fa;">
+                <h2 style="color: #1a365d; margin-top: 0;">Guten Tag ${order.vorname} ${order.nachname},</h2>
+                
+                <p>vielen Dank für Ihre Bestellung bei GrundbuchauszugOnline.at!</p>
+                
+                <p><strong>Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument.</strong></p>
+                
+                <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                  <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">📋 Bestelldetails</h3>
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                      <td style="padding: 8px 0; color: #666;">Bestellnummer:</td>
+                      <td style="padding: 8px 0; font-weight: bold;">${order.order_number}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 0; color: #666;">Produkt:</td>
+                      <td style="padding: 8px 0;">${order.product_name}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 0; color: #666;">Katastralgemeinde:</td>
+                      <td style="padding: 8px 0;">${order.katastralgemeinde}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 0; color: #666;">Grundstücksnummer:</td>
+                      <td style="padding: 8px 0;">${order.grundstuecksnummer}</td>
+                    </tr>
+                    <tr style="border-top: 1px solid #e2e8f0;">
+                      <td style="padding: 12px 0; color: #666; font-weight: bold;">Gesamtbetrag:</td>
+                      <td style="padding: 12px 0; font-weight: bold; font-size: 18px; color: #1a365d;">€ ${order.product_price.toFixed(2)}</td>
+                    </tr>
+                  </table>
+                </div>
+                
+                <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                  <h3 style="color: #856404; margin-top: 0;">💳 Zahlungsinformationen</h3>
+                  <p style="margin-bottom: 15px; color: #856404;">Bitte überweisen Sie den Betrag innerhalb von 14 Tagen:</p>
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                      <td style="padding: 6px 0; color: #856404;">Empfänger:</td>
+                      <td style="padding: 6px 0; font-weight: bold;">GrundbuchauszugOnline</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px 0; color: #856404;">IBAN:</td>
+                      <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">AT12 3456 7890 1234 5678</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px 0; color: #856404;">BIC:</td>
+                      <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">ABCDEFGH</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px 0; color: #856404;">Verwendungszweck:</td>
+                      <td style="padding: 6px 0; font-weight: bold;">${order.order_number}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px 0; color: #856404;">Betrag:</td>
+                      <td style="padding: 6px 0; font-weight: bold;">€ ${order.product_price.toFixed(2)}</td>
+                    </tr>
+                  </table>
+                </div>
+                
+                <p style="color: #666; font-size: 14px;">
+                  📄 <strong>Hinweis:</strong> Die offizielle Rechnung erhalten Sie separat per E-Mail von unserem Buchhaltungssystem.
+                </p>
+                
+                <p>Bei Fragen stehen wir Ihnen gerne unter <a href="mailto:info@grundbuchauszugonline.at" style="color: #1a365d;">info@grundbuchauszugonline.at</a> zur Verfügung.</p>
+                
+                <p style="margin-top: 30px;">
+                  Mit freundlichen Grüßen,<br>
+                  <strong>Ihr Team von GrundbuchauszugOnline.at</strong>
+                </p>
+              </div>
               
-              <p>Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument.</p>
-              
-              <h3>Bestelldetails:</h3>
-              <ul>
-                <li><strong>Bestellnummer:</strong> ${order.order_number}</li>
-                <li><strong>Katastralgemeinde:</strong> ${order.katastralgemeinde}</li>
-                <li><strong>Grundstücksnummer:</strong> ${order.grundstuecksnummer}</li>
-              </ul>
-              
-              <p>Die Rechnung wird Ihnen separat per E-Mail zugestellt.</p>
-              
-              <p>Bei Fragen stehen wir Ihnen gerne zur Verfügung.</p>
-              
-              <p>Mit freundlichen Grüßen,<br>
-              Ihr Team von grundbuchauszug.at</p>
-              
-              <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-              <p style="font-size: 12px; color: #666;">
-                Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht direkt auf diese Nachricht.
-              </p>
+              <div style="background-color: #e2e8f0; padding: 20px; text-align: center; font-size: 12px; color: #666;">
+                <p style="margin: 0;">© ${new Date().getFullYear()} GrundbuchauszugOnline.at | Alle Rechte vorbehalten</p>
+                <p style="margin: 10px 0 0 0;">Diese E-Mail wurde automatisch generiert.</p>
+              </div>
             </body>
           </html>
         `,
         TextBody: `
 Guten Tag ${order.vorname} ${order.nachname},
 
-vielen Dank für Ihre Bestellung bei grundbuchauszug.at!
+vielen Dank für Ihre Bestellung bei GrundbuchauszugOnline.at!
 
 Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument.
 
-Bestelldetails:
-- Bestellnummer: ${order.order_number}
-- Katastralgemeinde: ${order.katastralgemeinde}
-- Grundstücksnummer: ${order.grundstuecksnummer}
+=== BESTELLDETAILS ===
+Bestellnummer: ${order.order_number}
+Produkt: ${order.product_name}
+Katastralgemeinde: ${order.katastralgemeinde}
+Grundstücksnummer: ${order.grundstuecksnummer}
+Gesamtbetrag: € ${order.product_price.toFixed(2)}
 
-Die Rechnung wird Ihnen separat per E-Mail zugestellt.
+=== ZAHLUNGSINFORMATIONEN ===
+Bitte überweisen Sie den Betrag innerhalb von 14 Tagen:
 
-Bei Fragen stehen wir Ihnen gerne zur Verfügung.
+Empfänger: GrundbuchauszugOnline
+IBAN: AT12 3456 7890 1234 5678
+BIC: ABCDEFGH
+Verwendungszweck: ${order.order_number}
+Betrag: € ${order.product_price.toFixed(2)}
+
+Hinweis: Die offizielle Rechnung erhalten Sie separat per E-Mail von unserem Buchhaltungssystem.
+
+Bei Fragen stehen wir Ihnen gerne unter info@grundbuchauszugonline.at zur Verfügung.
 
 Mit freundlichen Grüßen,
-Ihr Team von grundbuchauszug.at
+Ihr Team von GrundbuchauszugOnline.at
         `,
         Attachments: [
           {
