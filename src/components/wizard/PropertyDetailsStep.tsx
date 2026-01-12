@@ -110,7 +110,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto bg-muted/40 rounded-2xl p-6 md:p-10">
       {/* Hero Header with strong CTA */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
