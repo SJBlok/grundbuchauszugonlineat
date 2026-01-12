@@ -16,8 +16,21 @@ interface AddressSearchResult {
   bundesland: string;
 }
 
-// Base URL according to spec: https://api.wirtschaftscompass.at/landregister
-const API_BASE = "https://api.wirtschaftscompass.at/landregister";
+// Photon API - Free OpenStreetMap geocoder
+const PHOTON_API = "https://photon.komoot.io/api";
+
+// Map Austrian state names from German to consistent format
+const stateMapping: Record<string, string> = {
+  "Wien": "Wien",
+  "Niederösterreich": "Niederösterreich",
+  "Oberösterreich": "Oberösterreich",
+  "Steiermark": "Steiermark",
+  "Tirol": "Tirol",
+  "Kärnten": "Kärnten",
+  "Salzburg": "Salzburg",
+  "Vorarlberg": "Vorarlberg",
+  "Burgenland": "Burgenland",
+};
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -37,37 +50,27 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    let apiKey = Deno.env.get("WIRTSCHAFTSCOMPASS_API_KEY");
-    if (!apiKey) {
-      throw new Error("WIRTSCHAFTSCOMPASS_API_KEY not configured");
-    }
-    
-    // Auto-format UUID if dashes are missing (32 chars -> 36 chars with dashes)
-    if (apiKey.length === 32 && !apiKey.includes("-")) {
-      apiKey = `${apiKey.slice(0, 8)}-${apiKey.slice(8, 12)}-${apiKey.slice(12, 16)}-${apiKey.slice(16, 20)}-${apiKey.slice(20)}`;
-      console.log("Auto-formatted API key to UUID format");
-    }
-
-    console.log(`=== Address Search ===`);
+    console.log(`=== Address Search (Photon API) ===`);
     console.log(`Query: ${query}`);
-    console.log(`Token length: ${apiKey.length}`);
-    console.log(`Token valid UUID: ${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey)}`);
     
-    // Address search endpoint: GET /v1/address?term=...&size=...
-    const endpoint = `${API_BASE}/v1/address?term=${encodeURIComponent(query)}&size=20`;
-    console.log(`Endpoint: ${endpoint}`);
+    // Photon API: free geocoding service based on OpenStreetMap
+    // Filter by Austria (countrycode=AT) and limit results
+    const endpoint = `${PHOTON_API}?q=${encodeURIComponent(query)}&limit=20&lang=de&osm_tag=building&osm_tag=place&osm_tag=highway&layer=house&layer=street`;
     
-    const response = await fetch(endpoint, {
+    // First try with Austria bias
+    const austriaEndpoint = `${PHOTON_API}?q=${encodeURIComponent(query + " Österreich")}&limit=20&lang=de`;
+    
+    console.log(`Endpoint: ${austriaEndpoint}`);
+    
+    const response = await fetch(austriaEndpoint, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
         "Accept": "application/json",
+        "User-Agent": "Grundbuchauszug-App/1.0",
       },
     });
     
     console.log(`Response status: ${response.status}`);
-    const responseText = await response.text();
-    console.log(`Response body: ${responseText.substring(0, 500)}`);
     
     if (!response.ok) {
       console.error(`API error: ${response.status}`);
@@ -75,12 +78,7 @@ serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           results: [], 
-          message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe.",
-          debug: {
-            status: response.status,
-            endpoint: endpoint,
-            response: responseText.substring(0, 200)
-          }
+          message: "Adresssuche ist derzeit nicht verfügbar. Bitte nutzen Sie die manuelle Eingabe."
         }),
         {
           status: 200,
@@ -89,79 +87,66 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Parse response
-    let apiData;
-    try {
-      apiData = JSON.parse(responseText);
-    } catch {
-      console.error("Failed to parse JSON response");
-      return new Response(
-        JSON.stringify({ results: [], message: "Ongeldige API response" }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-    
-    console.log("Parsed API data:", JSON.stringify(apiData).substring(0, 500));
+    const data = await response.json();
+    console.log(`Photon returned ${data.features?.length || 0} features`);
 
-    // Transform API response according to spec:
-    // data.results[].address, data.results[].folios[], data.results[].plots[]
+    // Transform Photon GeoJSON response to our format
     const results: AddressSearchResult[] = [];
-    const resultArray = apiData.data?.results || apiData.results || [];
+    const features = data.features || [];
 
-    if (Array.isArray(resultArray)) {
-      for (const item of resultArray) {
-        const address = item.address || {};
-        const folios = item.folios || [];
-        const plots = item.plots || [];
-        
-        // Build address string
-        const streetParts = [address.streetAddress, address.houseNumber].filter(Boolean);
-        const fullAddress = streetParts.join(" ") || address.street || "";
-        
-        const plz = address.postalCode || "";
-        const ort = address.place || "";
-        const bundesland = address.state || address.federalState || "";
-        
-        // Create entries for each folio (KG + EZ)
-        if (folios.length > 0) {
-          for (const folio of folios) {
-            results.push({
-              kgNummer: String(folio.kg || ""),
-              kgName: folio.kgName || "",
-              ez: String(folio.ez || ""),
-              gst: "",
-              adresse: fullAddress,
-              plz,
-              ort,
-              bundesland,
-            });
-          }
-        }
-        
-        // Handle plots (GST) if no folios
-        if (folios.length === 0 && plots.length > 0) {
-          for (const plot of plots) {
-            results.push({
-              kgNummer: String(plot.kg || ""),
-              kgName: plot.kgName || "",
-              ez: "",
-              gst: String(plot.gstNr || ""),
-              adresse: fullAddress,
-              plz,
-              ort,
-              bundesland,
-            });
-          }
-        }
+    for (const feature of features) {
+      const props = feature.properties || {};
+      
+      // Only include Austrian addresses
+      if (props.country !== "Österreich" && props.countrycode !== "AT") {
+        continue;
       }
+
+      // Build address from components
+      const streetName = props.street || props.name || "";
+      const houseNumber = props.housenumber || "";
+      const fullAddress = [streetName, houseNumber].filter(Boolean).join(" ");
+      
+      // Skip if no meaningful address
+      if (!fullAddress && !props.city && !props.locality) {
+        continue;
+      }
+
+      const bundesland = props.state || "";
+      
+      // Only include if it's a valid Austrian state
+      if (bundesland && !stateMapping[bundesland]) {
+        continue;
+      }
+
+      results.push({
+        kgNummer: "", // Not available from Photon - user needs to look up
+        kgName: "", // Not available from Photon - user needs to look up
+        ez: "", // Not available from geocoding
+        gst: "", // Not available from geocoding
+        adresse: fullAddress || props.name || "",
+        plz: props.postcode || "",
+        ort: props.city || props.locality || props.town || props.village || props.municipality || "",
+        bundesland: bundesland,
+      });
     }
 
-    console.log(`Transformed ${results.length} results`);
+    // Remove duplicates based on full address + PLZ + ort
+    const uniqueResults = results.filter((result, index, self) => 
+      index === self.findIndex(r => 
+        r.adresse === result.adresse && 
+        r.plz === result.plz && 
+        r.ort === result.ort
+      )
+    );
+
+    console.log(`Transformed ${uniqueResults.length} unique results`);
 
     return new Response(
       JSON.stringify({ 
-        results,
-        totalResults: apiData.totalResults || results.length,
+        results: uniqueResults,
+        totalResults: uniqueResults.length,
+        source: "photon" // Indicate source for UI
       }),
       {
         status: 200,

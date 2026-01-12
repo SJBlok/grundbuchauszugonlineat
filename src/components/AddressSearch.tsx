@@ -141,7 +141,7 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
       )}
 
       <p className="text-xs text-muted-foreground text-center">
-        Suche im Anschriftenverzeichnis des Grundbuchs (bis zu 1.000 Treffer möglich)
+        Adres zoeken via OpenStreetMap (Photon Geocoding)
       </p>
     </div>
   );
