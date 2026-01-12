@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, MapPin, Loader2, Building } from "lucide-react";
+import { Search, MapPin, Loader2, Building, X, CheckCircle2, Edit2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -25,9 +26,12 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedResult, setSelectedResult] = useState<AddressSearchResult | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectResult = (result: AddressSearchResult) => {
+    setSelectedResult(result);
     onSelectResult(result);
     // Show selected address in search bar and close dropdown
     const addressDisplay = [result.adresse, result.plz, result.ort].filter(Boolean).join(", ");
@@ -36,8 +40,26 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
     setHasSearched(false);
   };
 
+  const handleClearSelection = () => {
+    setSelectedResult(null);
+    setQuery("");
+    setResults([]);
+    setHasSearched(false);
+    inputRef.current?.focus();
+  };
+
+  const handleEditSelection = () => {
+    setSelectedResult(null);
+    setResults([]);
+    setHasSearched(false);
+    inputRef.current?.focus();
+  };
+
   // Debounced search as user types
   useEffect(() => {
+    // Don't search if we have a selected result
+    if (selectedResult) return;
+
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -82,21 +104,74 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
         clearTimeout(debounceRef.current);
       }
     };
-  }, [query]);
+  }, [query, selectedResult]);
+
+  // If address is selected, show confirmation card
+  if (selectedResult) {
+    const addressDisplay = [selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ");
+    
+    return (
+      <div className="space-y-4">
+        <div className="border-2 border-success/40 bg-success/5 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-lg bg-success/20 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-success" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground">Adresse ausgewählt</p>
+              <p className="text-sm text-muted-foreground mt-1">{addressDisplay}</p>
+              {selectedResult.bundesland && (
+                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {selectedResult.bundesland}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleEditSelection}
+                className="h-8 px-3"
+              >
+                <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+                Ändern
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
+          ref={inputRef}
           type="text"
           placeholder="Adresse eingeben (z.B. Hauptstraße 1, 1010 Wien)"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-10 pr-10"
+          className="pl-10 pr-10 h-12 bg-background"
         />
         {isLoading && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+        )}
+        {!isLoading && query.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setResults([]);
+              setHasSearched(false);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+          >
+            <X className="h-3 w-3 text-muted-foreground" />
+          </button>
         )}
       </div>
 
@@ -111,7 +186,7 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
       )}
 
       {hasSearched && !isLoading && results.length === 0 && !error && query.length >= 3 && (
-        <div className="text-center py-6 text-muted-foreground">
+        <div className="text-center py-6 text-muted-foreground border rounded-lg bg-muted/30">
           <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
           <p>Keine Ergebnisse gefunden.</p>
           <p className="text-sm">Versuchen Sie eine andere Adresse oder geben Sie die Daten manuell ein.</p>
@@ -171,7 +246,7 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
       )}
 
       <p className="text-xs text-muted-foreground text-center">
-        Adres zoeken via OpenStreetMap (Photon Geocoding)
+        Adresssuche via OpenStreetMap
       </p>
     </div>
   );
