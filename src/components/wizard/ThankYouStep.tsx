@@ -2,6 +2,13 @@ import { CheckCircle, Copy, FileText, Mail, CreditCard, Building2, Clock, Shield
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { useEffect } from "react";
+
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 interface ThankYouStepProps {
   orderNumber: string;
@@ -9,6 +16,16 @@ interface ThankYouStepProps {
 }
 
 export function ThankYouStep({ orderNumber, email }: ThankYouStepProps) {
+  // Track purchase conversion
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-17870570997/A99CCM3Y2eEbEPWLrclC',
+        'transaction_id': orderNumber
+      });
+    }
+  }, [orderNumber]);
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} kopiert!`);
