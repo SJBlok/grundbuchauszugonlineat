@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyDetailsStep } from "@/components/wizard/PropertyDetailsStep";
 import { ContactDetailsStep } from "@/components/wizard/ContactDetailsStep";
-import { PaymentStep } from "@/components/wizard/PaymentStep";
+import { CheckoutStep } from "@/components/wizard/CheckoutStep";
 import { ThankYouStep } from "@/components/wizard/ThankYouStep";
 
 export interface PropertyData {
@@ -123,7 +123,7 @@ export default function Anfordern() {
             )}
 
             {step === 3 && (
-              <PaymentStep
+              <CheckoutStep
                 propertyData={propertyData}
                 applicantData={applicantData}
                 onSubmit={handlePaymentSubmit}
