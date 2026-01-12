@@ -110,33 +110,54 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
       )}
 
       {results.length > 0 && (
-        <div className="border rounded-lg divide-y max-h-80 overflow-y-auto">
-          {results.map((result, index) => (
-            <button
-              key={`${result.kgNummer}-${result.gst}-${index}`}
-              onClick={() => onSelectResult(result)}
-              className={cn(
-                "w-full text-left p-3 hover:bg-accent transition-colors",
-                "focus:outline-none focus:bg-accent"
-              )}
-            >
-              <div className="flex items-start gap-3">
-                <Building className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <div className="min-w-0">
-                  <p className="font-medium text-foreground">
-                    {result.adresse}
-                    {result.plz && result.ort && `, ${result.plz} ${result.ort}`}
-                  </p>
-                  <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
-                    <p>KG: {result.kgName} ({result.kgNummer})</p>
-                    {result.gst && <p>Grundstück: {result.gst}</p>}
-                    {result.ez && <p>Einlagezahl: {result.ez}</p>}
-                    {result.bundesland && <p>{result.bundesland}</p>}
+        <div className="border-2 border-primary/20 rounded-lg overflow-hidden max-h-80 overflow-y-auto bg-background shadow-lg">
+          <div className="bg-muted/50 px-4 py-2 border-b text-sm font-medium text-muted-foreground">
+            {results.length} Ergebnis{results.length !== 1 ? 'se' : ''} gefunden – Klicken zum Auswählen
+          </div>
+          <div className="divide-y divide-border">
+            {results.map((result, index) => (
+              <button
+                key={`${result.kgNummer}-${result.gst}-${index}`}
+                onClick={() => onSelectResult(result)}
+                type="button"
+                className={cn(
+                  "w-full text-left p-4 transition-all duration-150 cursor-pointer",
+                  "hover:bg-primary/5 hover:border-l-4 hover:border-l-primary hover:pl-3",
+                  "focus:outline-none focus:bg-primary/10 focus:border-l-4 focus:border-l-primary focus:pl-3",
+                  "active:bg-primary/15 active:scale-[0.99]",
+                  "group"
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <Building className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                      {result.adresse}
+                      {result.plz && result.ort && `, ${result.plz} ${result.ort}`}
+                    </p>
+                    <div className="text-sm text-muted-foreground mt-1.5 space-y-0.5">
+                      {result.kgName && <p>KG: {result.kgName} ({result.kgNummer})</p>}
+                      {result.gst && <p>Grundstück: {result.gst}</p>}
+                      {result.ez && <p>Einlagezahl: {result.ez}</p>}
+                      {result.bundesland && (
+                        <p className="inline-flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {result.bundesland}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
+                      Auswählen
+                    </div>
                   </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
