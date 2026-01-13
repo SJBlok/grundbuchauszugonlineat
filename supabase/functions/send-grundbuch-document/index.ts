@@ -223,9 +223,54 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("WIRTSCHAFTSCOMPASS_API_KEY not configured");
     }
 
-    // Call Wirtschafts-Compass API to get the Grundbuchauszug
-    const apiResponse = await fetch(
-      `https://api.wirtschaftscompass.at/v1/grundbuch/auszug?katastralgemeinde=${encodeURIComponent(order.katastralgemeinde)}&grundstuecksnummer=${encodeURIComponent(order.grundstuecksnummer)}`,
+    const baseUrl = "https://api.wirtschaftscompass.at/landregister";
+    const authHeaders = {
+      "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    };
+
+    // Parse the grundstuecksnummer - it contains KG number and EZ
+    // Format could be: "01234/567" or just "567" with separate KG
+    // The katastralgemeinde field contains the KG number
+    const kgNumber = order.katastralgemeinde.match(/\d+/)?.[0] || order.katastralgemeinde;
+    const ezNumber = order.grundstuecksnummer;
+
+    console.log(`Fetching Grundbuchauszug for KG: ${kgNumber}, EZ: ${ezNumber}`);
+
+    // Step 1: Create/retrieve a document reference via POST /v1/excerpts/land-register-excerpt
+    const excerptResponse = await fetch(
+      `${baseUrl}/v1/excerpts/land-register-excerpt`,
+      {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({
+          kg: kgNumber,
+          ez: ezNumber,
+          validity: "FETCH_IF_NOT_AVAILABLE", // Fetch new if not in cache
+        }),
+      }
+    );
+
+    if (!excerptResponse.ok) {
+      const errorText = await excerptResponse.text();
+      console.error("Wirtschafts-Compass excerpt creation error:", errorText);
+      throw new Error(`Failed to create Grundbuchauszug excerpt: ${excerptResponse.status}`);
+    }
+
+    const excerptData = await excerptResponse.json();
+    const documentReference = excerptData.documentReference || excerptData.document_reference || excerptData.id;
+    
+    if (!documentReference) {
+      console.error("Wirtschafts-Compass response:", JSON.stringify(excerptData));
+      throw new Error("No document reference returned from Wirtschafts-Compass API");
+    }
+
+    console.log(`Got document reference: ${documentReference}`);
+
+    // Step 2: Download the PDF via GET /v1/excerpts/{document-reference}/land-register-excerpt/pdf
+    const pdfResponse = await fetch(
+      `${baseUrl}/v1/excerpts/${documentReference}/land-register-excerpt/pdf`,
       {
         method: "GET",
         headers: {
@@ -235,14 +280,14 @@ serve(async (req: Request): Promise<Response> => {
       }
     );
 
-    if (!apiResponse.ok) {
-      const errorText = await apiResponse.text();
-      console.error("Wirtschafts-Compass API error:", errorText);
-      throw new Error(`Failed to fetch Grundbuchauszug: ${apiResponse.status}`);
+    if (!pdfResponse.ok) {
+      const errorText = await pdfResponse.text();
+      console.error("Wirtschafts-Compass PDF download error:", errorText);
+      throw new Error(`Failed to download Grundbuchauszug PDF: ${pdfResponse.status}`);
     }
 
     // Get the PDF as base64
-    const pdfBuffer = await apiResponse.arrayBuffer();
+    const pdfBuffer = await pdfResponse.arrayBuffer();
     const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)));
 
     console.log(`Retrieved Grundbuchauszug PDF (${pdfBuffer.byteLength} bytes)`);
