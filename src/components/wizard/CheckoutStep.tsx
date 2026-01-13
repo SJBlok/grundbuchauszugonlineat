@@ -1,34 +1,79 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, User, MapPin, Lock, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, Mail, Building2, MapPin, FileText, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 
+const applicantSchema = z.object({
+  vorname: z.string().min(1, "Vorname ist erforderlich").max(50),
+  nachname: z.string().min(1, "Nachname ist erforderlich").max(50),
+  email: z.string().email("Ungültige E-Mail-Adresse").max(100),
+  wohnsitzland: z.string().min(1, "Wohnsitzland ist erforderlich"),
+  firma: z.string().max(100).optional(),
+});
+
+const countries = [
+  "Österreich",
+  "Deutschland",
+  "Schweiz",
+  "Liechtenstein",
+  "Italien",
+  "Slowenien",
+  "Ungarn",
+  "Slowakei",
+  "Tschechien",
+  "Andere",
+];
+
 interface CheckoutStepProps {
   propertyData: PropertyData;
-  applicantData: ApplicantData;
+  initialApplicantData: ApplicantData;
   onSubmit: (orderNumber: string) => void;
   onBack: () => void;
 }
 
 export function CheckoutStep({
   propertyData,
-  applicantData,
+  initialApplicantData,
   onSubmit,
   onBack,
 }: CheckoutStepProps) {
-  const [confirmAGB, setConfirmAGB] = useState(false);
-  const [confirmPrivacy, setConfirmPrivacy] = useState(false);
+  const [confirmTerms, setConfirmTerms] = useState(false);
   const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const allConfirmed = confirmAGB && confirmPrivacy && confirmNoRefund;
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<ApplicantData>({
+    resolver: zodResolver(applicantSchema),
+    defaultValues: initialApplicantData,
+  });
 
-  const handleFormSubmit = async () => {
+  const wohnsitzland = watch("wohnsitzland");
+  const email = watch("email");
+
+  const allConfirmed = confirmTerms && confirmNoRefund;
+
+  const handleFormSubmit = async (applicantData: ApplicantData) => {
     if (!allConfirmed) {
       toast({
         title: "Bestätigungen erforderlich",
@@ -85,82 +130,136 @@ export function CheckoutStep({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Order Summary Card */}
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+      {/* Order Summary Card - Combined Grundstück & Zustellung */}
       <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
         <div className="px-4 md:px-6 py-4 border-b bg-muted/30">
           <h2 className="text-lg md:text-xl font-semibold text-foreground">Bestellübersicht</h2>
-          <p className="text-sm text-muted-foreground mt-1">Überprüfen Sie Ihre Bestellung vor dem Abschluss.</p>
         </div>
         
         <div className="p-4 md:p-6 space-y-4">
-          {/* Product */}
+          {/* Product & Property Combined */}
           <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <FileText className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-foreground">Aktueller Grundbuchauszug</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Vollständige Eigentumsinformationen, Grundstücksdaten und Lasten
-              </p>
-            </div>
-            <p className="font-bold text-foreground shrink-0">€19,90</p>
-          </div>
-
-          {/* Property */}
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <MapPin className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground text-sm">Grundstück</p>
-              <p className="text-sm text-muted-foreground">
-                KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}
-              </p>
+              <div className="flex items-center gap-1.5 mt-1.5 text-sm text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span>KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}</span>
+              </div>
               <p className="text-sm text-muted-foreground">
                 {propertyData.bundesland} • {propertyData.grundbuchsgericht}
               </p>
             </div>
+            <p className="font-bold text-lg text-foreground shrink-0">€19,90</p>
           </div>
+        </div>
+      </div>
 
-          {/* Applicant */}
-          <div className="flex items-start gap-3 p-4 border rounded-lg">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <User className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground text-sm">Zustellung an</p>
-              <p className="text-sm text-muted-foreground">
-                {applicantData.vorname} {applicantData.nachname}
-              </p>
-              <p className="text-sm text-muted-foreground">{applicantData.email}</p>
-              {applicantData.firma && (
-                <p className="text-sm text-muted-foreground">{applicantData.firma}</p>
+      {/* Contact Details Card */}
+      <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
+        <div className="px-4 md:px-6 py-4 border-b bg-muted/30">
+          <h2 className="text-lg md:text-xl font-semibold text-foreground">Kontakt & Zustellung</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Der Grundbuchauszug wird an diese E-Mail-Adresse versendet.
+          </p>
+        </div>
+
+        <div className="p-4 md:p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="vorname" className="text-sm font-medium">
+                Vorname <span className="text-destructive">*</span>
+              </Label>
+              <Input 
+                id="vorname" 
+                {...register("vorname")} 
+                placeholder="Max"
+                className="h-11 md:h-12 bg-background"
+              />
+              {errors.vorname && (
+                <p className="text-sm text-destructive">{errors.vorname.message}</p>
               )}
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onBack}
-              className="shrink-0"
-            >
-              Ändern
-            </Button>
+
+            <div className="space-y-2">
+              <Label htmlFor="nachname" className="text-sm font-medium">
+                Nachname <span className="text-destructive">*</span>
+              </Label>
+              <Input 
+                id="nachname" 
+                {...register("nachname")} 
+                placeholder="Mustermann"
+                className="h-11 md:h-12 bg-background"
+              />
+              {errors.nachname && (
+                <p className="text-sm text-destructive">{errors.nachname.message}</p>
+              )}
+            </div>
           </div>
 
-          {/* Delivery Info */}
-          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
-            <p className="text-sm text-foreground">
-              Der Grundbuchauszug wird innerhalb weniger Minuten per E-Mail an <strong>{applicantData.email}</strong> versendet.
-            </p>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium">
+              E-Mail-Adresse <span className="text-destructive">*</span>
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                id="email" 
+                type="email" 
+                {...register("email")} 
+                placeholder="max.mustermann@email.at"
+                className="h-11 md:h-12 pl-10 bg-background"
+              />
+            </div>
+            {errors.email && (
+              <p className="text-sm text-destructive">{errors.email.message}</p>
+            )}
           </div>
 
-          {/* Total */}
-          <div className="flex items-center justify-between p-4 bg-primary/5 border-2 border-primary/20 rounded-lg">
-            <p className="font-semibold text-foreground">Gesamtbetrag</p>
-            <p className="text-xl font-bold text-foreground">€19,90</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="wohnsitzland" className="text-sm font-medium">
+                Wohnsitzland <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={wohnsitzland}
+                onValueChange={(value) =>
+                  setValue("wohnsitzland", value, { shouldValidate: true })
+                }
+              >
+                <SelectTrigger className="h-11 md:h-12 bg-background">
+                  <SelectValue placeholder="Auswählen..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.wohnsitzland && (
+                <p className="text-sm text-destructive">{errors.wohnsitzland.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="firma" className="text-sm font-medium text-muted-foreground">
+                Firma <span className="text-xs font-normal">(optional)</span>
+              </Label>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="firma" 
+                  {...register("firma")} 
+                  placeholder="Firmenname"
+                  className="h-11 md:h-12 pl-10 bg-background"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -168,44 +267,35 @@ export function CheckoutStep({
       {/* Payment & Confirmation Card */}
       <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
         <div className="px-4 md:px-6 py-4 border-b bg-muted/30">
-          <h2 className="text-lg md:text-xl font-semibold text-foreground flex items-center gap-2">
-            <Lock className="h-5 w-5" />
-            Zahlungsart & Bestätigung
-          </h2>
+          <h2 className="text-lg md:text-xl font-semibold text-foreground">Zahlung & Bestätigung</h2>
         </div>
 
         <div className="p-4 md:p-6 space-y-5">
-          {/* Payment Method */}
-          <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-            <Checkbox id="payment" checked disabled />
-            <Label htmlFor="payment" className="font-normal text-sm">
-              Zahlung auf Rechnung (Überweisung) – Die Rechnung wird per E-Mail übermittelt.
-            </Label>
+          {/* Payment Method - Better display */}
+          <div className="p-4 border-2 border-primary/20 bg-primary/5 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <CreditCard className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Zahlung auf Rechnung</p>
+                <p className="text-sm text-muted-foreground">
+                  Die Rechnung wird per E-Mail an {email || "Ihre E-Mail-Adresse"} übermittelt.
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Legal Confirmations */}
+          {/* Legal Confirmations - Combined to 2 checkboxes */}
           <div className="space-y-4">
-            <p className="text-sm font-medium text-foreground">Bitte bestätigen Sie folgende Punkte:</p>
-            
             <div className="flex items-start gap-3">
               <Checkbox
-                id="confirmAGB"
-                checked={confirmAGB}
-                onCheckedChange={(checked) => setConfirmAGB(checked as boolean)}
+                id="confirmTerms"
+                checked={confirmTerms}
+                onCheckedChange={(checked) => setConfirmTerms(checked as boolean)}
               />
-              <Label htmlFor="confirmAGB" className="font-normal text-sm leading-relaxed cursor-pointer">
-                Ich habe die <a href="/agb" target="_blank" className="text-primary underline hover:no-underline">Allgemeinen Geschäftsbedingungen (AGB)</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
-              </Label>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="confirmPrivacy"
-                checked={confirmPrivacy}
-                onCheckedChange={(checked) => setConfirmPrivacy(checked as boolean)}
-              />
-              <Label htmlFor="confirmPrivacy" className="font-normal text-sm leading-relaxed cursor-pointer">
-                Ich habe die <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Daten zu. <span className="text-destructive">*</span>
+              <Label htmlFor="confirmTerms" className="font-normal text-sm leading-relaxed cursor-pointer">
+                Ich habe die <a href="/agb" target="_blank" className="text-primary underline hover:no-underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
               </Label>
             </div>
 
@@ -233,7 +323,7 @@ export function CheckoutStep({
               Zurück
             </Button>
             <Button
-              onClick={handleFormSubmit}
+              type="submit"
               className="flex-1 h-12 md:h-14 text-base md:text-lg font-bold shadow-lg hover:shadow-xl transition-all"
               size="lg"
               disabled={isSubmitting || !allConfirmed}
@@ -243,6 +333,6 @@ export function CheckoutStep({
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
