@@ -399,6 +399,117 @@ Ihr Team von GrundbuchauszugOnline.at
     const emailResult = await emailResponse.json();
     console.log("Email sent successfully:", emailResult.MessageID);
 
+    // === INTERNAL NOTIFICATION EMAIL ===
+    // Send order notification to internal email
+    try {
+      const internalEmailResponse = await fetch("https://api.postmarkapp.com/email", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "X-Postmark-Server-Token": postmarkApiKey,
+        },
+        body: JSON.stringify({
+          From: "info@grundbuchauszugonline.at",
+          To: "info@grundbuchauszugonline.at",
+          Subject: `[NEUE BESTELLUNG] ${order.order_number} - ${order.vorname} ${order.nachname}`,
+          HtmlBody: `
+            <html>
+              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+                <div style="background-color: #22c55e; color: white; padding: 20px; text-align: center;">
+                  <h1 style="margin: 0; font-size: 24px;">🎉 Neue Bestellung eingegangen!</h1>
+                </div>
+                
+                <div style="padding: 30px; background-color: #f8f9fa;">
+                  <h2 style="color: #1a365d; margin-top: 0;">Bestellung ${order.order_number}</h2>
+                  
+                  <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                    <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">👤 Kundendaten</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding: 8px 0; color: #666; width: 40%;">Name:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${order.vorname} ${order.nachname}</td>
+                      </tr>
+                      ${order.firma ? `<tr>
+                        <td style="padding: 8px 0; color: #666;">Firma:</td>
+                        <td style="padding: 8px 0;">${order.firma}</td>
+                      </tr>` : ''}
+                      <tr>
+                        <td style="padding: 8px 0; color: #666;">E-Mail:</td>
+                        <td style="padding: 8px 0;"><a href="mailto:${order.email}">${order.email}</a></td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #666;">Wohnsitzland:</td>
+                        <td style="padding: 8px 0;">${order.wohnsitzland}</td>
+                      </tr>
+                    </table>
+                  </div>
+                  
+                  <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                    <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">📋 Bestelldetails</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding: 8px 0; color: #666; width: 40%;">Produkt:</td>
+                        <td style="padding: 8px 0;">${order.product_name}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #666;">Katastralgemeinde:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${order.katastralgemeinde}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #666;">Grundstücksnummer:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${order.grundstuecksnummer}</td>
+                      </tr>
+                      <tr style="border-top: 1px solid #e2e8f0;">
+                        <td style="padding: 12px 0; color: #666; font-weight: bold;">Betrag:</td>
+                        <td style="padding: 12px 0; font-weight: bold; font-size: 18px; color: #22c55e;">€ ${order.product_price.toFixed(2)}</td>
+                      </tr>
+                    </table>
+                  </div>
+                  
+                  <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #92400e;"><strong>⏳ Status:</strong> Warte auf Zahlung</p>
+                  </div>
+                </div>
+                
+                <div style="background-color: #e2e8f0; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                  <p style="margin: 0;">Automatische Benachrichtigung von GrundbuchauszugOnline.at</p>
+                </div>
+              </body>
+            </html>
+          `,
+          TextBody: `
+NEUE BESTELLUNG EINGEGANGEN!
+
+Bestellung: ${order.order_number}
+
+=== KUNDENDATEN ===
+Name: ${order.vorname} ${order.nachname}
+${order.firma ? `Firma: ${order.firma}` : ''}
+E-Mail: ${order.email}
+Wohnsitzland: ${order.wohnsitzland}
+
+=== BESTELLDETAILS ===
+Produkt: ${order.product_name}
+Katastralgemeinde: ${order.katastralgemeinde}
+Grundstücksnummer: ${order.grundstuecksnummer}
+Betrag: € ${order.product_price.toFixed(2)}
+
+Status: Warte auf Zahlung
+          `,
+        }),
+      });
+
+      if (!internalEmailResponse.ok) {
+        const errorData = await internalEmailResponse.json();
+        console.error("Internal notification email error:", errorData);
+      } else {
+        console.log("Internal notification email sent successfully");
+      }
+    } catch (notifyError: any) {
+      console.error("Failed to send internal notification (non-blocking):", notifyError.message);
+    }
+
     // Update order status
     await supabase
       .from("orders")
