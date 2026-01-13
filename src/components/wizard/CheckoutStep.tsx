@@ -342,19 +342,19 @@ export function CheckoutStep({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col-reverse sm:flex-row gap-2 md:gap-3 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-3 md:pt-2">
             <Button 
               type="button"
               variant="outline"
               onClick={onBack}
-              className="h-11 md:h-12 text-sm md:text-base"
+              className="h-12 md:h-12 text-base"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
             </Button>
             <Button
               type="submit"
-              className="flex-1 h-12 md:h-14 text-sm md:text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+              className="flex-1 h-14 md:h-14 text-base md:text-lg font-bold shadow-lg hover:shadow-xl transition-all rounded-xl"
               size="lg"
               disabled={isSubmitting || !allConfirmed}
             >
