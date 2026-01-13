@@ -113,15 +113,15 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   return (
     <div className="max-w-3xl mx-auto">
       {/* Official Header Bar */}
-      <div className="bg-primary text-primary-foreground px-6 py-3 rounded-t-lg">
+      <div className="bg-primary text-primary-foreground px-4 sm:px-6 py-3 rounded-t-lg">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-primary-foreground/20 flex items-center justify-center">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 rounded bg-primary-foreground/20 flex items-center justify-center shrink-0">
               <FileText className="h-4 w-4" />
             </div>
-            <div>
-              <h1 className="font-bold text-lg">Grundbuchauszug Online</h1>
-              <p className="text-primary-foreground/80 text-xs">Offizieller Grundbuchauszug – Österreich</p>
+            <div className="min-w-0">
+              <h1 className="font-bold text-base sm:text-lg">Grundbuchauszug Online</h1>
+              <p className="text-primary-foreground/80 text-xs truncate">Offizieller Grundbuchauszug – Österreich</p>
             </div>
           </div>
           <div className="hidden md:flex items-center gap-4 text-xs text-primary-foreground/80">
@@ -140,47 +140,47 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
       {/* Main Form Container */}
       <div className="bg-card border-2 border-t-0 border-border rounded-b-lg shadow-xl">
         {/* Step Indicator */}
-        <div className="bg-muted/50 px-6 py-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+        <div className="bg-muted/50 px-4 sm:px-6 py-3 sm:py-4 border-b">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
               1
             </div>
-            <div>
-              <h2 className="font-semibold text-foreground">Grundstück identifizieren</h2>
-              <p className="text-sm text-muted-foreground">Wählen Sie <strong>eine</strong> der beiden Methoden</p>
+            <div className="min-w-0">
+              <h2 className="font-semibold text-foreground text-sm sm:text-base">Grundstück identifizieren</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">Wählen Sie <strong>eine</strong> der beiden Methoden</p>
             </div>
           </div>
         </div>
 
         {/* Search Method Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="px-6 pt-6">
+          <div className="px-4 sm:px-6 pt-4 sm:pt-6">
             
             <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/60 rounded-lg">
               <TabsTrigger 
                 value="address" 
-                className="flex items-center justify-center gap-2 py-4 px-4 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-4 px-2 sm:px-4 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all"
               >
-                <MapPin className="h-5 w-5" />
-                <div className="text-left">
-                  <div className="font-semibold">Adresse</div>
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-semibold text-sm sm:text-base">Adresse</div>
                   <div className="text-xs text-muted-foreground hidden sm:block">Einfach & schnell</div>
                 </div>
               </TabsTrigger>
               <TabsTrigger 
                 value="manual" 
-                className="flex items-center justify-center gap-2 py-4 px-4 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-4 px-2 sm:px-4 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:border-primary/20 transition-all"
               >
-                <Hash className="h-5 w-5" />
-                <div className="text-left">
-                  <div className="font-semibold">Grundstücksnummer</div>
+                <Hash className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                <div className="text-left min-w-0">
+                  <div className="font-semibold text-sm sm:text-base truncate">Grundstücksnr.</div>
                   <div className="text-xs text-muted-foreground hidden sm:block">Für Experten</div>
                 </div>
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Address Search Tab - Primary */}
             <TabsContent value="address" className="mt-0 space-y-6">
               <div className="bg-info/50 border border-info rounded-lg p-4">
@@ -224,7 +224,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       };
                       onSubmit(formData);
                     }} 
-                    className="w-full h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all" 
+                    className="w-full h-12 sm:h-14 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all" 
                     size="lg"
                   >
                     <FileText className="mr-2 h-5 w-5" />
@@ -286,7 +286,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                 )}
 
                 {/* Bundesland and KG in two columns */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Bundesland Field */}
                   <div className="space-y-2">
                     <Label htmlFor="bundesland" className="text-sm font-medium">
@@ -330,7 +330,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                 </div>
 
                 {/* GST and Gericht in two columns */}
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Grundstücksnummer Field */}
                   <div className="space-y-2">
                     <Label htmlFor="grundstuecksnummer" className="text-sm font-medium">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyDetailsStep } from "@/components/wizard/PropertyDetailsStep";
 import { ContactDetailsStep } from "@/components/wizard/ContactDetailsStep";
@@ -44,6 +44,11 @@ export default function Anfordern() {
   const [orderData, setOrderData] = useState<OrderData>({
     orderNumber: "",
   });
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
 
   const handlePropertySubmit = (data: PropertyData) => {
     setPropertyData(data);

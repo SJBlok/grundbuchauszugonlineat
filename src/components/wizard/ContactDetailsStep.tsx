@@ -65,15 +65,15 @@ export function ContactDetailsStep({
   return (
     <div className="max-w-3xl mx-auto">
       {/* Official Header Bar */}
-      <div className="bg-primary text-primary-foreground px-6 py-3 rounded-t-lg">
+      <div className="bg-primary text-primary-foreground px-4 sm:px-6 py-3 rounded-t-lg">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-primary-foreground/20 flex items-center justify-center">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 rounded bg-primary-foreground/20 flex items-center justify-center shrink-0">
               <User className="h-4 w-4" />
             </div>
-            <div>
-              <h1 className="font-bold text-lg">Grundbuchauszug Online</h1>
-              <p className="text-primary-foreground/80 text-xs">Offizieller Grundbuchauszug – Österreich</p>
+            <div className="min-w-0">
+              <h1 className="font-bold text-base sm:text-lg">Grundbuchauszug Online</h1>
+              <p className="text-primary-foreground/80 text-xs truncate">Offizieller Grundbuchauszug – Österreich</p>
             </div>
           </div>
         </div>
@@ -82,25 +82,25 @@ export function ContactDetailsStep({
       {/* Main Form Container */}
       <div className="bg-card border-2 border-t-0 border-border rounded-b-lg shadow-xl">
         {/* Step Indicator */}
-        <div className="bg-muted/50 px-6 py-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+        <div className="bg-muted/50 px-4 sm:px-6 py-3 sm:py-4 border-b">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
               2
             </div>
-            <div>
-              <h2 className="font-semibold text-foreground">Kontaktdaten eingeben</h2>
-              <p className="text-sm text-muted-foreground">Für die Zustellung des Grundbuchauszugs</p>
+            <div className="min-w-0">
+              <h2 className="font-semibold text-foreground text-sm sm:text-base">Kontaktdaten eingeben</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">Für die Zustellung des Grundbuchauszugs</p>
             </div>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Product Card with Property Data */}
           <ProductCard propertyData={propertyData} />
 
           {/* Contact Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="vorname" className="text-sm font-medium">
                   Vorname <span className="text-destructive">*</span>
@@ -154,7 +154,7 @@ export function ContactDetailsStep({
               )}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="wohnsitzland" className="text-sm font-medium">
                   Wohnsitzland <span className="text-destructive">*</span>
@@ -201,19 +201,19 @@ export function ContactDetailsStep({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-3">
               <Button 
                 type="button"
                 variant="outline"
                 onClick={onBack}
-                className="h-14"
+                className="h-12 sm:h-14"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Zurück
               </Button>
               <Button 
                 type="submit" 
-                className="flex-1 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all" 
+                className="flex-1 h-12 sm:h-14 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all" 
                 size="lg"
               >
                 Weiter zur Zahlung
@@ -224,8 +224,8 @@ export function ContactDetailsStep({
         </div>
 
         {/* Footer */}
-        <div className="bg-muted/30 px-6 py-4 border-t">
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
+        <div className="bg-muted/30 px-4 sm:px-6 py-3 sm:py-4 border-t">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Shield className="h-3.5 w-3.5 text-primary" />
               <span>Ihre Daten werden verschlüsselt übertragen</span>
