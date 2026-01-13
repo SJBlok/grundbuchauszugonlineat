@@ -2,10 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, User, CreditCard, Shield, Lock } from "lucide-react";
+import { ArrowLeft, User, MapPin, Lock, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ProductCard } from "./ProductCard";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 
 interface CheckoutStepProps {
@@ -86,65 +85,69 @@ export function CheckoutStep({
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Official Header Bar */}
-      <div className="bg-primary text-primary-foreground px-4 sm:px-6 py-3 rounded-t-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="h-8 w-8 rounded bg-primary-foreground/20 flex items-center justify-center shrink-0">
-              <CreditCard className="h-4 w-4" />
+    <div className="space-y-6">
+      {/* Order Summary Card */}
+      <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
+        <div className="px-4 md:px-6 py-4 border-b bg-muted/30">
+          <h2 className="text-lg md:text-xl font-semibold text-foreground">Bestellübersicht</h2>
+          <p className="text-sm text-muted-foreground mt-1">Überprüfen Sie Ihre Bestellung vor dem Abschluss.</p>
+        </div>
+        
+        <div className="p-4 md:p-6 space-y-4">
+          {/* Product */}
+          <div className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <FileText className="h-5 w-5 text-primary" />
             </div>
-            <div className="min-w-0">
-              <h1 className="font-bold text-base sm:text-lg">Grundbuchauszug Online</h1>
-              <p className="text-primary-foreground/80 text-xs truncate">Offizieller Grundbuchauszug – Österreich</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground">Aktueller Grundbuchauszug</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Vollständige Eigentumsinformationen, Grundstücksdaten und Lasten
+              </p>
+            </div>
+            <p className="font-bold text-foreground shrink-0">€19,90</p>
+          </div>
+
+          {/* Property */}
+          <div className="flex items-start gap-3 p-4 border rounded-lg">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <MapPin className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground text-sm">Grundstück</p>
+              <p className="text-sm text-muted-foreground">
+                KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {propertyData.bundesland} • {propertyData.grundbuchsgericht}
+              </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Container */}
-      <div className="bg-card border-2 border-t-0 border-border rounded-b-lg shadow-xl">
-        {/* Step Indicator */}
-        <div className="bg-muted/50 px-4 sm:px-6 py-3 sm:py-4 border-b">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
-              3
+          {/* Applicant */}
+          <div className="flex items-start gap-3 p-4 border rounded-lg">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <User className="h-5 w-5 text-primary" />
             </div>
-            <div className="min-w-0">
-              <h2 className="font-semibold text-foreground text-sm sm:text-base">Bestellung abschließen</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">Überprüfen und bestätigen</p>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground text-sm">Zustellung an</p>
+              <p className="text-sm text-muted-foreground">
+                {applicantData.vorname} {applicantData.nachname}
+              </p>
+              <p className="text-sm text-muted-foreground">{applicantData.email}</p>
+              {applicantData.firma && (
+                <p className="text-sm text-muted-foreground">{applicantData.firma}</p>
+              )}
             </div>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-          {/* Product Card with Property Data */}
-          <ProductCard propertyData={propertyData} />
-
-          {/* Applicant Summary */}
-          <div className="bg-muted/30 border rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <User className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-foreground text-sm">Zustellung an</p>
-                <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
-                  <p>{applicantData.vorname} {applicantData.nachname}</p>
-                  <p>{applicantData.email}</p>
-                  {applicantData.firma && <p>{applicantData.firma}</p>}
-                </div>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onBack}
-                className="shrink-0"
-              >
-                Ändern
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onBack}
+              className="shrink-0"
+            >
+              Ändern
+            </Button>
           </div>
 
           {/* Delivery Info */}
@@ -154,26 +157,35 @@ export function CheckoutStep({
             </p>
           </div>
 
+          {/* Total */}
+          <div className="flex items-center justify-between p-4 bg-primary/5 border-2 border-primary/20 rounded-lg">
+            <p className="font-semibold text-foreground">Gesamtbetrag</p>
+            <p className="text-xl font-bold text-foreground">€19,90</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Payment & Confirmation Card */}
+      <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
+        <div className="px-4 md:px-6 py-4 border-b bg-muted/30">
+          <h2 className="text-lg md:text-xl font-semibold text-foreground flex items-center gap-2">
+            <Lock className="h-5 w-5" />
+            Zahlungsart & Bestätigung
+          </h2>
+        </div>
+
+        <div className="p-4 md:p-6 space-y-5">
           {/* Payment Method */}
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-              <Lock className="h-4 w-4" />
-              Zahlungsart
-            </h3>
-            <div className="flex items-center gap-2">
-              <Checkbox id="payment" checked disabled />
-              <Label htmlFor="payment" className="font-normal">
-                Zahlung auf Rechnung (Überweisung)
-              </Label>
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Die Rechnung wird nach Abschluss der Bestellung per E-Mail übermittelt.
-            </p>
+          <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+            <Checkbox id="payment" checked disabled />
+            <Label htmlFor="payment" className="font-normal text-sm">
+              Zahlung auf Rechnung (Überweisung) – Die Rechnung wird per E-Mail übermittelt.
+            </Label>
           </div>
 
           {/* Legal Confirmations */}
-          <div className="space-y-4 bg-muted/30 border rounded-lg p-4">
-            <p className="text-sm font-medium text-foreground mb-3">Bitte bestätigen Sie folgende Punkte:</p>
+          <div className="space-y-4">
+            <p className="text-sm font-medium text-foreground">Bitte bestätigen Sie folgende Punkte:</p>
             
             <div className="flex items-start gap-3">
               <Checkbox
@@ -193,7 +205,7 @@ export function CheckoutStep({
                 onCheckedChange={(checked) => setConfirmPrivacy(checked as boolean)}
               />
               <Label htmlFor="confirmPrivacy" className="font-normal text-sm leading-relaxed cursor-pointer">
-                Ich habe die <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Daten zur Bestellabwicklung zu. <span className="text-destructive">*</span>
+                Ich habe die <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Daten zu. <span className="text-destructive">*</span>
               </Label>
             </div>
 
@@ -204,44 +216,30 @@ export function CheckoutStep({
                 onCheckedChange={(checked) => setConfirmNoRefund(checked as boolean)}
               />
               <Label htmlFor="confirmNoRefund" className="font-normal text-sm leading-relaxed cursor-pointer">
-                Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung des digitalen Grundbuchauszugs besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
+                Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
               </Label>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col-reverse sm:flex-row gap-3">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
             <Button 
               type="button"
               variant="outline"
               onClick={onBack}
-              className="h-12 sm:h-14"
+              className="h-11 md:h-12"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
             </Button>
             <Button
               onClick={handleFormSubmit}
-              className="flex-1 h-12 sm:h-14 text-base sm:text-lg font-bold shadow-lg hover:shadow-xl transition-all"
+              className="flex-1 h-12 md:h-14 text-base md:text-lg font-bold shadow-lg hover:shadow-xl transition-all"
               size="lg"
               disabled={isSubmitting || !allConfirmed}
             >
-              {isSubmitting ? "Wird verarbeitet..." : "Kostenpflichtig bestellen"}
+              {isSubmitting ? "Wird verarbeitet..." : "Kostenpflichtig bestellen • €19,90"}
             </Button>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-muted/30 px-4 sm:px-6 py-3 sm:py-4 border-t">
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-primary" />
-              <span>SSL-verschlüsselt</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5 text-primary" />
-              <span>Sichere Zahlung</span>
-            </div>
           </div>
         </div>
       </div>
