@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PropertyDetailsStep } from "@/components/wizard/PropertyDetailsStep";
-import { ContactDetailsStep } from "@/components/wizard/ContactDetailsStep";
 import { CheckoutStep } from "@/components/wizard/CheckoutStep";
 import { ThankYouStep } from "@/components/wizard/ThankYouStep";
 import { ChevronRight } from "lucide-react";
@@ -29,8 +28,7 @@ export interface OrderData {
 
 const steps = [
   { num: 1, label: "Grundstück" },
-  { num: 2, label: "Kontaktdaten" },
-  { num: 3, label: "Übersicht" },
+  { num: 2, label: "Bestellen" },
 ];
 
 export default function Anfordern() {
@@ -63,18 +61,13 @@ export default function Anfordern() {
     setStep(2);
   };
 
-  const handleContactSubmit = (data: ApplicantData) => {
-    setApplicantData(data);
+  const handlePaymentSubmit = (orderNumber: string) => {
+    setOrderData({ orderNumber });
     setStep(3);
   };
 
-  const handlePaymentSubmit = (orderNumber: string) => {
-    setOrderData({ orderNumber });
-    setStep(4);
-  };
-
   // Thank you step has its own full-width layout
-  if (step === 4) {
+  if (step === 3) {
     return (
       <Layout>
         <section className="py-12 md:py-16">
@@ -189,20 +182,11 @@ export default function Anfordern() {
               )}
 
               {step === 2 && (
-                <ContactDetailsStep
-                  propertyData={propertyData}
-                  initialData={applicantData}
-                  onSubmit={handleContactSubmit}
-                  onBack={() => setStep(1)}
-                />
-              )}
-
-              {step === 3 && (
                 <CheckoutStep
                   propertyData={propertyData}
-                  applicantData={applicantData}
+                  initialApplicantData={applicantData}
                   onSubmit={handlePaymentSubmit}
-                  onBack={() => setStep(2)}
+                  onBack={() => setStep(1)}
                 />
               )}
             </div>
