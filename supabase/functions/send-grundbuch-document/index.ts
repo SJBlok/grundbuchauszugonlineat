@@ -217,80 +217,86 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // === GRUNDBUCH DOCUMENT DELIVERY ===
-    // Fetch Grundbuchauszug PDF from Wirtschafts-Compass API
+    // Try to fetch Grundbuchauszug PDF from Wirtschafts-Compass API
+    let pdfBase64: string | null = null;
+    let documentFetchError: string | null = null;
+    
     const wirtschaftsCompassApiKey = Deno.env.get("WIRTSCHAFTSCOMPASS_API_KEY");
     if (!wirtschaftsCompassApiKey) {
-      throw new Error("WIRTSCHAFTSCOMPASS_API_KEY not configured");
-    }
-
-    const baseUrl = "https://api.wirtschaftscompass.at/landregister";
-    const authHeaders = {
-      "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    };
-
-    // Parse the grundstuecksnummer - it contains KG number and EZ
-    // Format could be: "01234/567" or just "567" with separate KG
-    // The katastralgemeinde field contains the KG number
-    const kgNumber = order.katastralgemeinde.match(/\d+/)?.[0] || order.katastralgemeinde;
-    const ezNumber = order.grundstuecksnummer;
-
-    console.log(`Fetching Grundbuchauszug for KG: ${kgNumber}, EZ: ${ezNumber}`);
-
-    // Step 1: Create/retrieve a document reference via POST /v1/excerpts/land-register-excerpt
-    const excerptResponse = await fetch(
-      `${baseUrl}/v1/excerpts/land-register-excerpt`,
-      {
-        method: "POST",
-        headers: authHeaders,
-        body: JSON.stringify({
-          kg: kgNumber,
-          ez: ezNumber,
-          validity: "FETCH_IF_NOT_AVAILABLE", // Fetch new if not in cache
-        }),
-      }
-    );
-
-    if (!excerptResponse.ok) {
-      const errorText = await excerptResponse.text();
-      console.error("Wirtschafts-Compass excerpt creation error:", errorText);
-      throw new Error(`Failed to create Grundbuchauszug excerpt: ${excerptResponse.status}`);
-    }
-
-    const excerptData = await excerptResponse.json();
-    const documentReference = excerptData.documentReference || excerptData.document_reference || excerptData.id;
-    
-    if (!documentReference) {
-      console.error("Wirtschafts-Compass response:", JSON.stringify(excerptData));
-      throw new Error("No document reference returned from Wirtschafts-Compass API");
-    }
-
-    console.log(`Got document reference: ${documentReference}`);
-
-    // Step 2: Download the PDF via GET /v1/excerpts/{document-reference}/land-register-excerpt/pdf
-    const pdfResponse = await fetch(
-      `${baseUrl}/v1/excerpts/${documentReference}/land-register-excerpt/pdf`,
-      {
-        method: "GET",
-        headers: {
+      console.warn("WIRTSCHAFTSCOMPASS_API_KEY not configured, skipping document fetch");
+      documentFetchError = "API key not configured";
+    } else {
+      try {
+        const baseUrl = "https://api.wirtschaftscompass.at/landregister";
+        const authHeaders = {
           "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
-          "Accept": "application/pdf",
-        },
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        };
+
+        // Parse the grundstuecksnummer - it contains KG number and EZ
+        const kgNumber = order.katastralgemeinde.match(/\d+/)?.[0] || order.katastralgemeinde;
+        const ezNumber = order.grundstuecksnummer;
+
+        console.log(`Fetching Grundbuchauszug for KG: ${kgNumber}, EZ: ${ezNumber}`);
+
+        // Step 1: Create/retrieve a document reference via POST /v1/excerpts/land-register-excerpt
+        const excerptResponse = await fetch(
+          `${baseUrl}/v1/excerpts/land-register-excerpt`,
+          {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              kg: kgNumber,
+              ez: ezNumber,
+              validity: "FETCH_IF_NOT_AVAILABLE",
+            }),
+          }
+        );
+
+        if (!excerptResponse.ok) {
+          const errorText = await excerptResponse.text();
+          console.error("Wirtschafts-Compass excerpt creation error:", errorText);
+          throw new Error(`Failed to create excerpt: ${excerptResponse.status}`);
+        }
+
+        const excerptData = await excerptResponse.json();
+        const documentReference = excerptData.documentReference || excerptData.document_reference || excerptData.id;
+        
+        if (!documentReference) {
+          console.error("Wirtschafts-Compass response:", JSON.stringify(excerptData));
+          throw new Error("No document reference returned");
+        }
+
+        console.log(`Got document reference: ${documentReference}`);
+
+        // Step 2: Download the PDF
+        const pdfResponse = await fetch(
+          `${baseUrl}/v1/excerpts/${documentReference}/land-register-excerpt/pdf`,
+          {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
+              "Accept": "application/pdf",
+            },
+          }
+        );
+
+        if (!pdfResponse.ok) {
+          const errorText = await pdfResponse.text();
+          console.error("Wirtschafts-Compass PDF download error:", errorText);
+          throw new Error(`Failed to download PDF: ${pdfResponse.status}`);
+        }
+
+        // Get the PDF as base64
+        const pdfBuffer = await pdfResponse.arrayBuffer();
+        pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)));
+        console.log(`Retrieved Grundbuchauszug PDF (${pdfBuffer.byteLength} bytes)`);
+      } catch (docError: any) {
+        console.error("Document fetch error (non-blocking):", docError.message);
+        documentFetchError = docError.message;
       }
-    );
-
-    if (!pdfResponse.ok) {
-      const errorText = await pdfResponse.text();
-      console.error("Wirtschafts-Compass PDF download error:", errorText);
-      throw new Error(`Failed to download Grundbuchauszug PDF: ${pdfResponse.status}`);
     }
-
-    // Get the PDF as base64
-    const pdfBuffer = await pdfResponse.arrayBuffer();
-    const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)));
-
-    console.log(`Retrieved Grundbuchauszug PDF (${pdfBuffer.byteLength} bytes)`);
 
     // Send email via Postmark
     const postmarkApiKey = Deno.env.get("POSTMARK_API_KEY");
@@ -298,109 +304,115 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("POSTMARK_API_KEY not configured");
     }
 
-    const emailResponse = await fetch("https://api.postmarkapp.com/email", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "X-Postmark-Server-Token": postmarkApiKey,
-      },
-      body: JSON.stringify({
-        From: "info@grundbuchauszugonline.at",
-        To: order.email,
-        Subject: `Ihre Bestellung ${order.order_number} - Grundbuchauszug`,
-        HtmlBody: `
-          <html>
-            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
-              <div style="background-color: #1a365d; color: white; padding: 20px; text-align: center;">
-                <h1 style="margin: 0; font-size: 24px;">GrundbuchauszugOnline.at</h1>
+    // Prepare email content based on whether we have the document
+    const hasDocument = pdfBase64 !== null;
+    const documentMessage = hasDocument 
+      ? "<p><strong>Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument.</strong></p>"
+      : `<div style="background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <p style="margin: 0; color: #991b1b;"><strong>⚠️ Wichtiger Hinweis:</strong> Das Dokument konnte nicht automatisch abgerufen werden. Wir werden Ihnen den Grundbuchauszug schnellstmöglich manuell zusenden.</p>
+        </div>`;
+    
+    const documentTextMessage = hasDocument
+      ? "Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument."
+      : "WICHTIGER HINWEIS: Das Dokument konnte nicht automatisch abgerufen werden. Wir werden Ihnen den Grundbuchauszug schnellstmöglich manuell zusenden.";
+
+    // Build email payload
+    const emailPayload: any = {
+      From: "info@grundbuchauszugonline.at",
+      To: order.email,
+      Subject: `Ihre Bestellung ${order.order_number} - Grundbuchauszug`,
+      HtmlBody: `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+            <div style="background-color: #1a365d; color: white; padding: 20px; text-align: center;">
+              <h1 style="margin: 0; font-size: 24px;">GrundbuchauszugOnline.at</h1>
+            </div>
+            
+            <div style="padding: 30px; background-color: #f8f9fa;">
+              <h2 style="color: #1a365d; margin-top: 0;">Guten Tag ${order.vorname} ${order.nachname},</h2>
+              
+              <p>vielen Dank für Ihre Bestellung bei GrundbuchauszugOnline.at!</p>
+              
+              ${documentMessage}
+              
+              <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">📋 Bestelldetails</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;">Bestellnummer:</td>
+                    <td style="padding: 8px 0; font-weight: bold;">${order.order_number}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;">Produkt:</td>
+                    <td style="padding: 8px 0;">${order.product_name}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;">Katastralgemeinde:</td>
+                    <td style="padding: 8px 0;">${order.katastralgemeinde}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;">Grundstücksnummer:</td>
+                    <td style="padding: 8px 0;">${order.grundstuecksnummer}</td>
+                  </tr>
+                  <tr style="border-top: 1px solid #e2e8f0;">
+                    <td style="padding: 12px 0; color: #666; font-weight: bold;">Gesamtbetrag:</td>
+                    <td style="padding: 12px 0; font-weight: bold; font-size: 18px; color: #1a365d;">€ ${order.product_price.toFixed(2)}</td>
+                  </tr>
+                </table>
               </div>
               
-              <div style="padding: 30px; background-color: #f8f9fa;">
-                <h2 style="color: #1a365d; margin-top: 0;">Guten Tag ${order.vorname} ${order.nachname},</h2>
-                
-                <p>vielen Dank für Ihre Bestellung bei GrundbuchauszugOnline.at!</p>
-                
-                <p><strong>Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument.</strong></p>
-                
-                <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                  <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">📋 Bestelldetails</h3>
-                  <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                      <td style="padding: 8px 0; color: #666;">Bestellnummer:</td>
-                      <td style="padding: 8px 0; font-weight: bold;">${order.order_number}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 8px 0; color: #666;">Produkt:</td>
-                      <td style="padding: 8px 0;">${order.product_name}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 8px 0; color: #666;">Katastralgemeinde:</td>
-                      <td style="padding: 8px 0;">${order.katastralgemeinde}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 8px 0; color: #666;">Grundstücksnummer:</td>
-                      <td style="padding: 8px 0;">${order.grundstuecksnummer}</td>
-                    </tr>
-                    <tr style="border-top: 1px solid #e2e8f0;">
-                      <td style="padding: 12px 0; color: #666; font-weight: bold;">Gesamtbetrag:</td>
-                      <td style="padding: 12px 0; font-weight: bold; font-size: 18px; color: #1a365d;">€ ${order.product_price.toFixed(2)}</td>
-                    </tr>
-                  </table>
-                </div>
-                
-                <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                  <h3 style="color: #856404; margin-top: 0;">💳 Zahlungsinformationen</h3>
-                  <p style="margin-bottom: 15px; color: #856404;">Bitte überweisen Sie den Betrag innerhalb von 14 Tagen:</p>
-                  <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                      <td style="padding: 6px 0; color: #856404;">Empfänger:</td>
-                      <td style="padding: 6px 0; font-weight: bold;">GrundbuchauszugOnline</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 0; color: #856404;">IBAN:</td>
-                      <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">AT12 3456 7890 1234 5678</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 0; color: #856404;">BIC:</td>
-                      <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">ABCDEFGH</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 0; color: #856404;">Verwendungszweck:</td>
-                      <td style="padding: 6px 0; font-weight: bold;">${order.order_number}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 6px 0; color: #856404;">Betrag:</td>
-                      <td style="padding: 6px 0; font-weight: bold;">€ ${order.product_price.toFixed(2)}</td>
-                    </tr>
-                  </table>
-                </div>
-                
-                <p style="color: #666; font-size: 14px;">
-                  📄 <strong>Hinweis:</strong> Die offizielle Rechnung erhalten Sie separat per E-Mail von unserem Buchhaltungssystem.
-                </p>
-                
-                <p>Bei Fragen stehen wir Ihnen gerne unter <a href="mailto:info@grundbuchauszugonline.at" style="color: #1a365d;">info@grundbuchauszugonline.at</a> zur Verfügung.</p>
-                
-                <p style="margin-top: 30px;">
-                  Mit freundlichen Grüßen,<br>
-                  <strong>Ihr Team von GrundbuchauszugOnline.at</strong>
-                </p>
+              <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #856404; margin-top: 0;">💳 Zahlungsinformationen</h3>
+                <p style="margin-bottom: 15px; color: #856404;">Bitte überweisen Sie den Betrag innerhalb von 14 Tagen:</p>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 6px 0; color: #856404;">Empfänger:</td>
+                    <td style="padding: 6px 0; font-weight: bold;">Application Assistant Ltd</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #856404;">IBAN:</td>
+                    <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">DE56 2022 0800 0058 7945 48</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #856404;">BIC:</td>
+                    <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">SXPYDEHHXXX</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #856404;">Verwendungszweck:</td>
+                    <td style="padding: 6px 0; font-weight: bold;">${order.order_number}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #856404;">Betrag:</td>
+                    <td style="padding: 6px 0; font-weight: bold;">€ ${order.product_price.toFixed(2)}</td>
+                  </tr>
+                </table>
               </div>
               
-              <div style="background-color: #e2e8f0; padding: 20px; text-align: center; font-size: 12px; color: #666;">
-                <p style="margin: 0;">© ${new Date().getFullYear()} GrundbuchauszugOnline.at | Alle Rechte vorbehalten</p>
-                <p style="margin: 10px 0 0 0;">Diese E-Mail wurde automatisch generiert.</p>
-              </div>
-            </body>
-          </html>
-        `,
-        TextBody: `
+              <p style="color: #666; font-size: 14px;">
+                📄 <strong>Hinweis:</strong> Die offizielle Rechnung erhalten Sie separat per E-Mail von unserem Buchhaltungssystem.
+              </p>
+              
+              <p>Bei Fragen stehen wir Ihnen gerne unter <a href="mailto:info@grundbuchauszugonline.at" style="color: #1a365d;">info@grundbuchauszugonline.at</a> zur Verfügung.</p>
+              
+              <p style="margin-top: 30px;">
+                Mit freundlichen Grüßen,<br>
+                <strong>Ihr Team von GrundbuchauszugOnline.at</strong>
+              </p>
+            </div>
+            
+            <div style="background-color: #e2e8f0; padding: 20px; text-align: center; font-size: 12px; color: #666;">
+              <p style="margin: 0;">© ${new Date().getFullYear()} GrundbuchauszugOnline.at | Alle Rechte vorbehalten</p>
+              <p style="margin: 10px 0 0 0;">Diese E-Mail wurde automatisch generiert.</p>
+            </div>
+          </body>
+        </html>
+      `,
+      TextBody: `
 Guten Tag ${order.vorname} ${order.nachname},
 
 vielen Dank für Ihre Bestellung bei GrundbuchauszugOnline.at!
 
-Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument.
+${documentTextMessage}
 
 === BESTELLDETAILS ===
 Bestellnummer: ${order.order_number}
@@ -412,9 +424,9 @@ Gesamtbetrag: € ${order.product_price.toFixed(2)}
 === ZAHLUNGSINFORMATIONEN ===
 Bitte überweisen Sie den Betrag innerhalb von 14 Tagen:
 
-Empfänger: GrundbuchauszugOnline
-IBAN: AT12 3456 7890 1234 5678
-BIC: ABCDEFGH
+Empfänger: Application Assistant Ltd
+IBAN: DE56 2022 0800 0058 7945 48
+BIC: SXPYDEHHXXX
 Verwendungszweck: ${order.order_number}
 Betrag: € ${order.product_price.toFixed(2)}
 
@@ -424,15 +436,28 @@ Bei Fragen stehen wir Ihnen gerne unter info@grundbuchauszugonline.at zur Verfü
 
 Mit freundlichen Grüßen,
 Ihr Team von GrundbuchauszugOnline.at
-        `,
-        Attachments: [
-          {
-            Name: `Grundbuchauszug_${order.katastralgemeinde}_${order.grundstuecksnummer}.pdf`,
-            Content: pdfBase64,
-            ContentType: "application/pdf",
-          },
-        ],
-      }),
+      `,
+    };
+
+    // Only add attachment if we have the document
+    if (hasDocument) {
+      emailPayload.Attachments = [
+        {
+          Name: `Grundbuchauszug_${order.katastralgemeinde}_${order.grundstuecksnummer}.pdf`,
+          Content: pdfBase64,
+          ContentType: "application/pdf",
+        },
+      ];
+    }
+
+    const emailResponse = await fetch("https://api.postmarkapp.com/email", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-Postmark-Server-Token": postmarkApiKey,
+      },
+      body: JSON.stringify(emailPayload),
     });
 
     if (!emailResponse.ok) {
@@ -512,8 +537,18 @@ Ihr Team von GrundbuchauszugOnline.at
                     </table>
                   </div>
                   
+                  ${hasDocument 
+                    ? `<div style="background-color: #d1fae5; border: 1px solid #10b981; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                        <p style="margin: 0; color: #065f46;"><strong>✅ Dokument:</strong> Erfolgreich zugestellt</p>
+                      </div>`
+                    : `<div style="background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                        <p style="margin: 0; color: #991b1b;"><strong>⚠️ ACHTUNG:</strong> Dokument konnte nicht abgerufen werden!</p>
+                        <p style="margin: 5px 0 0 0; color: #991b1b; font-size: 14px;">Fehler: ${documentFetchError}</p>
+                        <p style="margin: 5px 0 0 0; color: #991b1b; font-size: 14px;"><strong>Bitte manuell zusenden!</strong></p>
+                      </div>`}
+                  
                   <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; color: #92400e;"><strong>⏳ Status:</strong> Warte auf Zahlung</p>
+                    <p style="margin: 0; color: #92400e;"><strong>⏳ Zahlung:</strong> Ausstehend</p>
                   </div>
                 </div>
                 
