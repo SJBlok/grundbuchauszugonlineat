@@ -347,15 +347,14 @@ export function CheckoutStep({
               type="button"
               variant="outline"
               onClick={onBack}
-              className="h-12 md:h-12 text-base"
+              className="h-12 text-base px-6"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
             </Button>
             <Button
               type="submit"
-              className="flex-1 h-14 md:h-14 text-base md:text-lg font-bold shadow-lg hover:shadow-xl transition-all rounded-xl"
-              size="lg"
+              className="flex-1 !h-14 px-6 text-base md:text-lg font-bold shadow-lg hover:shadow-xl transition-all rounded-xl"
               disabled={isSubmitting || !allConfirmed}
             >
               {isSubmitting ? "Wird verarbeitet..." : "Kostenpflichtig bestellen • €19,90"}
