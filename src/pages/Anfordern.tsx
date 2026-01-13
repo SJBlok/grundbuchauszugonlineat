@@ -4,7 +4,6 @@ import { PropertyDetailsStep } from "@/components/wizard/PropertyDetailsStep";
 import { ContactDetailsStep } from "@/components/wizard/ContactDetailsStep";
 import { CheckoutStep } from "@/components/wizard/CheckoutStep";
 import { ThankYouStep } from "@/components/wizard/ThankYouStep";
-import { ChevronRight } from "lucide-react";
 import heroImage from "@/assets/hero-austria.jpg";
 
 export interface PropertyData {
@@ -116,47 +115,35 @@ export default function Anfordern() {
         </div>
       </div>
 
-      {/* Main Content with Sidebar Layout */}
+      {/* Main Content */}
       <section className="py-6 md:py-10 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-6xl mx-auto">
-            {/* Left Sidebar - Step Navigation */}
-            <div className="lg:w-64 shrink-0">
-              <div className="bg-card rounded-lg border shadow-sm overflow-hidden lg:sticky lg:top-24">
+          <div className="max-w-3xl mx-auto">
+            {/* Progress Bar */}
+            <div className="bg-card rounded-lg border shadow-sm p-4 md:p-6 mb-6">
+              <div className="flex items-center justify-between">
                 {steps.map((s, index) => (
-                  <button
-                    key={s.num}
-                    onClick={() => {
-                      // Only allow going back to completed steps
-                      if (s.num < step) {
-                        setStep(s.num);
-                      }
-                    }}
-                    disabled={s.num > step}
-                    className={`w-full flex items-center justify-between px-4 py-4 text-left border-b last:border-b-0 transition-colors ${
-                      s.num === step
-                        ? "bg-primary/5 border-l-4 border-l-primary"
-                        : s.num < step
-                        ? "hover:bg-muted/50 cursor-pointer border-l-4 border-l-primary/30"
-                        : "text-muted-foreground border-l-4 border-l-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`flex items-center justify-center w-7 h-7 rounded-full text-sm font-semibold ${
+                  <div key={s.num} className="flex items-center flex-1">
+                    <div className="flex flex-col items-center flex-1">
+                      <button
+                        onClick={() => {
+                          if (s.num < step) setStep(s.num);
+                        }}
+                        disabled={s.num > step}
+                        className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full text-sm font-semibold transition-all ${
                           s.num === step
-                            ? "bg-primary text-primary-foreground"
+                            ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
                             : s.num < step
-                            ? "bg-primary/20 text-primary"
+                            ? "bg-primary text-primary-foreground cursor-pointer hover:ring-2 hover:ring-primary/30"
                             : "bg-muted text-muted-foreground"
                         }`}
                       >
                         {s.num < step ? "✓" : s.num}
-                      </span>
+                      </button>
                       <span
-                        className={`font-medium ${
+                        className={`mt-2 text-xs md:text-sm font-medium text-center ${
                           s.num === step
-                            ? "text-foreground"
+                            ? "text-primary"
                             : s.num < step
                             ? "text-foreground"
                             : "text-muted-foreground"
@@ -165,47 +152,43 @@ export default function Anfordern() {
                         {s.label}
                       </span>
                     </div>
-                    <ChevronRight
-                      className={`h-4 w-4 ${
-                        s.num === step
-                          ? "text-primary"
-                          : s.num < step
-                          ? "text-muted-foreground"
-                          : "text-muted-foreground/50"
-                      }`}
-                    />
-                  </button>
+                    {index < steps.length - 1 && (
+                      <div
+                        className={`h-1 flex-1 mx-2 rounded-full transition-colors ${
+                          s.num < step ? "bg-primary" : "bg-muted"
+                        }`}
+                      />
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Right Content Area */}
-            <div className="flex-1 min-w-0">
-              {step === 1 && (
-                <PropertyDetailsStep
-                  initialData={propertyData}
-                  onSubmit={handlePropertySubmit}
-                />
-              )}
+            {/* Step Content */}
+            {step === 1 && (
+              <PropertyDetailsStep
+                initialData={propertyData}
+                onSubmit={handlePropertySubmit}
+              />
+            )}
 
-              {step === 2 && (
-                <ContactDetailsStep
-                  propertyData={propertyData}
-                  initialData={applicantData}
-                  onSubmit={handleContactSubmit}
-                  onBack={() => setStep(1)}
-                />
-              )}
+            {step === 2 && (
+              <ContactDetailsStep
+                propertyData={propertyData}
+                initialData={applicantData}
+                onSubmit={handleContactSubmit}
+                onBack={() => setStep(1)}
+              />
+            )}
 
-              {step === 3 && (
-                <CheckoutStep
-                  propertyData={propertyData}
-                  applicantData={applicantData}
-                  onSubmit={handlePaymentSubmit}
-                  onBack={() => setStep(2)}
-                />
-              )}
-            </div>
+            {step === 3 && (
+              <CheckoutStep
+                propertyData={propertyData}
+                applicantData={applicantData}
+                onSubmit={handlePaymentSubmit}
+                onBack={() => setStep(2)}
+              />
+            )}
           </div>
         </div>
       </section>
