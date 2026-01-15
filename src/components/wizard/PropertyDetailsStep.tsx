@@ -74,9 +74,12 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   const bundesland = watch("bundesland");
   const katastralgemeinde = watch("katastralgemeinde");
 
+  const [selectedAddressData, setSelectedAddressData] = useState<AddressSearchResult | null>(null);
+
   const handleAddressSelect = (result: AddressSearchResult) => {
     const addressDisplay = [result.adresse, result.plz, result.ort].filter(Boolean).join(", ");
     setSelectedAddress(addressDisplay);
+    setSelectedAddressData(result);
     
     if (result.kgName || result.kgNummer) {
       setValue("katastralgemeinde", result.kgName || result.kgNummer, { shouldValidate: true });
@@ -208,6 +211,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                         grundbuchsgericht: watch("grundbuchsgericht") || "",
                         bundesland: watch("bundesland") || "",
                         wohnungsHinweis: watch("wohnungsHinweis") || "",
+                        adresse: selectedAddressData?.adresse || "",
+                        plz: selectedAddressData?.plz || "",
+                        ort: selectedAddressData?.ort || "",
                       };
                       onSubmit(formData);
                     }} 
@@ -245,6 +251,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                   grundbuchsgericht: data.grundbuchsgericht || "",
                   bundesland: data.bundesland || "",
                   wohnungsHinweis: data.wohnungsHinweis || "",
+                  adresse: "",
+                  plz: "",
+                  ort: "",
                 };
                 
                 if (!formData.katastralgemeinde || !formData.grundstuecksnummer || !formData.grundbuchsgericht || !formData.bundesland) {

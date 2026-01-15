@@ -12,6 +12,9 @@ export interface PropertyData {
   grundbuchsgericht: string;
   bundesland: string;
   wohnungsHinweis: string;
+  adresse: string;
+  plz: string;
+  ort: string;
 }
 
 export interface ApplicantData {
@@ -39,6 +42,9 @@ export default function Anfordern() {
     grundbuchsgericht: "",
     bundesland: "",
     wohnungsHinweis: "",
+    adresse: "",
+    plz: "",
+    ort: "",
   });
   const [applicantData, setApplicantData] = useState<ApplicantData>({
     vorname: "",
