@@ -17,6 +17,9 @@ interface OrderData {
   order_number: string;
   katastralgemeinde: string;
   grundstuecksnummer: string;
+  grundbuchsgericht: string;
+  bundesland: string;
+  wohnungs_hinweis?: string;
   email: string;
   vorname: string;
   nachname: string;
@@ -24,6 +27,7 @@ interface OrderData {
   wohnsitzland: string;
   product_name: string;
   product_price: number;
+  created_at: string;
 }
 
 interface MoneybirdContact {
@@ -575,70 +579,97 @@ GrundbuchauszugOnline.at
           Subject: `[NEUE BESTELLUNG] ${order.order_number} - ${order.vorname} ${order.nachname}`,
           HtmlBody: `
             <html>
-              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto;">
+              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto;">
                 <div style="background-color: #22c55e; color: white; padding: 20px; text-align: center;">
                   <h1 style="margin: 0; font-size: 24px;">🎉 Neue Bestellung eingegangen!</h1>
                 </div>
                 
                 <div style="padding: 30px; background-color: #f8f9fa;">
                   <h2 style="color: #1a365d; margin-top: 0;">Bestellung ${order.order_number}</h2>
+                  <p style="color: #666; font-size: 14px; margin-top: -10px;">Besteld op: ${new Date(order.created_at).toLocaleString('de-AT', { dateStyle: 'full', timeStyle: 'short' })}</p>
                   
+                  <!-- Klantgegevens -->
                   <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                    <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">👤 Kundendaten</h3>
+                    <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">👤 Klantgegevens</h3>
                     <table style="width: 100%; border-collapse: collapse;">
                       <tr>
-                        <td style="padding: 8px 0; color: #666; width: 40%;">Name:</td>
-                        <td style="padding: 8px 0; font-weight: bold;">${order.vorname} ${order.nachname}</td>
+                        <td style="padding: 8px 0; color: #666; width: 40%;">Voornaam:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${order.vorname}</td>
                       </tr>
-                      ${order.firma ? `<tr>
-                        <td style="padding: 8px 0; color: #666;">Firma:</td>
-                        <td style="padding: 8px 0;">${order.firma}</td>
-                      </tr>` : ''}
+                      <tr>
+                        <td style="padding: 8px 0; color: #666;">Achternaam:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${order.nachname}</td>
+                      </tr>
                       <tr>
                         <td style="padding: 8px 0; color: #666;">E-Mail:</td>
-                        <td style="padding: 8px 0;"><a href="mailto:${order.email}">${order.email}</a></td>
+                        <td style="padding: 8px 0;"><a href="mailto:${order.email}" style="color: #3b82f6;">${order.email}</a></td>
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; color: #666;">Wohnsitzland:</td>
                         <td style="padding: 8px 0;">${order.wohnsitzland}</td>
                       </tr>
+                      ${order.firma ? `<tr>
+                        <td style="padding: 8px 0; color: #666;">Firma:</td>
+                        <td style="padding: 8px 0;">${order.firma}</td>
+                      </tr>` : ''}
                     </table>
                   </div>
                   
+                  <!-- Grundstück Details -->
                   <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                    <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">📋 Bestelldetails</h3>
+                    <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">🏠 Grundstück</h3>
                     <table style="width: 100%; border-collapse: collapse;">
                       <tr>
-                        <td style="padding: 8px 0; color: #666; width: 40%;">Produkt:</td>
-                        <td style="padding: 8px 0;">${order.product_name}</td>
+                        <td style="padding: 8px 0; color: #666; width: 40%;">Bundesland:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${order.bundesland}</td>
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; color: #666;">Katastralgemeinde:</td>
                         <td style="padding: 8px 0; font-weight: bold;">${order.katastralgemeinde}</td>
                       </tr>
                       <tr>
-                        <td style="padding: 8px 0; color: #666;">Grundstücksnummer:</td>
+                        <td style="padding: 8px 0; color: #666;">Grundstücksnummer / EZ:</td>
                         <td style="padding: 8px 0; font-weight: bold;">${order.grundstuecksnummer}</td>
                       </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #666;">Grundbuchsgericht:</td>
+                        <td style="padding: 8px 0;">${order.grundbuchsgericht}</td>
+                      </tr>
+                      ${order.wohnungs_hinweis ? `<tr>
+                        <td style="padding: 8px 0; color: #666;">Wohnungshinweis:</td>
+                        <td style="padding: 8px 0; font-style: italic;">${order.wohnungs_hinweis}</td>
+                      </tr>` : ''}
+                    </table>
+                  </div>
+                  
+                  <!-- Product & Prijs -->
+                  <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                    <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">📋 Bestelling</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="padding: 8px 0; color: #666; width: 40%;">Product:</td>
+                        <td style="padding: 8px 0;">${order.product_name}</td>
+                      </tr>
                       <tr style="border-top: 1px solid #e2e8f0;">
-                        <td style="padding: 12px 0; color: #666; font-weight: bold;">Betrag:</td>
-                        <td style="padding: 12px 0; font-weight: bold; font-size: 18px; color: #22c55e;">€ ${order.product_price.toFixed(2)}</td>
+                        <td style="padding: 12px 0; color: #666; font-weight: bold;">Totaalbedrag:</td>
+                        <td style="padding: 12px 0; font-weight: bold; font-size: 20px; color: #22c55e;">€ ${order.product_price.toFixed(2)}</td>
                       </tr>
                     </table>
                   </div>
                   
+                  <!-- Document Status -->
                   ${hasDocument 
                     ? `<div style="background-color: #d1fae5; border: 1px solid #10b981; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                        <p style="margin: 0; color: #065f46;"><strong>✅ Dokument:</strong> Erfolgreich zugestellt</p>
+                        <p style="margin: 0; color: #065f46;"><strong>✅ Dokument:</strong> Erfolgreich zugestellt aan klant</p>
                       </div>`
                     : `<div style="background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                        <p style="margin: 0; color: #991b1b;"><strong>⚠️ ACHTUNG:</strong> Dokument konnte nicht abgerufen werden!</p>
+                        <p style="margin: 0; color: #991b1b;"><strong>⚠️ ACTIE VEREIST:</strong> Dokument konnte nicht abgerufen werden!</p>
                         <p style="margin: 5px 0 0 0; color: #991b1b; font-size: 14px;">Fehler: ${documentFetchError}</p>
                         <p style="margin: 5px 0 0 0; color: #991b1b; font-size: 14px;"><strong>Bitte manuell zusenden!</strong></p>
                       </div>`}
                   
                   <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; color: #92400e;"><strong>⏳ Zahlung:</strong> Ausstehend</p>
+                    <p style="margin: 0; color: #92400e;"><strong>⏳ Zahlung:</strong> Ausstehend (auf Rechnung)</p>
                   </div>
                 </div>
                 
@@ -650,22 +681,32 @@ GrundbuchauszugOnline.at
           `,
           TextBody: `
 NEUE BESTELLUNG EINGEGANGEN!
+============================
 
 Bestellung: ${order.order_number}
+Besteld op: ${new Date(order.created_at).toLocaleString('de-AT')}
 
-=== KUNDENDATEN ===
-Name: ${order.vorname} ${order.nachname}
-${order.firma ? `Firma: ${order.firma}` : ''}
+=== KLANTGEGEVENS ===
+Voornaam: ${order.vorname}
+Achternaam: ${order.nachname}
 E-Mail: ${order.email}
 Wohnsitzland: ${order.wohnsitzland}
+${order.firma ? `Firma: ${order.firma}` : ''}
 
-=== BESTELLDETAILS ===
-Produkt: ${order.product_name}
+=== GRUNDSTÜCK ===
+Bundesland: ${order.bundesland}
 Katastralgemeinde: ${order.katastralgemeinde}
-Grundstücksnummer: ${order.grundstuecksnummer}
+Grundstücksnummer / EZ: ${order.grundstuecksnummer}
+Grundbuchsgericht: ${order.grundbuchsgericht}
+${order.wohnungs_hinweis ? `Wohnungshinweis: ${order.wohnungs_hinweis}` : ''}
+
+=== BESTELLING ===
+Product: ${order.product_name}
 Betrag: € ${order.product_price.toFixed(2)}
 
-Status: Warte auf Zahlung
+=== STATUS ===
+Dokument: ${hasDocument ? 'Erfolgreich zugestellt' : `NIET OPGEHAALD - ${documentFetchError}`}
+Zahlung: Ausstehend
           `,
         }),
       });
