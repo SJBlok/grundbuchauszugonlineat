@@ -20,6 +20,9 @@ interface OrderData {
   grundbuchsgericht: string;
   bundesland: string;
   wohnungs_hinweis?: string;
+  adresse?: string;
+  plz?: string;
+  ort?: string;
   email: string;
   vorname: string;
   nachname: string;
@@ -619,8 +622,16 @@ GrundbuchauszugOnline.at
                   <div style="background-color: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
                     <h3 style="color: #1a365d; margin-top: 0; border-bottom: 2px solid #1a365d; padding-bottom: 10px;">🏠 Grundstück</h3>
                     <table style="width: 100%; border-collapse: collapse;">
+                      ${order.adresse ? `<tr>
+                        <td style="padding: 8px 0; color: #666; width: 40%;">Adresse:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${order.adresse}</td>
+                      </tr>` : ''}
+                      ${order.plz || order.ort ? `<tr>
+                        <td style="padding: 8px 0; color: #666;">PLZ / Ort:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">${[order.plz, order.ort].filter(Boolean).join(' ')}</td>
+                      </tr>` : ''}
                       <tr>
-                        <td style="padding: 8px 0; color: #666; width: 40%;">Bundesland:</td>
+                        <td style="padding: 8px 0; color: #666;">Bundesland:</td>
                         <td style="padding: 8px 0; font-weight: bold;">${order.bundesland}</td>
                       </tr>
                       <tr>
@@ -694,6 +705,8 @@ Wohnsitzland: ${order.wohnsitzland}
 ${order.firma ? `Firma: ${order.firma}` : ''}
 
 === GRUNDSTÜCK ===
+${order.adresse ? `Adresse: ${order.adresse}` : ''}
+${order.plz || order.ort ? `PLZ / Ort: ${[order.plz, order.ort].filter(Boolean).join(' ')}` : ''}
 Bundesland: ${order.bundesland}
 Katastralgemeinde: ${order.katastralgemeinde}
 Grundstücksnummer / EZ: ${order.grundstuecksnummer}

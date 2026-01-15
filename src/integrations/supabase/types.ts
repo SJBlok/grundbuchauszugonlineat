@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       orders: {
         Row: {
+          adresse: string | null
           bundesland: string
           created_at: string
           email: string
@@ -26,7 +27,9 @@ export type Database = {
           katastralgemeinde: string
           nachname: string
           order_number: string
+          ort: string | null
           payment_status: string
+          plz: string | null
           product_name: string
           product_price: number
           status: string
@@ -36,6 +39,7 @@ export type Database = {
           wohnungs_hinweis: string | null
         }
         Insert: {
+          adresse?: string | null
           bundesland: string
           created_at?: string
           email: string
@@ -46,7 +50,9 @@ export type Database = {
           katastralgemeinde: string
           nachname: string
           order_number: string
+          ort?: string | null
           payment_status?: string
+          plz?: string | null
           product_name?: string
           product_price?: number
           status?: string
@@ -56,6 +62,7 @@ export type Database = {
           wohnungs_hinweis?: string | null
         }
         Update: {
+          adresse?: string | null
           bundesland?: string
           created_at?: string
           email?: string
@@ -66,7 +73,9 @@ export type Database = {
           katastralgemeinde?: string
           nachname?: string
           order_number?: string
+          ort?: string | null
           payment_status?: string
+          plz?: string | null
           product_name?: string
           product_price?: number
           status?: string
