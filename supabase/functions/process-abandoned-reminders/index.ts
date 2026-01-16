@@ -79,9 +79,8 @@ function getEmailTemplate(
     .total-row { background-color: #ecfdf5 !important; }
     .total-row td { font-weight: 700; color: #166534 !important; font-size: 15px; }
     .cta-section { text-align: center; padding: 24px 0; margin: 24px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
-    .cta-button { display: inline-block; background: linear-gradient(135deg, #166534 0%, #14532d 100%); color: #ffffff; text-decoration: none; padding: 14px 36px; font-weight: 600; font-size: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .cta-button:hover { background: linear-gradient(135deg, #14532d 0%, #0f3d22 100%); }
-    .cta-urgent { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+    .cta-button { display: inline-block; background-color: #166534; color: #ffffff !important; text-decoration: none; padding: 16px 40px; font-weight: 700; font-size: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+    .cta-urgent { background-color: #dc2626 !important; }
     .notice-box { background-color: #fffbeb; border: 1px solid #fcd34d; padding: 16px 20px; margin: 20px 0; font-size: 14px; }
     .notice-box.urgent { background-color: #fef2f2; border-color: #fca5a5; }
     .notice-box p { margin: 0; color: #92400e; }
@@ -398,7 +397,7 @@ async function sendReminderEmail(
       "X-Postmark-Server-Token": postmarkApiKey,
     },
     body: JSON.stringify({
-      From: "Grundbuchservice Österreich <info@grundbuchauszugonline.at>",
+      From: "GrundbuchauszugOnline.at <info@grundbuchauszugonline.at>",
       To: session.email,
       Subject: template.subject,
       HtmlBody: template.htmlBody,
