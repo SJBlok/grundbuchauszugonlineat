@@ -36,79 +36,184 @@ function getEmailTemplate(
   session: AbandonedSession,
   resumeUrl: string
 ): { subject: string; htmlBody: string; textBody: string } {
-  const propertyAddress = session.adresse && session.ort
-    ? `${session.adresse}, ${session.plz || ""} ${session.ort}`
-    : `KG ${session.katastralgemeinde || "N/A"}, EZ/GST ${session.grundstuecksnummer || "N/A"}`;
+  const propertyInfo = {
+    katastralgemeinde: session.katastralgemeinde || "—",
+    grundstuecksnummer: session.grundstuecksnummer || "—",
+    grundbuchsgericht: session.grundbuchsgericht || "—",
+    bundesland: session.bundesland || "—",
+    adresse: session.adresse && session.ort 
+      ? `${session.adresse}, ${session.plz || ""} ${session.ort}`.trim()
+      : "—",
+  };
   
   const productName = session.product_name || "Aktueller Grundbuchauszug";
-  const orderReference = session.session_id;
-  const customerName = session.vorname ? `${session.vorname} ${session.nachname || ""}`.trim() : "Sehr geehrte Damen und Herren";
+  const productPrice = session.product_price ? `€ ${Number(session.product_price).toFixed(2).replace('.', ',')}` : "€ 24,90";
+  const orderReference = session.session_id.slice(0, 8).toUpperCase();
+  const customerName = session.vorname 
+    ? `${session.vorname} ${session.nachname || ""}`.trim() 
+    : "";
+  const salutation = customerName ? `Sehr geehrte/r ${customerName}` : "Sehr geehrte Damen und Herren";
+
+  const logoUrl = "https://grundbuchauszugonline.at/favicon.svg";
 
   const baseStyles = `
-    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5; color: #1f2937; }
-    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-    .header { background-color: #064e3b; padding: 32px 40px; text-align: center; }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 700; color: #ffffff; }
-    .header p { margin: 8px 0 0 0; font-size: 12px; color: #a7f3d0; letter-spacing: 1px; text-transform: uppercase; }
-    .content { padding: 40px; }
-    .product-box { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin: 24px 0; }
-    .cta-button { display: inline-block; background-color: #064e3b; color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 24px 0; }
-    .footer { background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb; }
-    .footer p { margin: 0; font-size: 12px; color: #6b7280; }
-    .warning-box { background-color: #fef2f2; border-left: 4px solid #dc2626; padding: 16px 20px; margin: 24px 0; }
+    body { margin: 0; padding: 0; font-family: Georgia, 'Times New Roman', serif; background-color: #f8f9fa; color: #1a1a1a; line-height: 1.6; }
+    .wrapper { max-width: 640px; margin: 0 auto; padding: 20px; }
+    .container { background-color: #ffffff; border: 1px solid #d1d5db; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #14532d 0%, #166534 100%); padding: 28px 40px; border-bottom: 4px solid #dc2626; }
+    .header-content { display: flex; align-items: center; }
+    .logo { width: 48px; height: 48px; margin-right: 16px; }
+    .header-text { color: #ffffff; }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
+    .header p { margin: 4px 0 0 0; font-size: 13px; color: #bbf7d0; font-weight: 400; }
+    .ref-banner { background-color: #f3f4f6; padding: 12px 40px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #4b5563; }
+    .ref-banner strong { color: #1f2937; }
+    .content { padding: 36px 40px; }
+    .content p { margin: 0 0 16px 0; font-size: 15px; }
+    .order-table { width: 100%; border-collapse: collapse; margin: 24px 0; background-color: #fafafa; border: 1px solid #e5e7eb; }
+    .order-table th { background-color: #f3f4f6; padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; border-bottom: 1px solid #e5e7eb; font-weight: 600; }
+    .order-table td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #e5e7eb; color: #374151; }
+    .order-table tr:last-child td { border-bottom: none; }
+    .order-table .label { color: #6b7280; width: 40%; }
+    .order-table .value { font-weight: 500; color: #111827; }
+    .total-row { background-color: #ecfdf5 !important; }
+    .total-row td { font-weight: 700; color: #166534 !important; font-size: 15px; }
+    .cta-section { text-align: center; padding: 24px 0; margin: 24px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
+    .cta-button { display: inline-block; background: linear-gradient(135deg, #166534 0%, #14532d 100%); color: #ffffff; text-decoration: none; padding: 14px 36px; font-weight: 600; font-size: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .cta-button:hover { background: linear-gradient(135deg, #14532d 0%, #0f3d22 100%); }
+    .cta-urgent { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+    .notice-box { background-color: #fffbeb; border: 1px solid #fcd34d; padding: 16px 20px; margin: 20px 0; font-size: 14px; }
+    .notice-box.urgent { background-color: #fef2f2; border-color: #fca5a5; }
+    .notice-box p { margin: 0; color: #92400e; }
+    .notice-box.urgent p { color: #991b1b; }
+    .notice-box strong { display: block; margin-bottom: 4px; }
+    .footer { background-color: #f9fafb; padding: 24px 40px; border-top: 1px solid #e5e7eb; }
+    .footer-main { font-size: 12px; color: #6b7280; text-align: center; }
+    .footer-main p { margin: 0 0 8px 0; }
+    .footer-disclaimer { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: center; }
+  `;
+
+  const orderDetailsTable = `
+    <table class="order-table">
+      <tr>
+        <th colspan="2">Bestellübersicht</th>
+      </tr>
+      <tr>
+        <td class="label">Produkt</td>
+        <td class="value">${productName}</td>
+      </tr>
+      <tr>
+        <td class="label">Katastralgemeinde</td>
+        <td class="value">${propertyInfo.katastralgemeinde}</td>
+      </tr>
+      <tr>
+        <td class="label">Einlagezahl / GST-Nr.</td>
+        <td class="value">${propertyInfo.grundstuecksnummer}</td>
+      </tr>
+      <tr>
+        <td class="label">Bezirksgericht</td>
+        <td class="value">${propertyInfo.grundbuchsgericht}</td>
+      </tr>
+      <tr>
+        <td class="label">Bundesland</td>
+        <td class="value">${propertyInfo.bundesland}</td>
+      </tr>
+      ${propertyInfo.adresse !== "—" ? `
+      <tr>
+        <td class="label">Adresse</td>
+        <td class="value">${propertyInfo.adresse}</td>
+      </tr>
+      ` : ''}
+      <tr class="total-row">
+        <td class="label">Gesamtbetrag (inkl. USt.)</td>
+        <td class="value">${productPrice}</td>
+      </tr>
+    </table>
+  `;
+
+  const footerHtml = `
+    <div class="footer">
+      <div class="footer-main">
+        <p><strong>GrundbuchauszugOnline.at</strong></p>
+        <p>Ihr Online-Service für österreichische Grundbuchauszüge</p>
+        <p>E-Mail: info@grundbuchauszugonline.at</p>
+      </div>
+      <div class="footer-disclaimer">
+        <p>Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.<br>
+        Alle Auszüge werden direkt aus dem österreichischen Grundbuch bezogen.</p>
+      </div>
+    </div>
   `;
 
   if (reminderNumber === 1) {
     return {
-      subject: "Ihre Anfrage wurde noch nicht abgeschlossen",
+      subject: `Ihre Anfrage ${orderReference} – Noch nicht abgeschlossen`,
       htmlBody: `
 <!DOCTYPE html>
 <html lang="de">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>${baseStyles}</style>
+</head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>GRUNDBUCHSERVICE ÖSTERREICH</h1>
-      <p>Offizieller Auszugs-Service</p>
-    </div>
-    <div class="content">
-      <p>Sehr geehrte(r) ${customerName},</p>
-      <p>Sie haben vor Kurzem eine Anfrage für einen Grundbuchauszug begonnen. Wir haben festgestellt, dass die Bestellung noch nicht abgeschlossen wurde.</p>
-      
-      <div class="product-box">
-        <p style="margin: 0 0 8px 0; font-weight: 600; color: #064e3b;">Ausgewähltes Produkt</p>
-        <p style="margin: 0 0 4px 0;"><strong>${productName}</strong></p>
-        <p style="margin: 0; color: #6b7280;">Liegenschaft: ${propertyAddress}</p>
-        <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px;">Referenz: ${orderReference}</p>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="vertical-align: middle; padding-right: 16px;">
+              <img src="${logoUrl}" alt="GrundbuchauszugOnline" width="44" height="44" style="display: block;">
+            </td>
+            <td style="vertical-align: middle;">
+              <h1 style="margin: 0; font-size: 18px; font-weight: 700; color: #ffffff;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
+              <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbf7d0;">Offizieller Auszugs-Service</p>
+            </td>
+          </tr>
+        </table>
       </div>
-      
-      <p>Ihre Sitzungsdaten wurden vorübergehend gespeichert. Sie können die Bestellung jederzeit fortsetzen.</p>
-      
-      <div style="text-align: center;">
-        <a href="${resumeUrl}" class="cta-button">Bestellung fortsetzen</a>
+      <div class="ref-banner">
+        Vorgangs-Nr.: <strong>${orderReference}</strong>
       </div>
-      
-      <p style="margin-top: 32px; font-size: 14px; color: #6b7280;">Bei Fragen stehen wir Ihnen jederzeit zur Verfügung.</p>
-    </div>
-    <div class="footer">
-      <p><strong>GrundbuchauszugOnline.at</strong></p>
-      <p style="margin-top: 8px;">Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.</p>
+      <div class="content">
+        <p>${salutation},</p>
+        <p>Sie haben kürzlich eine Anfrage für einen Grundbuchauszug gestartet. Wir haben festgestellt, dass Ihre Bestellung noch nicht abgeschlossen wurde.</p>
+        <p>Ihre eingegebenen Daten wurden vorübergehend gespeichert. Sie können die Bestellung jederzeit fortsetzen:</p>
+        
+        ${orderDetailsTable}
+        
+        <div class="cta-section">
+          <a href="${resumeUrl}" class="cta-button">Bestellung fortsetzen →</a>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280;">Bei Fragen stehen wir Ihnen gerne unter info@grundbuchauszugonline.at zur Verfügung.</p>
+      </div>
+      ${footerHtml}
     </div>
   </div>
 </body>
 </html>`,
-      textBody: `Sehr geehrte(r) ${customerName},
+      textBody: `GRUNDBUCHSERVICE ÖSTERREICH
+Vorgangs-Nr.: ${orderReference}
 
-Sie haben vor Kurzem eine Anfrage für einen Grundbuchauszug begonnen. Wir haben festgestellt, dass die Bestellung noch nicht abgeschlossen wurde.
+${salutation},
 
-Ausgewähltes Produkt: ${productName}
-Liegenschaft: ${propertyAddress}
-Referenz: ${orderReference}
+Sie haben kürzlich eine Anfrage für einen Grundbuchauszug gestartet. Wir haben festgestellt, dass Ihre Bestellung noch nicht abgeschlossen wurde.
 
-Ihre Sitzungsdaten wurden vorübergehend gespeichert. Sie können die Bestellung jederzeit fortsetzen:
-${resumeUrl}
+BESTELLÜBERSICHT
+────────────────────────────
+Produkt: ${productName}
+Katastralgemeinde: ${propertyInfo.katastralgemeinde}
+Einlagezahl / GST-Nr.: ${propertyInfo.grundstuecksnummer}
+Bezirksgericht: ${propertyInfo.grundbuchsgericht}
+Bundesland: ${propertyInfo.bundesland}
+${propertyInfo.adresse !== "—" ? `Adresse: ${propertyInfo.adresse}` : ''}
+────────────────────────────
+Gesamtbetrag (inkl. USt.): ${productPrice}
 
-Bei Fragen stehen wir Ihnen jederzeit zur Verfügung.
+Bestellung fortsetzen: ${resumeUrl}
+
+Bei Fragen: info@grundbuchauszugonline.at
 
 GrundbuchauszugOnline.at
 Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
@@ -117,123 +222,160 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
 
   if (reminderNumber === 2) {
     return {
-      subject: "Handlungsbedarf: Ihre Anfrage wird nur vorübergehend gespeichert",
+      subject: `Erinnerung: Ihre Anfrage ${orderReference} läuft in 48 Stunden ab`,
       htmlBody: `
 <!DOCTYPE html>
 <html lang="de">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>${baseStyles}</style>
+</head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>GRUNDBUCHSERVICE ÖSTERREICH</h1>
-      <p>Offizieller Auszugs-Service</p>
-    </div>
-    <div class="content">
-      <p>Sehr geehrte(r) ${customerName},</p>
-      
-      <div class="warning-box">
-        <p style="margin: 0; font-weight: 600; color: #991b1b;">Wichtiger Hinweis zur Datenspeicherung</p>
-        <p style="margin: 8px 0 0 0; color: #7f1d1d;">Ihre Bestellsitzung wird nur <strong>72 Stunden</strong> gespeichert. Nach Ablauf dieser Frist werden alle eingegebenen Daten automatisch und unwiderruflich gelöscht.</p>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="vertical-align: middle; padding-right: 16px;">
+              <img src="${logoUrl}" alt="GrundbuchauszugOnline" width="44" height="44" style="display: block;">
+            </td>
+            <td style="vertical-align: middle;">
+              <h1 style="margin: 0; font-size: 18px; font-weight: 700; color: #ffffff;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
+              <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbf7d0;">Offizieller Auszugs-Service</p>
+            </td>
+          </tr>
+        </table>
       </div>
-      
-      <p>Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch nicht abgeschlossen wurde.</p>
-      
-      <div class="product-box">
-        <p style="margin: 0 0 8px 0; font-weight: 600; color: #064e3b;">Ihre Bestelldetails</p>
-        <p style="margin: 0 0 4px 0;"><strong>${productName}</strong></p>
-        <p style="margin: 0; color: #6b7280;">Liegenschaft: ${propertyAddress}</p>
-        <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px;">Referenz: ${orderReference}</p>
+      <div class="ref-banner">
+        Vorgangs-Nr.: <strong>${orderReference}</strong>
       </div>
-      
-      <p>Um Ihre Daten nicht zu verlieren, schließen Sie bitte Ihre Bestellung zeitnah ab.</p>
-      
-      <div style="text-align: center;">
-        <a href="${resumeUrl}" class="cta-button">Zur Anfrage zurückkehren</a>
+      <div class="content">
+        <p>${salutation},</p>
+        
+        <div class="notice-box">
+          <p><strong>Wichtiger Hinweis zur Datenspeicherung</strong>
+          Ihre Sitzungsdaten werden aus Datenschutzgründen nur <strong>72 Stunden</strong> gespeichert. Danach werden alle eingegebenen Daten automatisch und unwiderruflich gelöscht.</p>
+        </div>
+        
+        <p>Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch nicht abgeschlossen wurde.</p>
+        
+        ${orderDetailsTable}
+        
+        <div class="cta-section">
+          <a href="${resumeUrl}" class="cta-button">Jetzt Bestellung abschließen →</a>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280;">Um Datenverlust zu vermeiden, empfehlen wir Ihnen, die Bestellung zeitnah abzuschließen.</p>
       </div>
-    </div>
-    <div class="footer">
-      <p><strong>GrundbuchauszugOnline.at</strong></p>
-      <p style="margin-top: 8px;">Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.</p>
+      ${footerHtml}
     </div>
   </div>
 </body>
 </html>`,
-      textBody: `Sehr geehrte(r) ${customerName},
+      textBody: `GRUNDBUCHSERVICE ÖSTERREICH
+Vorgangs-Nr.: ${orderReference}
+
+${salutation},
 
 WICHTIGER HINWEIS ZUR DATENSPEICHERUNG:
-Ihre Bestellsitzung wird nur 72 Stunden gespeichert. Nach Ablauf dieser Frist werden alle eingegebenen Daten automatisch und unwiderruflich gelöscht.
+Ihre Sitzungsdaten werden aus Datenschutzgründen nur 72 Stunden gespeichert. 
+Danach werden alle eingegebenen Daten automatisch und unwiderruflich gelöscht.
 
 Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch nicht abgeschlossen wurde.
 
-Ihre Bestelldetails:
+BESTELLÜBERSICHT
+────────────────────────────
 Produkt: ${productName}
-Liegenschaft: ${propertyAddress}
-Referenz: ${orderReference}
+Katastralgemeinde: ${propertyInfo.katastralgemeinde}
+Einlagezahl / GST-Nr.: ${propertyInfo.grundstuecksnummer}
+Bezirksgericht: ${propertyInfo.grundbuchsgericht}
+Bundesland: ${propertyInfo.bundesland}
+${propertyInfo.adresse !== "—" ? `Adresse: ${propertyInfo.adresse}` : ''}
+────────────────────────────
+Gesamtbetrag (inkl. USt.): ${productPrice}
 
-Um Ihre Daten nicht zu verlieren, schließen Sie bitte Ihre Bestellung zeitnah ab:
-${resumeUrl}
+Jetzt Bestellung abschließen: ${resumeUrl}
 
 GrundbuchauszugOnline.at
 Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
     };
   }
 
-  // Reminder 3 - Final
+  // Reminder 3 - Final/Urgent
   return {
-    subject: "Letzte Erinnerung – Ihre Anfrage läuft heute ab",
+    subject: `LETZTE ERINNERUNG: Anfrage ${orderReference} wird heute gelöscht`,
     htmlBody: `
 <!DOCTYPE html>
 <html lang="de">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>${baseStyles}</style></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>${baseStyles}</style>
+</head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>GRUNDBUCHSERVICE ÖSTERREICH</h1>
-      <p>Offizieller Auszugs-Service</p>
-    </div>
-    <div class="content">
-      <p>Sehr geehrte(r) ${customerName},</p>
-      
-      <div class="warning-box" style="background-color: #fee2e2; border-left-color: #b91c1c;">
-        <p style="margin: 0; font-weight: 700; color: #7f1d1d; font-size: 16px;">⚠ LETZTE ERINNERUNG</p>
-        <p style="margin: 8px 0 0 0; color: #7f1d1d;">Dies ist die letzte Erinnerung. <strong>Ihre Sitzung wird nach Ablauf von 72 Stunden automatisch und unwiderruflich gelöscht.</strong></p>
-        <p style="margin: 8px 0 0 0; color: #991b1b;">Alle eingegebenen Daten gehen verloren und können nicht wiederhergestellt werden.</p>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header" style="background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%); border-bottom-color: #fca5a5;">
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="vertical-align: middle; padding-right: 16px;">
+              <img src="${logoUrl}" alt="GrundbuchauszugOnline" width="44" height="44" style="display: block;">
+            </td>
+            <td style="vertical-align: middle;">
+              <h1 style="margin: 0; font-size: 18px; font-weight: 700; color: #ffffff;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
+              <p style="margin: 2px 0 0 0; font-size: 12px; color: #fecaca;">Letzte Erinnerung</p>
+            </td>
+          </tr>
+        </table>
       </div>
-      
-      <div class="product-box">
-        <p style="margin: 0 0 8px 0; font-weight: 600; color: #064e3b;">Ihre nicht abgeschlossene Bestellung</p>
-        <p style="margin: 0 0 4px 0;"><strong>${productName}</strong></p>
-        <p style="margin: 0; color: #6b7280;">Liegenschaft: ${propertyAddress}</p>
-        <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px;">Referenz: ${orderReference}</p>
+      <div class="ref-banner" style="background-color: #fef2f2; border-bottom-color: #fecaca;">
+        Vorgangs-Nr.: <strong>${orderReference}</strong> — <span style="color: #dc2626; font-weight: 600;">Läuft heute ab</span>
       </div>
-      
-      <p style="font-weight: 600;">Handeln Sie jetzt, um Ihre Daten zu sichern und die Bestellung abzuschließen.</p>
-      
-      <div style="text-align: center;">
-        <a href="${resumeUrl}" class="cta-button" style="background-color: #b91c1c;">Jetzt abschließen</a>
+      <div class="content">
+        <p>${salutation},</p>
+        
+        <div class="notice-box urgent">
+          <p><strong>⚠ Ihre Sitzung wird in Kürze gelöscht</strong>
+          Dies ist die letzte Erinnerung. Nach Ablauf der 72-Stunden-Frist werden alle eingegebenen Daten <strong>automatisch und unwiderruflich gelöscht</strong>. Eine Wiederherstellung ist nicht möglich.</p>
+        </div>
+        
+        ${orderDetailsTable}
+        
+        <div class="cta-section">
+          <a href="${resumeUrl}" class="cta-button cta-urgent">Jetzt abschließen – Daten sichern →</a>
+        </div>
+        
+        <p style="font-size: 14px; color: #6b7280;">Handeln Sie jetzt, um Ihre bereits eingegebenen Daten nicht zu verlieren.</p>
       </div>
-    </div>
-    <div class="footer">
-      <p><strong>GrundbuchauszugOnline.at</strong></p>
-      <p style="margin-top: 8px;">Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.</p>
+      ${footerHtml}
     </div>
   </div>
 </body>
 </html>`,
-    textBody: `Sehr geehrte(r) ${customerName},
+    textBody: `GRUNDBUCHSERVICE ÖSTERREICH
+Vorgangs-Nr.: ${orderReference} — LÄUFT HEUTE AB
 
-⚠ LETZTE ERINNERUNG
+${salutation},
 
-Dies ist die letzte Erinnerung. Ihre Sitzung wird nach Ablauf von 72 Stunden automatisch und unwiderruflich gelöscht.
-Alle eingegebenen Daten gehen verloren und können nicht wiederhergestellt werden.
+⚠ LETZTE ERINNERUNG — IHRE SITZUNG WIRD IN KÜRZE GELÖSCHT
 
-Ihre nicht abgeschlossene Bestellung:
+Dies ist die letzte Erinnerung. Nach Ablauf der 72-Stunden-Frist werden alle 
+eingegebenen Daten automatisch und unwiderruflich gelöscht. 
+Eine Wiederherstellung ist nicht möglich.
+
+BESTELLÜBERSICHT
+────────────────────────────
 Produkt: ${productName}
-Liegenschaft: ${propertyAddress}
-Referenz: ${orderReference}
+Katastralgemeinde: ${propertyInfo.katastralgemeinde}
+Einlagezahl / GST-Nr.: ${propertyInfo.grundstuecksnummer}
+Bezirksgericht: ${propertyInfo.grundbuchsgericht}
+Bundesland: ${propertyInfo.bundesland}
+${propertyInfo.adresse !== "—" ? `Adresse: ${propertyInfo.adresse}` : ''}
+────────────────────────────
+Gesamtbetrag (inkl. USt.): ${productPrice}
 
-Handeln Sie jetzt, um Ihre Daten zu sichern und die Bestellung abzuschließen:
-${resumeUrl}
+JETZT ABSCHLIESSEN: ${resumeUrl}
 
 GrundbuchauszugOnline.at
 Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
