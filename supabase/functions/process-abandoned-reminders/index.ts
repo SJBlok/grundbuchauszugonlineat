@@ -80,7 +80,8 @@ function getEmailTemplate(
     .total-row td { font-weight: 700; color: #166534 !important; font-size: 15px; }
     .cta-section { text-align: center; padding: 24px 0; margin: 24px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
     .cta-button { display: inline-block; background-color: #166534; color: #ffffff !important; text-decoration: none; padding: 16px 40px; font-weight: 700; font-size: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-    .cta-urgent { background-color: #dc2626 !important; }
+    .notice-box.final { background-color: #f0fdf4; border-color: #86efac; }
+    .notice-box.final p { color: #166534; }
     .notice-box { background-color: #fffbeb; border: 1px solid #fcd34d; padding: 16px 20px; margin: 20px 0; font-size: 14px; }
     .notice-box.urgent { background-color: #fef2f2; border-color: #fca5a5; }
     .notice-box p { margin: 0; color: #92400e; }
@@ -301,9 +302,9 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
     };
   }
 
-  // Reminder 3 - Final/Urgent
+  // Reminder 3 - Final (same professional styling)
   return {
-    subject: `LETZTE ERINNERUNG: Anfrage ${orderReference} wird heute gelöscht`,
+    subject: `Letzte Erinnerung: Anfrage ${orderReference} läuft heute ab`,
     htmlBody: `
 <!DOCTYPE html>
 <html lang="de">
@@ -315,7 +316,7 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
 <body>
   <div class="wrapper">
     <div class="container">
-      <div class="header" style="background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%); border-bottom-color: #fca5a5;">
+      <div class="header">
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td style="vertical-align: middle; padding-right: 16px;">
@@ -323,29 +324,31 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
             </td>
             <td style="vertical-align: middle;">
               <h1 style="margin: 0; font-size: 18px; font-weight: 700; color: #ffffff;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
-              <p style="margin: 2px 0 0 0; font-size: 12px; color: #fecaca;">Letzte Erinnerung</p>
+              <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbf7d0;">Offizieller Auszugs-Service</p>
             </td>
           </tr>
         </table>
       </div>
-      <div class="ref-banner" style="background-color: #fef2f2; border-bottom-color: #fecaca;">
-        Vorgangs-Nr.: <strong>${orderReference}</strong> — <span style="color: #dc2626; font-weight: 600;">Läuft heute ab</span>
+      <div class="ref-banner">
+        Vorgangs-Nr.: <strong>${orderReference}</strong> — <span style="font-weight: 600;">Letzte Erinnerung</span>
       </div>
       <div class="content">
         <p>${salutation},</p>
         
-        <div class="notice-box urgent">
-          <p><strong>⚠ Ihre Sitzung wird in Kürze gelöscht</strong>
-          Dies ist die letzte Erinnerung. Nach Ablauf der 72-Stunden-Frist werden alle eingegebenen Daten <strong>automatisch und unwiderruflich gelöscht</strong>. Eine Wiederherstellung ist nicht möglich.</p>
+        <div class="notice-box final">
+          <p><strong>Hinweis zur Datenlöschung</strong>
+          Dies ist die letzte Erinnerung. Nach Ablauf der 72-Stunden-Frist werden alle eingegebenen Daten gemäß unserer Datenschutzrichtlinien <strong>automatisch gelöscht</strong>. Eine Wiederherstellung ist danach nicht mehr möglich.</p>
         </div>
+        
+        <p>Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch nicht abgeschlossen wurde.</p>
         
         ${orderDetailsTable}
         
         <div class="cta-section">
-          <a href="${resumeUrl}" class="cta-button cta-urgent">Jetzt abschließen – Daten sichern →</a>
+          <a href="${resumeUrl}" class="cta-button">Bestellung jetzt abschließen →</a>
         </div>
         
-        <p style="font-size: 14px; color: #6b7280;">Handeln Sie jetzt, um Ihre bereits eingegebenen Daten nicht zu verlieren.</p>
+        <p style="font-size: 14px; color: #6b7280;">Um Ihre eingegebenen Daten zu sichern, empfehlen wir Ihnen, die Bestellung heute abzuschließen.</p>
       </div>
       ${footerHtml}
     </div>
@@ -353,15 +356,16 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
 </body>
 </html>`,
     textBody: `GRUNDBUCHSERVICE ÖSTERREICH
-Vorgangs-Nr.: ${orderReference} — LÄUFT HEUTE AB
+Vorgangs-Nr.: ${orderReference} — Letzte Erinnerung
 
 ${salutation},
 
-⚠ LETZTE ERINNERUNG — IHRE SITZUNG WIRD IN KÜRZE GELÖSCHT
-
+HINWEIS ZUR DATENLÖSCHUNG:
 Dies ist die letzte Erinnerung. Nach Ablauf der 72-Stunden-Frist werden alle 
-eingegebenen Daten automatisch und unwiderruflich gelöscht. 
-Eine Wiederherstellung ist nicht möglich.
+eingegebenen Daten gemäß unserer Datenschutzrichtlinien automatisch gelöscht. 
+Eine Wiederherstellung ist danach nicht mehr möglich.
+
+Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch nicht abgeschlossen wurde.
 
 BESTELLÜBERSICHT
 ────────────────────────────
@@ -374,7 +378,7 @@ ${propertyInfo.adresse !== "—" ? `Adresse: ${propertyInfo.adresse}` : ''}
 ────────────────────────────
 Gesamtbetrag (inkl. USt.): ${productPrice}
 
-JETZT ABSCHLIESSEN: ${resumeUrl}
+Bestellung jetzt abschließen: ${resumeUrl}
 
 GrundbuchauszugOnline.at
 Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
