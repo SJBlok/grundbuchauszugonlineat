@@ -182,7 +182,7 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { orderId } = await req.json();
+    const { orderId, sessionId } = await req.json();
 
     if (!orderId) {
       throw new Error("Order ID is required");
@@ -192,6 +192,20 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Mark abandoned session as completed if sessionId is provided
+    if (sessionId) {
+      const { error: updateError } = await supabase
+        .from("abandoned_sessions")
+        .update({ order_completed: true })
+        .eq("session_id", sessionId);
+      
+      if (updateError) {
+        console.warn("Failed to mark session as completed:", updateError.message);
+      } else {
+        console.log(`Marked session ${sessionId} as completed`);
+      }
+    }
 
     // Fetch order details
     const { data: order, error: orderError } = await supabase
