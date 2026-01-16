@@ -109,22 +109,22 @@ export default function Index() {
 
       {/* Price Banner */}
       <section className="bg-info border-y">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <img src={iconDocument} alt="" className="w-14 h-14 object-contain" />
+        <div className="container mx-auto px-4 py-4 md:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 md:gap-4 text-center sm:text-left">
+              <img src={iconDocument} alt="" className="w-10 h-10 md:w-14 md:h-14 object-contain shrink-0" />
               <div>
-                <h2 className="text-lg font-semibold text-foreground">
+                <h2 className="text-base md:text-lg font-semibold text-foreground">
                   Aktueller Grundbuchauszug
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs md:text-sm text-muted-foreground">
                   Vollständiger Auszug aus dem österreichischen Grundbuch
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-2xl font-bold text-primary">19,90 €</span>
-              <Button asChild>
+            <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
+              <span className="text-xl md:text-2xl font-bold text-primary">19,90 €</span>
+              <Button asChild className="flex-1 sm:flex-none h-12 text-base">
                 <Link to="/anfordern" className="hover:no-underline">Jetzt bestellen</Link>
               </Button>
             </div>
@@ -133,18 +133,18 @@ export default function Index() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
             {benefits.map((benefit) => (
-              <div key={benefit.title} className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 rounded bg-primary/10 flex items-center justify-center">
-                    <benefit.icon className="h-6 w-6 text-primary" />
+              <div key={benefit.title} className="flex gap-3 md:gap-4">
+                <div className="shrink-0">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded bg-primary/10 flex items-center justify-center">
+                    <benefit.icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                  <h3 className="text-base md:text-lg font-semibold text-foreground mb-1 md:mb-2">
                     {benefit.title}
                   </h3>
                   <p className="text-muted-foreground text-sm">
@@ -158,23 +158,23 @@ export default function Index() {
       </section>
 
       {/* Process Section */}
-      <section className="bg-muted py-16 md:py-20">
+      <section className="bg-muted py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-2 text-center">
             Bestellablauf
           </h2>
-          <p className="text-muted-foreground text-center mb-12">ohne Registrierung</p>
+          <p className="text-sm md:text-base text-muted-foreground text-center mb-8 md:mb-12">ohne Registrierung</p>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {processSteps.map((step) => (
-              <div key={step.number} className="bg-background p-6 rounded border text-center">
-                <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl mx-auto mb-4">
+              <div key={step.number} className="bg-background p-4 md:p-6 rounded border text-center">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg md:text-xl mx-auto mb-3 md:mb-4">
                   {step.number}
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">
+                <h3 className="font-semibold text-sm md:text-base text-foreground mb-1 md:mb-2">
                   {step.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs md:text-sm text-muted-foreground">
                   {step.description}
                 </p>
               </div>
@@ -184,73 +184,73 @@ export default function Index() {
       </section>
 
       {/* What is Grundbuch Section */}
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-4 md:mb-6">
                 Was ist ein Grundbuchauszug?
               </h2>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6 leading-relaxed">
                 In einem Grundbuchauszug werden Informationen über eine Liegenschaft bzw. eine Immobilie gesammelt. Hier ist ersichtlich wie groß das Grundstück ist und wie dieses genutzt wird.
               </p>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6 leading-relaxed">
                 Ebenso sind hier Informationen zum Eigentümer wie Name, Adresse und Geburtsdatum ersichtlich und seit wann dieser Eigentümer der Immobilie ist. Außerdem wird im Grundbuchauszug festgehalten, ob und welche Pflichten und Rechte mit der Liegenschaft verbunden sind.
               </p>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {grundbuchInfo.map((info) => (
-                  <div key={info.title} className="bg-info p-4 rounded border-l-4 border-primary">
-                    <h3 className="font-semibold text-foreground mb-1">{info.title}</h3>
-                    <p className="text-sm text-muted-foreground">{info.description}</p>
+                  <div key={info.title} className="bg-info p-3 md:p-4 rounded border-l-4 border-primary">
+                    <h3 className="font-semibold text-sm md:text-base text-foreground mb-1">{info.title}</h3>
+                    <p className="text-xs md:text-sm text-muted-foreground">{info.description}</p>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="flex justify-center">
-              <img src={iconMap} alt="Katasterplan" className="w-64 h-64 object-contain opacity-80" />
+            <div className="flex justify-center order-first md:order-last">
+              <img src={iconMap} alt="Katasterplan" className="w-48 h-48 md:w-64 md:h-64 object-contain opacity-80" />
             </div>
           </div>
         </div>
       </section>
 
       {/* Structure Section */}
-      <section className="bg-info py-16 md:py-20">
+      <section className="bg-info py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-12 text-center">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-8 md:mb-12 text-center">
             Aufbau eines Grundbuchauszugs
           </h2>
           
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-background p-6 rounded border-t-4 border-primary">
-              <h3 className="text-lg font-bold text-primary mb-2">A-Blatt</h3>
-              <h4 className="font-semibold text-foreground mb-3">Gutsbestandsblatt</h4>
-              <p className="text-sm text-muted-foreground mb-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="bg-background p-4 md:p-6 rounded border-t-4 border-primary">
+              <h3 className="text-base md:text-lg font-bold text-primary mb-1 md:mb-2">A-Blatt</h3>
+              <h4 className="font-semibold text-sm md:text-base text-foreground mb-2 md:mb-3">Gutsbestandsblatt</h4>
+              <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
                 Das A-Blatt besteht aus der Abteilung A-1 und A-2. Darin befinden sich alle Grundstücke des Grundbuchkörpers mit Adresse, Grundstücksnummer und Benützungsart.
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs md:text-sm text-muted-foreground">
                 Abteilung A-2 enthält die mit der Liegenschaft verbundenen Rechte sowie Zu- und Abschreibungen.
               </p>
             </div>
             
-            <div className="bg-background p-6 rounded border-t-4 border-secondary">
-              <h3 className="text-lg font-bold text-secondary mb-2">B-Blatt</h3>
-              <h4 className="font-semibold text-foreground mb-3">Eigentumsblatt</h4>
-              <p className="text-sm text-muted-foreground">
+            <div className="bg-background p-4 md:p-6 rounded border-t-4 border-secondary">
+              <h3 className="text-base md:text-lg font-bold text-secondary mb-1 md:mb-2">B-Blatt</h3>
+              <h4 className="font-semibold text-sm md:text-base text-foreground mb-2 md:mb-3">Eigentumsblatt</h4>
+              <p className="text-xs md:text-sm text-muted-foreground">
                 Das B-Blatt gibt Auskunft über die Eigentumsverhältnisse der Liegenschaft. Hier wird ersichtlich, wer der Eigentümer ist. Bei mehreren Eigentümern ist der jeweilige Eigentumsanteil eingetragen. Weiters kann festgestellt werden, wann und durch welche Urkunde das Eigentumsrecht erworben wurde.
               </p>
             </div>
             
-            <div className="bg-background p-6 rounded border-t-4 border-muted-foreground">
-              <h3 className="text-lg font-bold text-muted-foreground mb-2">C-Blatt</h3>
-              <h4 className="font-semibold text-foreground mb-3">Lastenblatt</h4>
-              <p className="text-sm text-muted-foreground">
+            <div className="bg-background p-4 md:p-6 rounded border-t-4 border-muted-foreground sm:col-span-2 md:col-span-1">
+              <h3 className="text-base md:text-lg font-bold text-muted-foreground mb-1 md:mb-2">C-Blatt</h3>
+              <h4 className="font-semibold text-sm md:text-base text-foreground mb-2 md:mb-3">Lastenblatt</h4>
+              <p className="text-xs md:text-sm text-muted-foreground">
                 Das C-Blatt enthält die mit der Liegenschaft verbundenen Belastungen: Hypotheken, Dienstbarkeiten, Vor- und Wiederverkaufsrechte sowie Miet- und Pachtverträge. Bei Eigentumsübertragung gehen die Lasten auf den neuen Eigentümer über.
               </p>
             </div>
           </div>
           
-          <div className="text-center mt-8">
-            <Button asChild variant="outline">
+          <div className="text-center mt-6 md:mt-8">
+            <Button asChild variant="outline" className="h-12 px-6 text-base">
               <Link to="/lexikon" className="hover:no-underline">
                 Zum Grundbuch-Lexikon
                 <ChevronRight className="ml-2 h-4 w-4" />
@@ -261,18 +261,18 @@ export default function Index() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-20">
+      <section className="py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-3 md:mb-4">
             Grundbuchauszug jetzt anfordern
           </h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 max-w-2xl mx-auto">
             Mit Eingabe der Katastralgemeinde in Verbindung mit Grundstücksnummer oder Einlagezahl können Sie sofort einen Grundbuchauszug als PDF erhalten.
           </p>
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="h-14 px-8 text-base md:text-lg w-full sm:w-auto">
             <Link to="/anfordern" className="hover:no-underline">
               Jetzt anfordern
-              <ChevronRight className="ml-2 h-4 w-4" />
+              <ChevronRight className="ml-2 h-4 w-4 md:h-5 md:w-5" />
             </Link>
           </Button>
         </div>
