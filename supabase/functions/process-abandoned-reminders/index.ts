@@ -57,47 +57,33 @@ function getEmailTemplate(
   const logoUrl = "https://grundbuchauszugonline.at/favicon.svg";
 
   const baseStyles = `
-    body { margin: 0; padding: 0; font-family: Georgia, 'Times New Roman', serif; background-color: #f8f9fa; color: #1a1a1a; line-height: 1.6; }
-    .wrapper { max-width: 640px; margin: 0 auto; padding: 20px; }
-    .container { background-color: #ffffff; border: 1px solid #d1d5db; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    .header { background: linear-gradient(135deg, #14532d 0%, #166534 100%); padding: 28px 40px; border-bottom: 4px solid #dc2626; }
-    .header-content { display: flex; align-items: center; }
-    .logo { width: 48px; height: 48px; margin-right: 16px; }
-    .header-text { color: #ffffff; }
-    .header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; }
-    .header p { margin: 4px 0 0 0; font-size: 13px; color: #bbf7d0; font-weight: 400; }
-    .ref-banner { background-color: #f3f4f6; padding: 12px 40px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #4b5563; }
-    .ref-banner strong { color: #1f2937; }
-    .content { padding: 36px 40px; }
-    .content p { margin: 0 0 16px 0; font-size: 15px; }
-    .order-table { width: 100%; border-collapse: collapse; margin: 24px 0; background-color: #fafafa; border: 1px solid #e5e7eb; }
-    .order-table th { background-color: #f3f4f6; padding: 12px 16px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7280; border-bottom: 1px solid #e5e7eb; font-weight: 600; }
-    .order-table td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #e5e7eb; color: #374151; }
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5; color: #333333; line-height: 1.5; }
+    .wrapper { max-width: 600px; margin: 0 auto; padding: 24px 16px; }
+    .container { background-color: #ffffff; border-radius: 4px; overflow: hidden; }
+    .header { background-color: #166534; padding: 24px 32px; text-align: center; }
+    .header h1 { margin: 0; font-size: 22px; font-weight: 600; color: #ffffff; letter-spacing: 0.3px; }
+    .header p { margin: 6px 0 0 0; font-size: 13px; color: rgba(255,255,255,0.8); }
+    .ref-banner { background-color: #f9fafb; padding: 12px 32px; border-bottom: 1px solid #e5e7eb; font-size: 13px; color: #6b7280; }
+    .content { padding: 32px; }
+    .content p { margin: 0 0 16px 0; font-size: 15px; color: #374151; }
+    .order-table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    .order-table td { padding: 10px 0; font-size: 14px; border-bottom: 1px solid #f3f4f6; color: #374151; }
     .order-table tr:last-child td { border-bottom: none; }
-    .order-table .label { color: #6b7280; width: 40%; }
+    .order-table .label { color: #6b7280; width: 45%; }
     .order-table .value { font-weight: 500; color: #111827; }
-    .total-row { background-color: #ecfdf5 !important; }
-    .total-row td { font-weight: 700; color: #166534 !important; font-size: 15px; }
-    .cta-section { text-align: center; padding: 24px 0; margin: 24px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
-    .cta-button { display: inline-block; background-color: #166534; color: #ffffff !important; text-decoration: none; padding: 16px 40px; font-weight: 700; font-size: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-    .notice-box.final { background-color: #f0fdf4; border-color: #86efac; }
-    .notice-box.final p { color: #166534; }
-    .notice-box { background-color: #fffbeb; border: 1px solid #fcd34d; padding: 16px 20px; margin: 20px 0; font-size: 14px; }
-    .notice-box.urgent { background-color: #fef2f2; border-color: #fca5a5; }
-    .notice-box p { margin: 0; color: #92400e; }
-    .notice-box.urgent p { color: #991b1b; }
-    .notice-box strong { display: block; margin-bottom: 4px; }
-    .footer { background-color: #f9fafb; padding: 24px 40px; border-top: 1px solid #e5e7eb; }
-    .footer-main { font-size: 12px; color: #6b7280; text-align: center; }
-    .footer-main p { margin: 0 0 8px 0; }
-    .footer-disclaimer { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: center; }
+    .total-row td { padding-top: 16px; border-top: 1px solid #e5e7eb; border-bottom: none; }
+    .total-row .value { font-weight: 600; color: #166534; font-size: 15px; }
+    .cta-section { text-align: center; padding: 8px 0 24px 0; }
+    .cta-button { display: inline-block; background-color: #166534; color: #ffffff !important; text-decoration: none; padding: 14px 32px; font-weight: 600; font-size: 15px; border-radius: 4px; }
+    .notice-box { background-color: #f9fafb; border-left: 3px solid #166534; padding: 14px 16px; margin: 20px 0; font-size: 14px; }
+    .notice-box p { margin: 0; color: #374151; }
+    .footer { background-color: #f9fafb; padding: 20px 32px; text-align: center; }
+    .footer p { margin: 0 0 4px 0; font-size: 12px; color: #6b7280; }
+    .footer-disclaimer { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; }
   `;
 
   const orderDetailsTable = `
     <table class="order-table">
-      <tr>
-        <th colspan="2">Bestellübersicht</th>
-      </tr>
       <tr>
         <td class="label">Produkt</td>
         <td class="value">${productName}</td>
@@ -125,7 +111,7 @@ function getEmailTemplate(
       </tr>
       ` : ''}
       <tr class="total-row">
-        <td class="label">Gesamtbetrag (inkl. USt.)</td>
+        <td class="label">Gesamtbetrag</td>
         <td class="value">${productPrice}</td>
       </tr>
     </table>
@@ -133,14 +119,10 @@ function getEmailTemplate(
 
   const footerHtml = `
     <div class="footer">
-      <div class="footer-main">
-        <p><strong>GrundbuchauszugOnline.at</strong></p>
-        <p>Ihr Online-Service für österreichische Grundbuchauszüge</p>
-        <p>E-Mail: info@grundbuchauszugonline.at</p>
-      </div>
+      <p>GrundbuchauszugOnline.at</p>
+      <p>info@grundbuchauszugonline.at</p>
       <div class="footer-disclaimer">
-        <p>Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.<br>
-        Alle Auszüge werden direkt aus dem österreichischen Grundbuch bezogen.</p>
+        Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.
       </div>
     </div>
   `;
@@ -160,17 +142,8 @@ function getEmailTemplate(
   <div class="wrapper">
     <div class="container">
       <div class="header">
-        <table cellpadding="0" cellspacing="0" border="0">
-          <tr>
-            <td style="vertical-align: middle; padding-right: 16px;">
-              <img src="${logoUrl}" alt="GrundbuchauszugOnline" width="44" height="44" style="display: block;">
-            </td>
-            <td style="vertical-align: middle;">
-              <h1 style="margin: 0; font-size: 18px; font-weight: 700; color: #ffffff;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
-              <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbf7d0;">Offizieller Auszugs-Service</p>
-            </td>
-          </tr>
-        </table>
+        <h1>GrundbuchauszugOnline.at</h1>
+        <p>Ihr Grundbuchservice für Österreich</p>
       </div>
       <div class="ref-banner">
         Vorgangs-Nr.: <strong>${orderReference}</strong>
@@ -235,17 +208,8 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
   <div class="wrapper">
     <div class="container">
       <div class="header">
-        <table cellpadding="0" cellspacing="0" border="0">
-          <tr>
-            <td style="vertical-align: middle; padding-right: 16px;">
-              <img src="${logoUrl}" alt="GrundbuchauszugOnline" width="44" height="44" style="display: block;">
-            </td>
-            <td style="vertical-align: middle;">
-              <h1 style="margin: 0; font-size: 18px; font-weight: 700; color: #ffffff;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
-              <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbf7d0;">Offizieller Auszugs-Service</p>
-            </td>
-          </tr>
-        </table>
+        <h1>GrundbuchauszugOnline.at</h1>
+        <p>Ihr Grundbuchservice für Österreich</p>
       </div>
       <div class="ref-banner">
         Vorgangs-Nr.: <strong>${orderReference}</strong>
@@ -317,17 +281,8 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
   <div class="wrapper">
     <div class="container">
       <div class="header">
-        <table cellpadding="0" cellspacing="0" border="0">
-          <tr>
-            <td style="vertical-align: middle; padding-right: 16px;">
-              <img src="${logoUrl}" alt="GrundbuchauszugOnline" width="44" height="44" style="display: block;">
-            </td>
-            <td style="vertical-align: middle;">
-              <h1 style="margin: 0; font-size: 18px; font-weight: 700; color: #ffffff;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
-              <p style="margin: 2px 0 0 0; font-size: 12px; color: #bbf7d0;">Offizieller Auszugs-Service</p>
-            </td>
-          </tr>
-        </table>
+        <h1>GrundbuchauszugOnline.at</h1>
+        <p>Ihr Grundbuchservice für Österreich</p>
       </div>
       <div class="ref-banner">
         Vorgangs-Nr.: <strong>${orderReference}</strong> — <span style="font-weight: 600;">Letzte Erinnerung</span>
