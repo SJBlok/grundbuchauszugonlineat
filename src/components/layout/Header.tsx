@@ -27,18 +27,18 @@ export function Header() {
       {/* Main header */}
       <div className="bg-background border-b">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14 md:h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 text-foreground hover:no-underline">
+            <Link to="/" className="flex items-center gap-2 md:gap-3 text-foreground hover:no-underline min-w-0">
               {/* Austrian flag colors: red-white-red */}
-              <div className="flex items-center gap-0.5">
-                <div className="w-2 h-10 bg-[hsl(0,70%,45%)] rounded-sm" />
-                <div className="w-2 h-10 bg-white border border-border rounded-sm" />
-                <div className="w-2 h-10 bg-[hsl(0,70%,45%)] rounded-sm" />
+              <div className="flex items-center gap-0.5 shrink-0">
+                <div className="w-1.5 md:w-2 h-8 md:h-10 bg-[hsl(0,70%,45%)] rounded-sm" />
+                <div className="w-1.5 md:w-2 h-8 md:h-10 bg-white border border-border rounded-sm" />
+                <div className="w-1.5 md:w-2 h-8 md:h-10 bg-[hsl(0,70%,45%)] rounded-sm" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold leading-tight tracking-tight">GrundbuchauszugOnline</span>
-                <span className="text-xs text-muted-foreground leading-tight">Ihr Grundbuchservice für Österreich</span>
+              <div className="flex flex-col min-w-0">
+                <span className="text-base md:text-xl font-bold leading-tight tracking-tight truncate">GrundbuchauszugOnline</span>
+                <span className="text-[10px] md:text-xs text-muted-foreground leading-tight hidden xs:block">Ihr Grundbuchservice für Österreich</span>
               </div>
             </Link>
 
@@ -63,8 +63,9 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden h-10 w-10 shrink-0"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -72,13 +73,13 @@ export function Header() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className="lg:hidden py-4 border-t">
+            <nav className="lg:hidden py-3 border-t">
               <div className="flex flex-col space-y-1">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     to={item.href}
-                    className={`px-3 py-2 text-sm font-medium rounded transition-colors hover:no-underline ${
+                    className={`px-4 py-3 text-base font-medium rounded-lg transition-colors hover:no-underline active:bg-muted/80 ${
                       location.pathname === item.href
                         ? "bg-primary text-primary-foreground"
                         : "text-foreground hover:bg-muted"
