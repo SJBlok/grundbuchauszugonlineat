@@ -14,6 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_sessions: {
+        Row: {
+          adresse: string | null
+          bundesland: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          firma: string | null
+          grundbuchsgericht: string | null
+          grundstuecksnummer: string | null
+          id: string
+          katastralgemeinde: string | null
+          nachname: string | null
+          order_completed: boolean | null
+          ort: string | null
+          plz: string | null
+          product_name: string | null
+          product_price: number | null
+          reminder_1_sent: boolean | null
+          reminder_2_sent: boolean | null
+          reminder_3_sent: boolean | null
+          session_id: string
+          step: number | null
+          updated_at: string
+          vorname: string | null
+          wohnsitzland: string | null
+          wohnungs_hinweis: string | null
+        }
+        Insert: {
+          adresse?: string | null
+          bundesland?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          firma?: string | null
+          grundbuchsgericht?: string | null
+          grundstuecksnummer?: string | null
+          id?: string
+          katastralgemeinde?: string | null
+          nachname?: string | null
+          order_completed?: boolean | null
+          ort?: string | null
+          plz?: string | null
+          product_name?: string | null
+          product_price?: number | null
+          reminder_1_sent?: boolean | null
+          reminder_2_sent?: boolean | null
+          reminder_3_sent?: boolean | null
+          session_id: string
+          step?: number | null
+          updated_at?: string
+          vorname?: string | null
+          wohnsitzland?: string | null
+          wohnungs_hinweis?: string | null
+        }
+        Update: {
+          adresse?: string | null
+          bundesland?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          firma?: string | null
+          grundbuchsgericht?: string | null
+          grundstuecksnummer?: string | null
+          id?: string
+          katastralgemeinde?: string | null
+          nachname?: string | null
+          order_completed?: boolean | null
+          ort?: string | null
+          plz?: string | null
+          product_name?: string | null
+          product_price?: number | null
+          reminder_1_sent?: boolean | null
+          reminder_2_sent?: boolean | null
+          reminder_3_sent?: boolean | null
+          session_id?: string
+          step?: number | null
+          updated_at?: string
+          vorname?: string | null
+          wohnsitzland?: string | null
+          wohnungs_hinweis?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           adresse: string | null

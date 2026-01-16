@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,6 +17,17 @@ import { ArrowLeft, Mail, Building2, MapPin, FileText, CreditCard } from "lucide
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
+
+// Generate or retrieve session ID for abandoned cart tracking
+function getSessionId(): string {
+  const storageKey = "grundbuch_session_id";
+  let sessionId = sessionStorage.getItem(storageKey);
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    sessionStorage.setItem(storageKey, sessionId);
+  }
+  return sessionId;
+}
 
 const applicantSchema = z.object({
   vorname: z.string().min(1, "Vorname ist erforderlich").max(50),
@@ -62,6 +73,8 @@ export function CheckoutStep({
   const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const sessionIdRef = useRef<string>(getSessionId());
+  const lastTrackedEmailRef = useRef<string>("");
 
   const {
     register,
@@ -79,6 +92,56 @@ export function CheckoutStep({
 
   const wohnsitzland = watch("wohnsitzland");
   const email = watch("email");
+  const vorname = watch("vorname");
+  const nachname = watch("nachname");
+  const firma = watch("firma");
+
+  // Track abandoned session when form data changes
+  const trackAbandonedSession = useCallback(async () => {
+    if (!email || !email.includes("@")) return;
+    
+    // Don't re-track if email hasn't changed
+    if (email === lastTrackedEmailRef.current) return;
+    lastTrackedEmailRef.current = email;
+
+    try {
+      await supabase.functions.invoke("track-abandoned-session", {
+        body: {
+          sessionId: sessionIdRef.current,
+          email,
+          vorname,
+          nachname,
+          firma,
+          wohnsitzland,
+          katastralgemeinde: propertyData.katastralgemeinde,
+          grundstuecksnummer: propertyData.grundstuecksnummer,
+          grundbuchsgericht: propertyData.grundbuchsgericht,
+          bundesland: propertyData.bundesland,
+          wohnungsHinweis: propertyData.wohnungsHinweis,
+          adresse: propertyData.adresse,
+          plz: propertyData.plz,
+          ort: propertyData.ort,
+          productName: "Aktueller Grundbuchauszug",
+          productPrice: 19.90,
+          step: 2,
+        },
+      });
+      console.log("Abandoned session tracked");
+    } catch (error) {
+      console.error("Error tracking abandoned session:", error);
+    }
+  }, [email, vorname, nachname, firma, wohnsitzland, propertyData]);
+
+  // Track session when email is entered (with debounce)
+  useEffect(() => {
+    if (!email || !email.includes("@")) return;
+    
+    const timer = setTimeout(() => {
+      trackAbandonedSession();
+    }, 1500); // Debounce 1.5 seconds
+
+    return () => clearTimeout(timer);
+  }, [email, trackAbandonedSession]);
 
   const allConfirmed = confirmTerms && confirmNoRefund;
 
@@ -118,15 +181,18 @@ export function CheckoutStep({
 
       if (error) throw error;
 
-      // Trigger document delivery via edge function
+      // Trigger document delivery via edge function (this also marks session as completed)
       const { error: deliveryError } = await supabase.functions.invoke(
         "send-grundbuch-document",
-        { body: { orderId: orderResult.id } }
+        { body: { orderId: orderResult.id, sessionId: sessionIdRef.current } }
       );
 
       if (deliveryError) {
         console.error("Document delivery error:", deliveryError);
       }
+
+      // Clear session ID on successful order
+      sessionStorage.removeItem("grundbuch_session_id");
 
       onSubmit(orderResult.order_number);
     } catch (error) {
