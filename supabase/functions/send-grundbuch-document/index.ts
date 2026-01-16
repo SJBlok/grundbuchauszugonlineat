@@ -193,7 +193,7 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Mark abandoned session as completed if sessionId is provided
+    // Mark abandoned session as completed by sessionId (if provided)
     if (sessionId) {
       const { error: updateError } = await supabase
         .from("abandoned_sessions")
@@ -219,6 +219,20 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     console.log(`Processing order ${order.order_number} for ${order.email}`);
+
+    // Also mark any other abandoned sessions with the same email as completed
+    // This prevents reminders if user starts a new session but completes the order
+    const { error: emailUpdateError } = await supabase
+      .from("abandoned_sessions")
+      .update({ order_completed: true })
+      .eq("email", order.email)
+      .eq("order_completed", false);
+    
+    if (emailUpdateError) {
+      console.warn("Failed to mark email sessions as completed:", emailUpdateError.message);
+    } else {
+      console.log(`Marked all abandoned sessions for ${order.email} as completed`);
+    }
 
     // === MONEYBIRD INVOICE CREATION ===
     const moneybirdApiKey = Deno.env.get("MONEYBIRD_API_KEY");
