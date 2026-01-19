@@ -20,7 +20,7 @@ export function ThankYouStep({ orderNumber, email }: ThankYouStepProps) {
   useEffect(() => {
     if (window.gtag) {
       window.gtag('event', 'conversion', {
-        'send_to': 'AW-17870570997/A99CCM3Y2eEbEPWLrclC',
+        'send_to': 'AW-10868807904/yBP-CILkyugbEOCx074o',
         'transaction_id': orderNumber
       });
     }
