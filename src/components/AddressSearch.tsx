@@ -148,17 +148,17 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           ref={inputRef}
           type="text"
-          placeholder="Adresse eingeben (z.B. Hauptstraße 1, 1010 Wien)"
+          placeholder="Adresse eingeben (z.B. Hauptstraße 1, Wien)"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-10 pr-10 h-12 bg-background"
+          className="pl-12 pr-12 h-14 md:h-12 text-base bg-background rounded-xl"
         />
         {isLoading && (
-          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+          <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
         )}
         {!isLoading && query.length > 0 && (
           <button
@@ -168,9 +168,9 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
               setResults([]);
               setHasSearched(false);
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors active:scale-95"
           >
-            <X className="h-3 w-3 text-muted-foreground" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         )}
       </div>
@@ -194,9 +194,9 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
       )}
 
       {results.length > 0 && (
-        <div className="border-2 border-primary/20 rounded-lg overflow-hidden max-h-80 overflow-y-auto bg-background shadow-lg">
-          <div className="bg-muted/50 px-4 py-2 border-b text-sm font-medium text-muted-foreground">
-            {results.length} Ergebnis{results.length !== 1 ? 'se' : ''} gefunden – Klicken zum Auswählen
+        <div className="border-2 border-primary/20 rounded-xl overflow-hidden max-h-[60vh] md:max-h-80 overflow-y-auto bg-background shadow-lg">
+          <div className="bg-muted/50 px-4 py-3 border-b text-sm font-medium text-muted-foreground sticky top-0 z-10">
+            {results.length} Ergebnis{results.length !== 1 ? 'se' : ''} gefunden – Tippen zum Auswählen
           </div>
           <div className="divide-y divide-border">
             {results.map((result, index) => (
@@ -206,18 +206,17 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
                 type="button"
                 className={cn(
                   "w-full text-left p-4 transition-all duration-150 cursor-pointer",
-                  "hover:bg-primary/5 hover:border-l-4 hover:border-l-primary hover:pl-3",
-                  "focus:outline-none focus:bg-primary/10 focus:border-l-4 focus:border-l-primary focus:pl-3",
-                  "active:bg-primary/15 active:scale-[0.99]",
+                  "hover:bg-primary/5 active:bg-primary/10",
+                  "focus:outline-none focus:bg-primary/10",
                   "group"
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                  <div className="h-11 w-11 md:h-10 md:w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
                     <Building className="h-5 w-5 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <p className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
                       {result.adresse}
                       {result.plz && result.ort && `, ${result.plz} ${result.ort}`}
                     </p>
@@ -233,7 +232,7 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
                       )}
                     </div>
                   </div>
-                  <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="shrink-0 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
                       Auswählen
                     </div>

@@ -276,7 +276,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
                   <div className="space-y-2.5">
                     <Label htmlFor="bundesland" className="text-sm font-medium">
                       Bundesland <span className="text-destructive">*</span>
@@ -285,12 +285,12 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       value={bundesland}
                       onValueChange={(value) => setValue("bundesland", value, { shouldValidate: true })}
                     >
-                      <SelectTrigger className="h-12 md:h-11 bg-background rounded-lg">
+                      <SelectTrigger className="h-14 md:h-11 text-base bg-background rounded-xl">
                         <SelectValue placeholder="Auswählen..." />
                       </SelectTrigger>
                       <SelectContent>
                         {bundeslaender.map((land) => (
-                          <SelectItem key={land} value={land} className="py-3">
+                          <SelectItem key={land} value={land} className="py-3 text-base">
                             {land}
                           </SelectItem>
                         ))}
@@ -317,7 +317,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
                   <div className="space-y-2.5">
                     <Label htmlFor="grundstuecksnummer" className="text-sm font-medium">
                       Einlagezahl (EZ) / GST-Nr. <span className="text-destructive">*</span>
@@ -326,7 +326,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       id="grundstuecksnummer"
                       {...register("grundstuecksnummer")}
                       placeholder="z.B. 123 oder 123/4"
-                      className="bg-background"
+                      className="h-14 md:h-11 text-base bg-background rounded-xl"
                     />
                     {errors.grundstuecksnummer && !selectedFromSearch && (
                       <p className="text-sm text-destructive">Grundstücksnummer ist erforderlich</p>
@@ -341,7 +341,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       id="grundbuchsgericht"
                       {...register("grundbuchsgericht")}
                       placeholder="z.B. BG Innere Stadt Wien"
-                      className="bg-background"
+                      className="h-14 md:h-11 text-base bg-background rounded-xl"
                     />
                     {errors.grundbuchsgericht && !selectedFromSearch && (
                       <p className="text-sm text-destructive">Grundbuchsgericht ist erforderlich</p>
@@ -357,7 +357,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                     id="wohnungsHinweis"
                     {...register("wohnungsHinweis")}
                     placeholder="z.B. Top 5, Anteil 1/10"
-                    className="bg-background"
+                    className="h-14 md:h-11 text-base bg-background rounded-xl"
                   />
                 </div>
 
