@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const footerLinks = [
+  { label: "Über uns", href: "/ueber-uns" },
   { label: "Datenschutz", href: "/datenschutz" },
   { label: "AGB", href: "/agb" },
   { label: "Widerrufsbelehrung", href: "/widerruf" },
