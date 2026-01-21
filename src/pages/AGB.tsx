@@ -7,56 +7,118 @@ export default function AGB() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto prose prose-lg">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Allgemeine Geschäftsbedingungen
+              Allgemeine Geschäftsbedingungen (AGB)
             </h1>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              1. Geltungsbereich
+              1. Anbieter
             </h2>
             <p className="text-muted-foreground mb-4">
-              Diese Allgemeinen Geschäftsbedingungen gelten für alle Bestellungen, die über diese Website getätigt werden. Mit der Bestellung akzeptieren Sie diese Bedingungen.
+              Diese Website grundbuchauszugonline.at wird betrieben von:
+            </p>
+            <p className="text-muted-foreground mb-2">
+              <strong>Tophallen Bouw B.V.</strong><br />
+              Stavenisse, Kerkweg 1a<br />
+              Hauptniederlassung<br />
+              Handelsregisternummer (KVK): 87289792<br />
+              E-Mail: <a href="mailto:info@grundbuchauszugonline.de" className="text-primary hover:underline">info@grundbuchauszugonline.de</a>
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Tophallen Bouw B.V. ist ein privates, kommerzielles Unternehmen und kein öffentliches Amt.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              2. Vertragspartner
+              2. Unsere Dienstleistung
             </h2>
             <p className="text-muted-foreground mb-4">
-              Der Vertrag kommt zustande mit Application Assistant Ltd. Die vollständigen Kontaktdaten finden Sie im Impressum.
+              Grundbuchauszugonline.at bietet eine unabhängige, kostenpflichtige Vermittlungs- und Unterstützungsdienstleistung für die Beantragung eines österreichischen Grundbuchauszugs an.
+            </p>
+            <p className="text-muted-foreground mb-2">Unsere Leistung umfasst insbesondere:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>Entgegennahme und Prüfung der vom Kunden übermittelten Daten</li>
+              <li>Administrative Vorbereitung und Bearbeitung der Anfrage</li>
+              <li>Weiterleitung der Anfrage an die zuständigen österreichischen Stellen</li>
+              <li>Digitale Übermittlung des erhaltenen Dokuments per E-Mail</li>
+            </ul>
+            <p className="text-muted-foreground mb-4">
+              Wir handeln ausschließlich als Intermediär. Die offiziellen Grundbuchdaten werden von den zuständigen österreichischen Behörden geführt.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              3. Leistungsbeschreibung
+              3. Keine Behördenwebsite / Unabhängigkeit
             </h2>
             <p className="text-muted-foreground mb-4">
-              Wir unterstützen Sie bei der Anforderung eines aktuellen Grundbuchauszugs aus dem österreichischen Grundbuch. Der Grundbuchauszug wird per E-Mail an die angegebene Adresse versendet.
+              Grundbuchauszugonline.at ist keine offizielle Website der Republik Österreich, steht in keiner Verbindung zu österreichischen Behörden und ist kein Teil des österreichischen Grundbuchsystems.
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Ein Grundbuchauszug kann auch direkt über offizielle staatliche Stellen beantragt werden, gegebenenfalls zu geringeren oder keinen Kosten. Die Nutzung unseres Services ist freiwillig.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              4. Preise und Zahlung
+              4. Vertragsschluss
             </h2>
             <p className="text-muted-foreground mb-4">
-              Alle Preise verstehen sich in Euro inklusive gesetzlicher Umsatzsteuer. Die Zahlung erfolgt auf Rechnung (Überweisung). Die Zahlungsfrist beträgt 14 Tage ab Rechnungsdatum.
+              Mit dem Absenden der Bestellung gibt der Kunde ein verbindliches Angebot zum Abschluss eines Vertrages ab. Der Vertrag kommt zustande, sobald wir mit der Bearbeitung der Anfrage beginnen.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              5. Lieferung
+              5. Preise und Zahlung
             </h2>
             <p className="text-muted-foreground mb-4">
-              Der Grundbuchauszug wird elektronisch per E-Mail zugestellt. Die Zustellung erfolgt in der Regel innerhalb weniger Minuten nach Bestellabschluss.
+              Für unsere Dienstleistung wird eine Servicegebühr erhoben. Die jeweils gültigen Preise werden während des Bestellvorgangs angezeigt.
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Mit Zustandekommen des Vertrages entsteht eine verbindliche Zahlungspflicht.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              6. Haftung
+              6. Fernabsatz, Leistungsbeginn und Rücktritt
             </h2>
             <p className="text-muted-foreground mb-4">
-              Wir haften für die korrekte Übermittlung der angeforderten Grundbuchinformationen. Für die Richtigkeit der im Grundbuch eingetragenen Daten übernehmen wir keine Gewähr.
+              Unsere Dienstleistungen werden ausschließlich im Fernabsatz erbracht. Wir beginnen unmittelbar nach Vertragsschluss mit der Bearbeitung der Bestellung.
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Eine Stornierung ist nur möglich, solange das Dokument noch nicht an den Kunden übermittelt wurde. Nach erfolgter Lieferung ist eine Stornierung oder Rückerstattung ausgeschlossen.
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Gemäß § 18 Abs. 1 Z 1 FAGG kann das gesetzliche Rücktrittsrecht entfallen, sobald die Dienstleistung vollständig erbracht wurde.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              7. Schlussbestimmungen
+              7. Pflichten des Kunden
+            </h2>
+            <p className="text-muted-foreground mb-2">Der Kunde ist verpflichtet:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>korrekte und vollständige Angaben zu machen</li>
+              <li>die bereitgestellten Informationen sorgfältig zu prüfen</li>
+              <li>die Zahlungspflicht fristgerecht zu erfüllen</li>
+            </ul>
+            <p className="text-muted-foreground mb-4">
+              Unrichtige Angaben können zu Verzögerungen oder fehlerhaften Dokumenten führen. In solchen Fällen besteht kein Anspruch auf Rückerstattung.
+            </p>
+
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              8. Haftung
+            </h2>
+            <p className="text-muted-foreground mb-2">Tophallen Bouw B.V. haftet nicht für:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>Entscheidungen, Inhalte oder Bearbeitungszeiten österreichischer Behörden</li>
+              <li>die Richtigkeit der im Grundbuch enthaltenen Daten</li>
+              <li>indirekte Schäden oder Folgeschäden</li>
+            </ul>
+            <p className="text-muted-foreground mb-4">
+              Die Haftung ist – soweit gesetzlich zulässig – auf die Höhe der gezahlten Servicegebühr beschränkt.
+            </p>
+
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              9. Anwendbares Recht
             </h2>
             <p className="text-muted-foreground mb-4">
-              Es gilt österreichisches Recht. Gerichtsstand ist der Sitz des Unternehmens, sofern der Kunde Unternehmer ist.
+              Es gilt österreichisches Recht unter Ausschluss der Kollisionsnormen. Gerichtsstand ist – soweit gesetzlich zulässig – Österreich.
+            </p>
+
+            <p className="text-muted-foreground mt-8 text-sm">
+              Stand: 2026
             </p>
           </div>
         </div>
