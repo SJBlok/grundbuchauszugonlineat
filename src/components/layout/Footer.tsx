@@ -32,7 +32,7 @@ export function Footer() {
                 </div>
               </div>
               <p className="text-xs md:text-sm text-header-foreground/70 max-w-md">
-                Ihr Service für die Anforderung von Grundbuchauszügen aus dem österreichischen Grundbuch.
+                Unabhängiger, kommerzieller Online-Service für die Beantragung von Grundbuchauszügen. Keine Behörde – kein Teil des österreichischen Grundbuchsystems.
               </p>
             </div>
 
