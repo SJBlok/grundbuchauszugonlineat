@@ -11,52 +11,109 @@ export default function Datenschutz() {
             </h1>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              1. Verantwortlicher
+              1. Allgemeines
             </h2>
             <p className="text-muted-foreground mb-4">
-              Verantwortlicher für die Datenverarbeitung auf dieser Website ist Application Assistant Ltd. Kontaktdaten finden Sie im Impressum.
+              Der Schutz personenbezogener Daten ist uns ein wichtiges Anliegen. Die Verarbeitung erfolgt gemäß der Datenschutz-Grundverordnung (DSGVO).
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              2. Erhebung und Verarbeitung personenbezogener Daten
+              2. Verantwortlicher
             </h2>
             <p className="text-muted-foreground mb-4">
-              Wir erheben personenbezogene Daten, wenn Sie diese im Rahmen einer Bestellung freiwillig angeben. Dies umfasst: Name, E-Mail-Adresse, Wohnsitzland und ggf. Firmenname.
+              Verantwortlich für die Datenverarbeitung:
+            </p>
+            <p className="text-muted-foreground mb-4">
+              <strong>Tophallen Bouw B.V.</strong><br />
+              Stavenisse, Kerkweg 1a<br />
+              KVK 87289792<br />
+              E-Mail: <a href="mailto:info@grundbuchauszugonline.de" className="text-primary hover:underline">info@grundbuchauszugonline.de</a>
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              3. Zweck der Datenverarbeitung
+              3. Verarbeitete personenbezogene Daten
             </h2>
+            <p className="text-muted-foreground mb-2">Wir verarbeiten insbesondere folgende Daten:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>Name / Firmenname</li>
+              <li>Adressdaten</li>
+              <li>Grundbuch- bzw. Objektangaben</li>
+              <li>E-Mail-Adresse</li>
+              <li>Technische Daten (z. B. IP-Adresse)</li>
+            </ul>
+
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              4. Zwecke der Verarbeitung
+            </h2>
+            <p className="text-muted-foreground mb-2">Die Datenverarbeitung erfolgt zum Zweck:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>der Durchführung unserer Dienstleistung</li>
+              <li>der Kommunikation mit dem Kunden</li>
+              <li>der Rechnungsstellung</li>
+              <li>der Erfüllung gesetzlicher Verpflichtungen</li>
+            </ul>
+
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              5. Rechtsgrundlage
+            </h2>
+            <p className="text-muted-foreground mb-2">Die Verarbeitung erfolgt auf Basis von:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung)</li>
+              <li>Art. 6 Abs. 1 lit. c DSGVO (rechtliche Verpflichtung)</li>
+              <li>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)</li>
+            </ul>
+
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              6. Weitergabe von Daten
+            </h2>
+            <p className="text-muted-foreground mb-2">Personenbezogene Daten werden ausschließlich weitergegeben an:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>zuständige österreichische Behörden</li>
+              <li>technische Dienstleister (z. B. Hosting, E-Mail)</li>
+            </ul>
             <p className="text-muted-foreground mb-4">
-              Ihre Daten werden ausschließlich zur Abwicklung Ihrer Bestellung verwendet. Dies beinhaltet die Bearbeitung des Grundbuchauszugs, den Versand per E-Mail sowie die Rechnungsstellung.
+              Eine Weitergabe zu Werbezwecken erfolgt nicht.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              4. Datenweitergabe
+              7. Speicherdauer
             </h2>
             <p className="text-muted-foreground mb-4">
-              Eine Weitergabe Ihrer Daten an Dritte erfolgt nur, soweit dies zur Vertragserfüllung erforderlich ist oder Sie ausdrücklich eingewilligt haben.
+              Personenbezogene Daten werden nur so lange gespeichert, wie dies für die genannten Zwecke erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              5. Datensicherheit
+              8. Rechte der betroffenen Personen
             </h2>
+            <p className="text-muted-foreground mb-2">Betroffene Personen haben das Recht auf:</p>
+            <ul className="list-disc pl-6 text-muted-foreground mb-4">
+              <li>Auskunft</li>
+              <li>Berichtigung</li>
+              <li>Löschung</li>
+              <li>Einschränkung der Verarbeitung</li>
+              <li>Datenübertragbarkeit</li>
+              <li>Widerspruch</li>
+            </ul>
             <p className="text-muted-foreground mb-4">
-              Wir setzen technische und organisatorische Sicherheitsmaßnahmen ein, um Ihre Daten gegen Manipulation, Verlust, Zerstörung oder unbefugten Zugriff zu schützen.
+              Anfragen können jederzeit per E-Mail gestellt werden.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              6. Ihre Rechte
+              9. Datensicherheit
             </h2>
             <p className="text-muted-foreground mb-4">
-              Sie haben das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung Ihrer personenbezogenen Daten. Bei Fragen wenden Sie sich bitte an uns per E-Mail.
+              Wir setzen geeignete technische und organisatorische Maßnahmen ein, um personenbezogene Daten vor Verlust, Missbrauch und unbefugtem Zugriff zu schützen.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              7. Cookies
+              10. Änderungen
             </h2>
             <p className="text-muted-foreground mb-4">
-              Diese Website verwendet nur technisch notwendige Cookies, die für den Betrieb der Website erforderlich sind.
+              Diese Datenschutzerklärung kann jederzeit angepasst werden. Die jeweils aktuelle Version ist auf grundbuchauszugonline.at abrufbar.
+            </p>
+
+            <p className="text-muted-foreground mt-8 text-sm">
+              Stand: 2026
             </p>
           </div>
         </div>
