@@ -246,7 +246,7 @@ export function CheckoutStep({
         </div>
 
         <div className="p-4 md:p-6 space-y-5">
-          <div className="grid grid-cols-1 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
             <div className="space-y-2.5">
               <Label htmlFor="vorname" className="text-sm font-medium">
                 Vorname <span className="text-destructive">*</span>
@@ -255,7 +255,7 @@ export function CheckoutStep({
                 id="vorname" 
                 {...register("vorname")} 
                 placeholder="Max"
-                className="bg-background"
+                className="h-14 md:h-11 text-base bg-background rounded-xl"
               />
               {errors.vorname && (
                 <p className="text-sm text-destructive">{errors.vorname.message}</p>
@@ -270,7 +270,7 @@ export function CheckoutStep({
                 id="nachname" 
                 {...register("nachname")} 
                 placeholder="Mustermann"
-                className="bg-background"
+                className="h-14 md:h-11 text-base bg-background rounded-xl"
               />
               {errors.nachname && (
                 <p className="text-sm text-destructive">{errors.nachname.message}</p>
@@ -283,13 +283,13 @@ export function CheckoutStep({
               E-Mail-Adresse <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input 
                 id="email" 
                 type="email" 
                 {...register("email")} 
                 placeholder="max.mustermann@email.at"
-                className="pl-11 bg-background"
+                className="pl-12 h-14 md:h-11 text-base bg-background rounded-xl"
               />
             </div>
             {errors.email && (
@@ -302,13 +302,13 @@ export function CheckoutStep({
               E-Mail-Adresse bestätigen <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input 
                 id="emailConfirm" 
                 type="email" 
                 {...register("emailConfirm")} 
                 placeholder="E-Mail-Adresse wiederholen"
-                className="pl-11 bg-background"
+                className="pl-12 h-14 md:h-11 text-base bg-background rounded-xl"
               />
             </div>
             {errors.emailConfirm && (
@@ -316,7 +316,7 @@ export function CheckoutStep({
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
             <div className="space-y-2.5">
               <Label htmlFor="wohnsitzland" className="text-sm font-medium">
                 Wohnsitzland <span className="text-destructive">*</span>
@@ -327,12 +327,12 @@ export function CheckoutStep({
                   setValue("wohnsitzland", value, { shouldValidate: true })
                 }
               >
-                <SelectTrigger className="h-12 md:h-11 bg-background rounded-lg">
+                <SelectTrigger className="h-14 md:h-11 text-base bg-background rounded-xl">
                   <SelectValue placeholder="Auswählen..." />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem key={country} value={country} className="py-3">
+                    <SelectItem key={country} value={country} className="py-3 text-base">
                       {country}
                     </SelectItem>
                   ))}
@@ -348,12 +348,12 @@ export function CheckoutStep({
                 Firma <span className="text-xs font-normal">(optional)</span>
               </Label>
               <div className="relative">
-                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input 
                   id="firma" 
                   {...register("firma")} 
                   placeholder="Firmenname"
-                  className="pl-11 bg-background"
+                  className="pl-12 h-14 md:h-11 text-base bg-background rounded-xl"
                 />
               </div>
             </div>

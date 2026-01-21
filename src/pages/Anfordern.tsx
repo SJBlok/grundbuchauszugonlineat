@@ -116,20 +116,57 @@ export default function Anfordern() {
       </div>
 
       {/* Main Content with Sidebar Layout */}
-      <section className="py-6 md:py-10 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 max-w-6xl mx-auto">
-            {/* Left Sidebar - Step Navigation */}
+      <section className="py-4 md:py-10 bg-muted/30">
+        <div className="container mx-auto px-3 md:px-4">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 max-w-6xl mx-auto">
+            {/* Step Navigation - Horizontal on mobile, Vertical sidebar on desktop */}
             <div className="lg:w-64 shrink-0">
-              <div className="bg-card rounded-lg border shadow-sm overflow-hidden lg:sticky lg:top-24">
+              {/* Mobile: Horizontal step indicator */}
+              <div className="lg:hidden bg-card rounded-xl border shadow-sm p-3 mb-2">
+                <div className="flex items-center justify-center gap-2">
+                  {steps.map((s, index) => (
+                    <div key={s.num} className="flex items-center">
+                      <button
+                        onClick={() => {
+                          if (s.num < step) setStep(s.num);
+                        }}
+                        disabled={s.num > step}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                          s.num === step
+                            ? "bg-primary text-primary-foreground"
+                            : s.num < step
+                            ? "bg-primary/20 text-primary"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                          s.num === step
+                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            : s.num < step
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted-foreground/20 text-muted-foreground"
+                        }`}>
+                          {s.num < step ? "✓" : s.num}
+                        </span>
+                        <span className="text-sm font-medium">{s.label}</span>
+                      </button>
+                      {index < steps.length - 1 && (
+                        <div className={`w-6 h-0.5 mx-1 ${
+                          s.num < step ? "bg-primary" : "bg-border"
+                        }`} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop: Vertical sidebar */}
+              <div className="hidden lg:block bg-card rounded-lg border shadow-sm overflow-hidden sticky top-24">
                 {steps.map((s, index) => (
                   <button
                     key={s.num}
                     onClick={() => {
-                      // Only allow going back to completed steps
-                      if (s.num < step) {
-                        setStep(s.num);
-                      }
+                      if (s.num < step) setStep(s.num);
                     }}
                     disabled={s.num > step}
                     className={`w-full flex items-center justify-between px-4 py-4 text-left border-b last:border-b-0 transition-colors ${
