@@ -15,6 +15,7 @@ import Datenschutz from "./pages/Datenschutz";
 import AGB from "./pages/AGB";
 import Widerruf from "./pages/Widerruf";
 import Impressum from "./pages/Impressum";
+import UeberUns from "./pages/UeberUns";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/agb" element={<AGB />} />
           <Route path="/widerruf" element={<Widerruf />} />
           <Route path="/impressum" element={<Impressum />} />
+          <Route path="/ueber-uns" element={<UeberUns />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
