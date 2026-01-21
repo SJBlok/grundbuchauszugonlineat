@@ -49,7 +49,7 @@ export function Footer() {
                 ))}
               </nav>
               <p className="text-xs md:text-sm text-header-foreground/50">
-                © {new Date().getFullYear()} Application Assistant Ltd
+                © {new Date().getFullYear()} Tophallen Bouw B.V.
               </p>
             </div>
           </div>
