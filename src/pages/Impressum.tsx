@@ -16,35 +16,41 @@ export default function Impressum() {
             
             <div className="bg-info p-6 rounded-lg mb-8">
               <p className="text-foreground mb-2">
-                <strong>Application Assistant Ltd</strong>
+                <strong>Tophallen Bouw B.V.</strong>
               </p>
-              <p className="text-muted-foreground mb-4">
-                [Adresse wird ergänzt]
+              <p className="text-muted-foreground mb-2">
+                Stavenisse, Kerkweg 1a<br />
+                Hauptniederlassung
+              </p>
+              <p className="text-muted-foreground mb-2">
+                <strong>Handelsregisternummer (KVK):</strong> 87289792
               </p>
               <p className="text-muted-foreground">
-                <strong>E-Mail:</strong> kontakt@grundbuchauszugonline.at
+                <strong>E-Mail:</strong>{" "}
+                <a href="mailto:info@grundbuchauszugonline.de" className="text-primary hover:underline">
+                  info@grundbuchauszugonline.de
+                </a>
               </p>
             </div>
 
-            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              Umsatzsteuer-Identifikationsnummer
-            </h2>
-            <p className="text-muted-foreground mb-4">
-              [UID-Nummer wird ergänzt]
-            </p>
-
-            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              Handelsregister
-            </h2>
-            <p className="text-muted-foreground mb-4">
-              [Handelsregisternummer wird ergänzt]
+            <p className="text-muted-foreground mb-8">
+              Tophallen Bouw B.V. ist ein privates, kommerzielles Unternehmen und kein öffentliches Amt.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
               Streitschlichtung
             </h2>
             <p className="text-muted-foreground mb-4">
-              Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr. Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+              Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{" "}
+              <a 
+                href="https://ec.europa.eu/consumers/odr" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                https://ec.europa.eu/consumers/odr
+              </a>
+              . Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
@@ -52,6 +58,13 @@ export default function Impressum() {
             </h2>
             <p className="text-muted-foreground mb-4">
               Als Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Wir sind jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.
+            </p>
+
+            <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
+              Keine Behördenwebsite
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              Grundbuchauszugonline.at ist keine offizielle Website der Republik Österreich, steht in keiner Verbindung zu österreichischen Behörden und ist kein Teil des österreichischen Grundbuchsystems.
             </p>
           </div>
         </div>

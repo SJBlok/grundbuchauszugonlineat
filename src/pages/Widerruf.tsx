@@ -11,31 +11,37 @@ export default function Widerruf() {
             </h1>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              Widerrufsrecht
+              Anbieter
             </h2>
             <p className="text-muted-foreground mb-4">
-              Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+              <strong>Tophallen Bouw B.V.</strong><br />
+              Stavenisse, Kerkweg 1a<br />
+              KVK: 87289792<br />
+              E-Mail:{" "}
+              <a href="mailto:info@grundbuchauszugonline.de" className="text-primary hover:underline">
+                info@grundbuchauszugonline.de
+              </a>
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              Ausübung des Widerrufsrechts
+              Fernabsatz und Leistungsbeginn
             </h2>
             <p className="text-muted-foreground mb-4">
-              Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung (z.B. per E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Die Kontaktdaten finden Sie im Impressum.
+              Unsere Dienstleistungen werden ausschließlich im Fernabsatz erbracht. Wir beginnen unmittelbar nach Vertragsschluss mit der Bearbeitung der Bestellung.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              Folgen des Widerrufs
+              Stornierung
             </h2>
             <p className="text-muted-foreground mb-4">
-              Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf bei uns eingegangen ist.
+              Eine Stornierung ist nur möglich, solange das Dokument noch nicht an den Kunden übermittelt wurde. Nach erfolgter Lieferung ist eine Stornierung oder Rückerstattung ausgeschlossen.
             </p>
 
             <h2 className="text-xl font-semibold text-foreground mt-8 mb-4">
-              Ausschluss des Widerrufsrechts
+              Gesetzliches Rücktrittsrecht
             </h2>
             <p className="text-muted-foreground mb-4">
-              Das Widerrufsrecht erlischt bei einem Vertrag zur Erbringung von Dienstleistungen, wenn der Unternehmer die Dienstleistung vollständig erbracht hat und mit der Ausführung der Dienstleistung erst begonnen hat, nachdem der Verbraucher dazu seine ausdrückliche Zustimmung gegeben hat und gleichzeitig seine Kenntnis davon bestätigt hat, dass er sein Widerrufsrecht bei vollständiger Vertragserfüllung durch den Unternehmer verliert.
+              Gemäß § 18 Abs. 1 Z 1 FAGG kann das gesetzliche Rücktrittsrecht entfallen, sobald die Dienstleistung vollständig erbracht wurde.
             </p>
 
             <div className="bg-info p-6 rounded-lg mt-8">
