@@ -16,6 +16,68 @@ function md5(message: string): string {
   return new Md5().update(message).toString();
 }
 
+// Build XML request for different product types
+function buildXmlRequest(produkt: string, data: Record<string, unknown>): string {
+  switch (produkt) {
+    case 'GT_ADR': // Adresssuche
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<AdresssucheAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+  <Adresse>
+    <Strasse>${escapeXml(data.strasse as string || '')}</Strasse>
+    <Hausnummer>${escapeXml(data.hausnummer as string || '')}</Hausnummer>
+    <PLZ>${escapeXml(data.plz as string || '')}</PLZ>
+    <Ort>${escapeXml(data.ort as string || '')}</Ort>
+  </Adresse>
+</AdresssucheAnfrage>`;
+
+    case 'GT_GBA': // Grundbuchauszug aktuell
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<GBAuszugAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+  <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
+  <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
+  <Format>${escapeXml(data.format as string || 'PDF')}</Format>
+  <Historisch>${data.historisch ? 'true' : 'false'}</Historisch>
+  <Signiert>${data.signiert ? 'true' : 'false'}</Signiert>
+  <Linked>${data.linked ? 'true' : 'false'}</Linked>
+</GBAuszugAnfrage>`;
+
+    case 'GT_URL': // Urkundenliste
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<UrkundenlisteAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+  <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
+  <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
+</UrkundenlisteAnfrage>`;
+
+    case 'GT_URK': // Urkundenabfrage
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<UrkundenabfrageAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+  <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
+  <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
+  <UrkundenNummer>${escapeXml(data.urkundenNummer as string || '')}</UrkundenNummer>
+  <Jahr>${escapeXml(data.jahr as string || '')}</Jahr>
+</UrkundenabfrageAnfrage>`;
+
+    case 'GT_EZV': // Einlage-Validierung
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<EinlageValidierungAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+  <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
+  <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
+</EinlageValidierungAnfrage>`;
+
+    default:
+      throw new Error(`Unknown product: ${produkt}`);
+  }
+}
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -59,6 +121,48 @@ serve(async (req) => {
         break;
       }
 
+      case 'gbRequest': {
+        // New unified GB request handler
+        if (!data.token) {
+          return new Response(
+            JSON.stringify({ error: 'Token is required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const produkt = data.produkt as string;
+        const xmlRequest = buildXmlRequest(produkt, data);
+
+        const requestBody = {
+          includeResult: true,
+          produkt,
+          uvstInfo: {
+            betriebssystem: 'Linux',
+            geraeteName: 'WebServer',
+            softwareName: 'GrundbuchauszugOnline.at',
+            softwareVersion: '1.0.0',
+            usewareKosten: 0,
+            usewareProdukt: 'GRUNDBUCH_ONLINE',
+            weitereInfo: '',
+          },
+          xml: xmlRequest,
+        };
+
+        console.log('UVST GB Request:', JSON.stringify(requestBody, null, 2));
+
+        response = await fetch(`${baseUrl}/api/v1/gb`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${data.token}`,
+            'X-API-KEY': apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+        break;
+      }
+
+      // Legacy endpoints (kept for backward compatibility)
       case 'grundbuchAbfrage': {
         if (!data.token) {
           return new Response(
@@ -67,35 +171,32 @@ serve(async (req) => {
           );
         }
 
-        response = await fetch(`${baseUrl}/api/v1/gb/abfrage`, {
+        const xmlRequest = buildXmlRequest('GT_GBA', data);
+        const requestBody = {
+          includeResult: true,
+          produkt: 'GT_GBA',
+          uvstInfo: {
+            betriebssystem: 'Linux',
+            geraeteName: 'WebServer',
+            softwareName: 'GrundbuchauszugOnline.at',
+            softwareVersion: '1.0.0',
+            usewareKosten: 0,
+            usewareProdukt: 'GRUNDBUCH_ONLINE',
+            weitereInfo: '',
+          },
+          xml: xmlRequest,
+        };
+
+        console.log('UVST Grundbuch Abfrage Request:', JSON.stringify(requestBody, null, 2));
+
+        response = await fetch(`${baseUrl}/api/v1/gb`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${data.token}`,
             'X-API-KEY': apiKey,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            kgNummer: data.kgNummer,
-            einlagezahl: data.einlagezahl,
-            auszugTyp: {
-              englischeFassung: false,
-              format: data.format || 'PDF',
-              aktuellerAuszug: {
-                historisch: data.historisch ?? true,
-                signiert: data.signiert ?? true,
-                linked: data.linked ?? false,
-              },
-            },
-            ...(data.stichtag && { stichtag: data.stichtag }),
-            includeResult: true,
-            uvstInfo: {
-              betriebssystem: 'Linux',
-              softwareName: 'GrundbuchauszugOnline.at',
-              softwareVersion: '1.0.0',
-              usewareKosten: 0,
-              usewareProdukt: 'GRUNDBUCH_ONLINE',
-            },
-          }),
+          body: JSON.stringify(requestBody),
         });
         break;
       }
@@ -108,27 +209,68 @@ serve(async (req) => {
           );
         }
 
-        response = await fetch(`${baseUrl}/api/v1/gb/urkunden`, {
+        const xmlRequest = buildXmlRequest('GT_URK', data);
+        const requestBody = {
+          includeResult: true,
+          produkt: 'GT_URK',
+          uvstInfo: {
+            betriebssystem: 'Linux',
+            geraeteName: 'WebServer',
+            softwareName: 'GrundbuchauszugOnline.at',
+            softwareVersion: '1.0.0',
+            usewareKosten: 0,
+            usewareProdukt: 'GRUNDBUCH_ONLINE',
+            weitereInfo: '',
+          },
+          xml: xmlRequest,
+        };
+
+        response = await fetch(`${baseUrl}/api/v1/gb`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${data.token}`,
             'X-API-KEY': apiKey,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            kgNummer: data.kgNummer,
-            einlagezahl: data.einlagezahl,
-            urkundenNummer: data.urkundenNummer,
-            jahr: data.jahr,
-            includeResult: true,
-            uvstInfo: {
-              betriebssystem: 'Linux',
-              softwareName: 'GrundbuchauszugOnline.at',
-              softwareVersion: '1.0.0',
-              usewareKosten: 0,
-              usewareProdukt: 'GRUNDBUCH_ONLINE',
-            },
-          }),
+          body: JSON.stringify(requestBody),
+        });
+        break;
+      }
+
+      case 'adresssuche': {
+        if (!data.token) {
+          return new Response(
+            JSON.stringify({ error: 'Token is required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const xmlRequest = buildXmlRequest('GT_ADR', data);
+        const requestBody = {
+          includeResult: true,
+          produkt: 'GT_ADR',
+          uvstInfo: {
+            betriebssystem: 'Linux',
+            geraeteName: 'WebServer',
+            softwareName: 'GrundbuchauszugOnline.at',
+            softwareVersion: '1.0.0',
+            usewareKosten: 0,
+            usewareProdukt: 'GRUNDBUCH_ONLINE',
+            weitereInfo: '',
+          },
+          xml: xmlRequest,
+        };
+
+        console.log('UVST Adresssuche Request:', JSON.stringify(requestBody, null, 2));
+
+        response = await fetch(`${baseUrl}/api/v1/gb`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${data.token}`,
+            'X-API-KEY': apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
         });
         break;
       }
@@ -141,7 +283,17 @@ serve(async (req) => {
     }
 
     const duration = Date.now() - startTime;
-    const responseData = await response.json();
+    const responseText = await response.text();
+    
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch {
+      // Response might be XML or other format
+      responseData = { rawResponse: responseText };
+    }
+
+    console.log('UVST Response:', response.status, responseText.substring(0, 500));
 
     return new Response(
       JSON.stringify({

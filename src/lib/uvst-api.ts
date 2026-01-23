@@ -112,8 +112,12 @@ export async function grundbuchAbfrage(
   if (onLog) {
     onLog(createLogEntry(
       'POST',
-      `/api/v1/gb/abfrage`,
-      requestData.data,
+      `/api/v1/gb (GT_GBA)`,
+      {
+        produkt: 'GT_GBA',
+        xml: `<GBAuszugAnfrage>...</GBAuszugAnfrage>`,
+        ...requestData.data,
+      },
       data?.status ?? 500,
       data?.data ?? { error: error?.message },
       duration
