@@ -1,10 +1,35 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Md5 } from "https://deno.land/std@0.119.0/hash/md5.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  "https://grundbuchauszugonline.at",
+  "https://www.grundbuchauszugonline.at",
+  "https://grundbuchauszugonlineat.lovable.app",
+  "http://localhost:5173",
+  "http://localhost:8080",
+];
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Credentials": "true",
+  };
+}
+
+function isValidOrigin(req: Request): boolean {
+  const origin = req.headers.get("origin") || "";
+  const referer = req.headers.get("referer") || "";
+  
+  // Check if origin or referer matches allowed domains
+  const isValidOriginHeader = ALLOWED_ORIGINS.some(allowed => origin.includes(new URL(allowed).host));
+  const isValidReferer = ALLOWED_ORIGINS.some(allowed => referer.includes(new URL(allowed).host));
+  
+  return isValidOriginHeader || isValidReferer;
+}
 
 const UVST_URLS = {
   test: 'https://sws-test.uvst.at',
@@ -92,12 +117,22 @@ function encodeXmlToBase64(xml: string): string {
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Validate origin to prevent unauthorized access
+    if (!isValidOrigin(req)) {
+      console.warn("Rejected request from unauthorized origin");
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     const { action, environment, data } = await req.json();
     const baseUrl = environment === 'prod' ? UVST_URLS.prod : UVST_URLS.test;
     

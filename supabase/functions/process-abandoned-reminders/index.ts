@@ -2,9 +2,35 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://grundbuchauszugonline.at",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// This function should only be called by cron/scheduler
+// Check for a secret header or service role authorization
+function isAuthorizedCaller(req: Request): boolean {
+  const authHeader = req.headers.get("Authorization") || "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  
+  // Allow if service role key is in the auth header (for cron jobs)
+  if (authHeader.includes(serviceRoleKey)) {
+    return true;
+  }
+  
+  // Allow if a special cron secret matches
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+    return true;
+  }
+  
+  // For backward compatibility with existing cron setup, also check anon key
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  if (authHeader.includes(anonKey)) {
+    return true;
+  }
+  
+  return false;
+}
 
 interface AbandonedSession {
   id: string;
@@ -379,6 +405,15 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify this is an authorized caller (cron job or service role)
+    if (!isAuthorizedCaller(req)) {
+      console.warn("Rejected unauthorized call to process-abandoned-reminders");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - only callable by cron" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
