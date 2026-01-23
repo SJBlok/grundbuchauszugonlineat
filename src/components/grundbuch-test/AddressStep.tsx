@@ -1,24 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2, MapPin, ArrowLeft, ArrowRight, Info, Search, Building, X, Edit2, CheckCircle2, Database } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, ArrowLeft, ArrowRight, Search, Building, X, Edit2, CheckCircle2, Database, FileText } from 'lucide-react';
 import { useGrundbuchTestStore } from '@/stores/grundbuch-test-store';
-import { mockAddressLookup } from '@/lib/uvst-api';
+import { authenticate, grundbuchAbfrage } from '@/lib/uvst-api';
 import { cn } from '@/lib/utils';
-
-const addressSchema = z.object({
-  straat: z.string().min(1, 'Straat is verplicht'),
-  huisnummer: z.string().optional(),
-  postcode: z.string().optional(),
-  plaats: z.string().optional(),
-});
-
-type AddressFormData = z.infer<typeof addressSchema>;
 
 interface AddressSearchResult {
   kgNummer: string;
@@ -42,34 +30,28 @@ const mockAddresses: AddressSearchResult[] = [
 
 export function AddressStep() {
   const {
-    addressData,
-    setAddressData,
-    lookupResult,
-    setLookupResult,
+    environment,
+    token,
+    setToken,
+    isTokenValid,
+    abfrageConfig,
+    abfrageResult,
+    setAbfrageResult,
     isLoading,
     setIsLoading,
     error,
     setError,
+    addApiLog,
     nextStep,
     prevStep,
   } = useGrundbuchTestStore();
 
-  const [success, setSuccess] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<AddressSearchResult | null>(null);
+  const [isFetchingDocs, setIsFetchingDocs] = useState(false);
   
   // Mock database search state
   const [mockSearchQuery, setMockSearchQuery] = useState("");
   const [mockSearchResults, setMockSearchResults] = useState<AddressSearchResult[]>([]);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = useForm<AddressFormData>({
-    resolver: zodResolver(addressSchema),
-    defaultValues: addressData,
-  });
 
   // Mock database search effect
   useEffect(() => {
@@ -90,25 +72,8 @@ export function AddressStep() {
 
   const handleSelectAddress = (result: AddressSearchResult) => {
     setSelectedAddress(result);
-    
-    // Parse address into street and house number
-    const addressParts = result.adresse.match(/^(.+?)\s+(\d+.*)$/) || [result.adresse, result.adresse, ''];
-    const street = addressParts[1] || result.adresse;
-    const houseNumber = addressParts[2] || '';
-    
-    // Update form fields
-    setValue('straat', street);
-    setValue('huisnummer', houseNumber);
-    setValue('postcode', result.plz);
-    setValue('plaats', result.ort);
-    
-    // Update store
-    setAddressData({
-      straat: street,
-      huisnummer: houseNumber,
-      postcode: result.plz,
-      plaats: result.ort,
-    });
+    setAbfrageResult(null);
+    setError(null);
     
     // Clear mock search
     setMockSearchQuery("");
@@ -117,37 +82,46 @@ export function AddressStep() {
 
   const handleClearSelection = () => {
     setSelectedAddress(null);
-    setLookupResult(null);
-    setSuccess(false);
+    setAbfrageResult(null);
+    setError(null);
     setMockSearchQuery("");
     setMockSearchResults([]);
-    // Clear form fields
-    setValue('straat', '');
-    setValue('huisnummer', '');
-    setValue('postcode', '');
-    setValue('plaats', '');
-    setAddressData({ straat: '', huisnummer: '', postcode: '', plaats: '' });
   };
 
-  const onSubmit = async (data: AddressFormData) => {
-    setIsLoading(true);
+  const handleFetchDocuments = async () => {
+    if (!selectedAddress) return;
+    
+    setIsFetchingDocs(true);
     setError(null);
-    setSuccess(false);
-    setAddressData(data);
-
+    
     try {
-      const result = await mockAddressLookup(
-        data.straat,
-        data.huisnummer || '',
-        data.postcode || '',
-        data.plaats || ''
+      // First authenticate if needed
+      let currentToken = token.value;
+      if (!isTokenValid()) {
+        const newToken = await authenticate(environment, addApiLog);
+        setToken(newToken);
+        currentToken = newToken.value;
+      }
+      
+      if (!currentToken) {
+        throw new Error('Geen geldige token beschikbaar');
+      }
+      
+      // Fetch documents using the selected address KG data
+      const result = await grundbuchAbfrage(
+        environment,
+        currentToken,
+        selectedAddress.kgNummer,
+        selectedAddress.ez,
+        abfrageConfig,
+        addApiLog
       );
-      setLookupResult(result);
-      setSuccess(true);
+      
+      setAbfrageResult(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Address lookup failed');
+      setError(err instanceof Error ? err.message : 'Documenten ophalen mislukt');
     } finally {
-      setIsLoading(false);
+      setIsFetchingDocs(false);
     }
   };
 
@@ -283,6 +257,72 @@ export function AddressStep() {
         </div>
       )}
 
+      {/* Fetch Documents Button */}
+      {selectedAddress && (
+        <div className="space-y-4">
+          <Button
+            type="button"
+            onClick={handleFetchDocuments}
+            disabled={isFetchingDocs || isLoading}
+            className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold"
+          >
+            {isFetchingDocs ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Documenten ophalen...
+              </>
+            ) : (
+              <>
+                <FileText className="w-4 h-4 mr-2" />
+                Documenten ophalen (UVST API)
+              </>
+            )}
+          </Button>
+          
+          {error && (
+            <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {abfrageResult && (
+            <Alert className="bg-emerald-900/20 border-emerald-500/50">
+              <CheckCircle className="h-4 w-4 text-emerald-400" />
+              <AlertTitle className="text-emerald-400">Documenten opgehaald!</AlertTitle>
+              <AlertDescription>
+                <div className="mt-2 p-3 bg-slate-800 rounded font-mono text-xs space-y-2 max-h-64 overflow-y-auto">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Transaction ID:</span>
+                    <span className="text-cyan-400">{abfrageResult.ergebnis?.transactionId || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Kosten:</span>
+                    <span className="text-cyan-400">€{abfrageResult.ergebnis?.kosten?.gesamtKostenInklUst?.toFixed(2) || '0.00'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Resource Type:</span>
+                    <span className="text-slate-300">{abfrageResult.resourceContentTyp || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Resource Size:</span>
+                    <span className="text-slate-300">{abfrageResult.resourceSize ? `${(abfrageResult.resourceSize / 1024).toFixed(1)} KB` : 'N/A'}</span>
+                  </div>
+                  {abfrageResult.response && (
+                    <div className="mt-2 pt-2 border-t border-slate-700">
+                      <p className="text-slate-400 mb-1">Document (base64):</p>
+                      <p className="text-slate-500 text-xs truncate">
+                        {abfrageResult.response.substring(0, 100)}...
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+      )}
 
       <div className="flex justify-between pt-4">
         <Button
