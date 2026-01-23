@@ -283,125 +283,6 @@ export function AddressStep() {
         </div>
       )}
 
-      {/* Manual address fields - filled from search or manual entry */}
-      <div className="border-t border-slate-700 pt-6">
-        <Alert className="bg-amber-900/20 border-amber-500/50 mb-4">
-          <Info className="h-4 w-4 text-amber-400" />
-          <AlertTitle className="text-amber-400">Mock KG Lookup</AlertTitle>
-          <AlertDescription className="text-amber-200/80">
-            Na het selecteren van een adres, klik op "KG Opzoeken" om de mock Katastralgemeinde gegevens op te halen.
-          </AlertDescription>
-        </Alert>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="straat" className="text-slate-300">Straat</Label>
-              <Input
-                id="straat"
-                {...register('straat')}
-                placeholder="Kärntner Straße"
-                className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
-              />
-              {errors.straat && (
-                <p className="text-red-400 text-xs">{errors.straat.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="huisnummer" className="text-slate-300">Huisnummer</Label>
-              <Input
-                id="huisnummer"
-                {...register('huisnummer')}
-                placeholder="1"
-                className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
-              />
-              {errors.huisnummer && (
-                <p className="text-red-400 text-xs">{errors.huisnummer.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="postcode" className="text-slate-300">Postcode</Label>
-              <Input
-                id="postcode"
-                {...register('postcode')}
-                placeholder="1010"
-                className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
-              />
-              {errors.postcode && (
-                <p className="text-red-400 text-xs">{errors.postcode.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="plaats" className="text-slate-300">Plaats</Label>
-              <Input
-                id="plaats"
-                {...register('plaats')}
-                placeholder="Wien"
-                className="bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
-              />
-              {errors.plaats && (
-                <p className="text-red-400 text-xs">{errors.plaats.message}</p>
-              )}
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                KG Opzoeken...
-              </>
-            ) : (
-              <>
-                <MapPin className="w-4 h-4 mr-2" />
-                KG Opzoeken (Mock)
-              </>
-            )}
-          </Button>
-        </form>
-      </div>
-
-      {error && (
-        <Alert variant="destructive" className="bg-red-900/20 border-red-500/50">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {success && lookupResult && (
-        <Alert className="bg-emerald-900/20 border-emerald-500/50">
-          <CheckCircle className="h-4 w-4 text-emerald-400" />
-          <AlertTitle className="text-emerald-400">KG gegevens gevonden!</AlertTitle>
-          <AlertDescription>
-            <div className="mt-2 p-3 bg-slate-800 rounded font-mono text-xs space-y-1">
-              <div className="flex justify-between">
-                <span className="text-slate-400">KG-Nummer:</span>
-                <span className="text-cyan-400">{lookupResult.kgNummer}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">KG-Name:</span>
-                <span className="text-slate-300">{lookupResult.kgName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Einlagezahl:</span>
-                <span className="text-cyan-400">{lookupResult.einlagezahl}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-400">Gericht:</span>
-                <span className="text-slate-300">{lookupResult.gericht}</span>
-              </div>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
 
       <div className="flex justify-between pt-4">
         <Button
@@ -416,7 +297,7 @@ export function AddressStep() {
         <Button
           type="button"
           onClick={nextStep}
-          disabled={!lookupResult}
+          disabled={!selectedAddress}
           className="bg-cyan-600 hover:bg-cyan-500 text-white"
         >
           Volgende
