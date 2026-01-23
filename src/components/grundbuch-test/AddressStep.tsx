@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader2, MapPin, ArrowLeft, ArrowRight, Info, Search, Building, X, Edit2, CheckCircle2, Database } from 'lucide-react';
 import { useGrundbuchTestStore } from '@/stores/grundbuch-test-store';
 import { mockAddressLookup } from '@/lib/uvst-api';
-import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 const addressSchema = z.object({
@@ -56,16 +55,7 @@ export function AddressStep() {
   } = useGrundbuchTestStore();
 
   const [success, setSuccess] = useState(false);
-  
-  // Address search state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<AddressSearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<AddressSearchResult | null>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   
   // Mock database search state
   const [mockSearchQuery, setMockSearchQuery] = useState("");
@@ -80,56 +70,6 @@ export function AddressStep() {
     resolver: zodResolver(addressSchema),
     defaultValues: addressData,
   });
-
-  // Debounced search as user types
-  useEffect(() => {
-    if (selectedAddress) return;
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    if (searchQuery.length < 3) {
-      setSearchResults([]);
-      setHasSearched(false);
-      setSearchError(null);
-      return;
-    }
-
-    debounceRef.current = setTimeout(async () => {
-      setIsSearching(true);
-      setSearchError(null);
-      setHasSearched(true);
-
-      try {
-        const { data, error: fetchError } = await supabase.functions.invoke("search-address", {
-          body: { query: searchQuery },
-        });
-
-        if (fetchError) {
-          throw fetchError;
-        }
-
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        setSearchResults(data.results || []);
-      } catch (err: unknown) {
-        console.error("Search error:", err);
-        setSearchError("Fehler bei der Suche. Bitte versuchen Sie es erneut.");
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 400);
-
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [searchQuery, selectedAddress]);
 
   // Mock database search effect
   useEffect(() => {
@@ -170,17 +110,13 @@ export function AddressStep() {
       plaats: result.ort,
     });
     
-    // Clear search
-    setSearchQuery([result.adresse, result.plz, result.ort].filter(Boolean).join(", "));
-    setSearchResults([]);
-    setHasSearched(false);
+    // Clear mock search
+    setMockSearchQuery("");
+    setMockSearchResults([]);
   };
 
   const handleClearSelection = () => {
     setSelectedAddress(null);
-    setSearchQuery("");
-    setSearchResults([]);
-    setHasSearched(false);
     setLookupResult(null);
     setSuccess(false);
     setMockSearchQuery("");
@@ -191,7 +127,6 @@ export function AddressStep() {
     setValue('postcode', '');
     setValue('plaats', '');
     setAddressData({ straat: '', huisnummer: '', postcode: '', plaats: '' });
-    inputRef.current?.focus();
   };
 
   const onSubmit = async (data: AddressFormData) => {
@@ -316,130 +251,37 @@ export function AddressStep() {
         </div>
       </div>
 
-      {/* OpenStreetMap Address Search */}
-      <div className="space-y-4">
-        <Label className="text-slate-300 flex items-center gap-2">
-          <Search className="w-4 h-4" />
-          Adres zoeken (OpenStreetMap)
-        </Label>
-        
-        {selectedAddress ? (
-          <div className="border-2 border-emerald-500/40 bg-emerald-900/20 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-emerald-400">Adres geselecteerd</p>
-                <p className="text-sm text-slate-300 mt-1">{selectedAddress.adresse}</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  {selectedAddress.plz} {selectedAddress.ort}
-                  {selectedAddress.bundesland && ` • ${selectedAddress.bundesland}`}
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleClearSelection}
-                className="border-slate-600 text-slate-300 hover:bg-slate-700 shrink-0"
-              >
-                <Edit2 className="h-3.5 w-3.5 mr-1.5" />
-                Wijzigen
-              </Button>
+      {/* Selected Address Display */}
+      {selectedAddress && (
+        <div className="border-2 border-emerald-500/40 bg-emerald-900/20 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
             </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-              <Input
-                ref={inputRef}
-                type="text"
-                placeholder="Adresse eingeben (z.B. Hauptstraße 1, Wien)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-12 h-12 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
-              />
-              {isSearching && (
-                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-cyan-400" />
-              )}
-              {!isSearching && searchQuery.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSearchResults([]);
-                    setHasSearched(false);
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600 transition-colors"
-                >
-                  <X className="h-4 w-4 text-slate-400" />
-                </button>
-              )}
-            </div>
-
-            {searchQuery.length > 0 && searchQuery.length < 3 && (
-              <p className="text-sm text-slate-500">
-                Noch {3 - searchQuery.length} Zeichen eingeben...
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-emerald-400">Adres geselecteerd</p>
+              <p className="text-sm text-slate-300 mt-1">{selectedAddress.adresse}</p>
+              <p className="text-xs text-slate-400 mt-1">
+                {selectedAddress.plz} {selectedAddress.ort}
+                {selectedAddress.bundesland && ` • ${selectedAddress.bundesland}`}
               </p>
-            )}
-
-            {searchError && (
-              <p className="text-sm text-red-400">{searchError}</p>
-            )}
-
-            {hasSearched && !isSearching && searchResults.length === 0 && !searchError && searchQuery.length >= 3 && (
-              <div className="text-center py-4 text-slate-400 border border-slate-700 rounded-lg bg-slate-800/50">
-                <MapPin className="h-6 w-6 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Keine Ergebnisse gefunden.</p>
-              </div>
-            )}
-
-            {searchResults.length > 0 && (
-              <div className="border border-cyan-500/30 rounded-lg overflow-hidden max-h-60 overflow-y-auto bg-slate-800">
-                <div className="bg-slate-700/50 px-3 py-2 border-b border-slate-700 text-xs font-medium text-slate-400 sticky top-0 z-10">
-                  {searchResults.length} Ergebnis{searchResults.length !== 1 ? 'se' : ''} – Klicken zum Auswählen
-                </div>
-                <div className="divide-y divide-slate-700">
-                  {searchResults.map((result, index) => (
-                    <button
-                      key={`${result.adresse}-${result.plz}-${index}`}
-                      onClick={() => handleSelectAddress(result)}
-                      type="button"
-                      className={cn(
-                        "w-full text-left p-3 transition-all duration-150 cursor-pointer",
-                        "hover:bg-cyan-500/10 active:bg-cyan-500/20",
-                        "focus:outline-none focus:bg-cyan-500/10",
-                        "group"
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="h-9 w-9 rounded-lg bg-cyan-500/20 flex items-center justify-center shrink-0">
-                          <Building className="h-4 w-4 text-cyan-400" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-slate-200 text-sm group-hover:text-cyan-400 transition-colors">
-                            {result.adresse}
-                          </p>
-                          <p className="text-xs text-slate-400 mt-0.5">
-                            {result.plz} {result.ort}
-                            {result.bundesland && ` • ${result.bundesland}`}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <p className="text-xs text-slate-500 text-center">
-              Adresssuche via OpenStreetMap (Photon API)
-            </p>
+              <p className="text-xs text-slate-500 mt-1">
+                KG: {selectedAddress.kgName} ({selectedAddress.kgNummer}) • EZ: {selectedAddress.ez} • GST: {selectedAddress.gst}
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleClearSelection}
+              className="border-slate-600 text-slate-300 hover:bg-slate-700 shrink-0"
+            >
+              <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+              Wijzigen
+            </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Manual address fields - filled from search or manual entry */}
       <div className="border-t border-slate-700 pt-6">
