@@ -42,6 +42,7 @@ export function AddressStep() {
     error,
     setError,
     addApiLog,
+    apiLogs,
     nextStep,
     prevStep,
   } = useGrundbuchTestStore();
@@ -321,6 +322,73 @@ export function AddressStep() {
               </AlertDescription>
             </Alert>
           )}
+        </div>
+      )}
+
+      {/* Detailed API Logs */}
+      {apiLogs.length > 0 && selectedAddress && (
+        <div className="space-y-3">
+          <Label className="text-slate-300 flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            API Logs (laatste requests)
+          </Label>
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {apiLogs.slice(0, 5).map((log) => (
+              <div key={log.id} className="border border-slate-700 rounded-lg bg-slate-800/50 overflow-hidden">
+                <div className={cn(
+                  "px-3 py-2 flex items-center justify-between text-xs font-mono",
+                  log.responseStatus >= 200 && log.responseStatus < 300 
+                    ? "bg-emerald-900/30 border-b border-emerald-500/30" 
+                    : "bg-red-900/30 border-b border-red-500/30"
+                )}>
+                  <span className="flex items-center gap-2">
+                    <span className={cn(
+                      "px-1.5 py-0.5 rounded text-xs font-bold",
+                      log.responseStatus >= 200 && log.responseStatus < 300 
+                        ? "bg-emerald-500/20 text-emerald-400" 
+                        : "bg-red-500/20 text-red-400"
+                    )}>
+                      {log.method}
+                    </span>
+                    <span className="text-slate-300">{log.endpoint}</span>
+                  </span>
+                  <span className="flex items-center gap-3 text-slate-400">
+                    <span className={cn(
+                      log.responseStatus >= 200 && log.responseStatus < 300 
+                        ? "text-emerald-400" 
+                        : "text-red-400"
+                    )}>
+                      {log.responseStatus}
+                    </span>
+                    <span>{log.duration}ms</span>
+                  </span>
+                </div>
+                
+                <div className="p-3 space-y-3">
+                  {/* Request Body */}
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1 font-semibold">Request Body:</p>
+                    <pre className="text-xs text-slate-300 bg-slate-900 p-2 rounded overflow-x-auto max-h-32 overflow-y-auto">
+                      {JSON.stringify(log.requestBody, null, 2)}
+                    </pre>
+                  </div>
+                  
+                  {/* Response Body */}
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1 font-semibold">Response Body:</p>
+                    <pre className={cn(
+                      "text-xs p-2 rounded overflow-x-auto max-h-48 overflow-y-auto",
+                      log.responseStatus >= 200 && log.responseStatus < 300 
+                        ? "text-emerald-300 bg-emerald-900/20" 
+                        : "text-red-300 bg-red-900/20"
+                    )}>
+                      {JSON.stringify(log.responseBody, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
