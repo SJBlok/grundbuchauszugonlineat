@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader2, ArrowLeft, ArrowRight, Search, Building, X, Edit2, CheckCircle2, Database, FileText } from 'lucide-react';
 import { useGrundbuchTestStore } from '@/stores/grundbuch-test-store';
-import { authenticate, grundbuchAbfrage } from '@/lib/uvst-api';
+import { authenticate, grundbuchAbfrage, adresssuche } from '@/lib/uvst-api';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -75,6 +75,14 @@ export function AddressStep() {
   const [selectedAddress, setSelectedAddress] = useState<AddressSearchResult | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ProductType>('GT_GBA');
   const [isFetchingDocs, setIsFetchingDocs] = useState(false);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+  const [addressSearchResult, setAddressSearchResult] = useState<unknown>(null);
+  
+  // Manual address input for UVST Adresssuche
+  const [manualStrasse, setManualStrasse] = useState('');
+  const [manualHausnummer, setManualHausnummer] = useState('');
+  const [manualPlz, setManualPlz] = useState('');
+  const [manualOrt, setManualOrt] = useState('');
   
   // Mock database search state
   const [mockSearchQuery, setMockSearchQuery] = useState("");
@@ -113,6 +121,46 @@ export function AddressStep() {
     setError(null);
     setMockSearchQuery("");
     setMockSearchResults([]);
+  };
+
+  // UVST Adresssuche (GT_ADR)
+  const handleUvstAdresssuche = async () => {
+    if (!manualStrasse && !manualPlz && !manualOrt) return;
+    
+    setIsSearchingAddress(true);
+    setError(null);
+    setAddressSearchResult(null);
+    
+    try {
+      // First authenticate if needed
+      let currentToken = token.value;
+      if (!isTokenValid()) {
+        const newToken = await authenticate(environment, addApiLog);
+        setToken(newToken);
+        currentToken = newToken.value;
+      }
+      
+      if (!currentToken) {
+        throw new Error('Geen geldige token beschikbaar');
+      }
+      
+      // Call UVST Adresssuche
+      const result = await adresssuche(
+        environment,
+        currentToken,
+        manualStrasse,
+        manualHausnummer,
+        manualPlz,
+        manualOrt,
+        addApiLog
+      );
+      
+      setAddressSearchResult(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Adresssuche mislukt');
+    } finally {
+      setIsSearchingAddress(false);
+    }
   };
 
   const handleFetchDocuments = async () => {
@@ -158,8 +206,98 @@ export function AddressStep() {
       <div className="space-y-2">
         <h2 className="text-xl font-bold text-cyan-400 font-mono">Step 2: Adres Lookup</h2>
         <p className="text-slate-400 text-sm">
-          Zoek eerst een adres via OpenStreetMap of selecteer een mock adres.
+          Zoek een adres via de UVST Adresssuche API (GT_ADR) of selecteer een mock adres.
         </p>
+      </div>
+
+      {/* UVST Adresssuche (GT_ADR) */}
+      <div className="space-y-4 p-4 border border-cyan-500/30 rounded-lg bg-slate-800/50">
+        <Label className="text-cyan-400 flex items-center gap-2 font-semibold">
+          <Search className="w-4 h-4" />
+          UVST Adresssuche (GT_ADR)
+        </Label>
+        
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2 md:col-span-1">
+            <Label className="text-slate-400 text-xs mb-1 block">Straße</Label>
+            <Input
+              type="text"
+              placeholder="z.B. Kärntner Straße"
+              value={manualStrasse}
+              onChange={(e) => setManualStrasse(e.target.value)}
+              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
+            />
+          </div>
+          <div>
+            <Label className="text-slate-400 text-xs mb-1 block">Hausnummer</Label>
+            <Input
+              type="text"
+              placeholder="z.B. 1"
+              value={manualHausnummer}
+              onChange={(e) => setManualHausnummer(e.target.value)}
+              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
+            />
+          </div>
+          <div>
+            <Label className="text-slate-400 text-xs mb-1 block">PLZ</Label>
+            <Input
+              type="text"
+              placeholder="z.B. 1010"
+              value={manualPlz}
+              onChange={(e) => setManualPlz(e.target.value)}
+              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
+            />
+          </div>
+          <div>
+            <Label className="text-slate-400 text-xs mb-1 block">Ort</Label>
+            <Input
+              type="text"
+              placeholder="z.B. Wien"
+              value={manualOrt}
+              onChange={(e) => setManualOrt(e.target.value)}
+              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
+            />
+          </div>
+        </div>
+        
+        <Button
+          type="button"
+          onClick={handleUvstAdresssuche}
+          disabled={isSearchingAddress || (!manualStrasse && !manualPlz && !manualOrt)}
+          className="w-full bg-cyan-600 hover:bg-cyan-500 text-white"
+        >
+          {isSearchingAddress ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Zoeken via UVST API...
+            </>
+          ) : (
+            <>
+              <Search className="w-4 h-4 mr-2" />
+              Adres zoeken (GT_ADR)
+            </>
+          )}
+        </Button>
+
+        {/* Address Search Result */}
+        {addressSearchResult && (
+          <Alert className="bg-slate-900 border-cyan-500/50">
+            <FileText className="h-4 w-4 text-cyan-400" />
+            <AlertTitle className="text-cyan-400">UVST Adresssuche Resultaat</AlertTitle>
+            <AlertDescription>
+              <pre className="text-xs text-slate-300 bg-slate-800 p-3 rounded mt-2 overflow-x-auto max-h-64 overflow-y-auto">
+                {JSON.stringify(addressSearchResult, null, 2)}
+              </pre>
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 border-t border-slate-700" />
+        <span className="text-slate-500 text-xs">OF gebruik mock data</span>
+        <div className="flex-1 border-t border-slate-700" />
       </div>
 
       {/* Mock Database Search */}

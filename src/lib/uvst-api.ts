@@ -189,7 +189,62 @@ export async function grundbuchUrkunden(
   return data.data;
 }
 
-// Mock address lookup (for testing)
+// UVST Adresssuche (GT_ADR) - Look up KG/EZ from address
+export async function adresssuche(
+  environment: Environment,
+  token: string,
+  strasse: string,
+  hausnummer: string,
+  plz: string,
+  ort: string,
+  onLog?: (log: APILogEntry) => void
+): Promise<unknown> {
+  const startTime = Date.now();
+
+  const requestData = {
+    action: 'adresssuche',
+    environment,
+    data: {
+      token,
+      strasse,
+      hausnummer,
+      plz,
+      ort,
+    },
+  };
+
+  const { data, error } = await supabase.functions.invoke<ProxyResponse<unknown>>('uvst-proxy', {
+    body: requestData,
+  });
+
+  const duration = Date.now() - startTime;
+
+  if (onLog) {
+    onLog(createLogEntry(
+      'POST',
+      `/api/v1/gb (GT_ADR)`,
+      {
+        produkt: 'GT_ADR',
+        xml: `<AdresssucheAnfrage>...</AdresssucheAnfrage>`,
+        strasse,
+        hausnummer,
+        plz,
+        ort,
+      },
+      data?.status ?? 500,
+      data?.data ?? { error: error?.message },
+      duration
+    ));
+  }
+
+  if (error || !data?.success) {
+    throw new Error(error?.message || 'Adresssuche failed');
+  }
+
+  return data.data;
+}
+
+// Mock address lookup (for testing without API)
 export async function mockAddressLookup(
   _straat: string,
   _huisnummer: string,
