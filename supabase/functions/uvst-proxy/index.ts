@@ -88,6 +88,13 @@ function escapeXml(str: string): string {
     .replace(/'/g, '&apos;');
 }
 
+// Base64 encode XML for UVST API
+function encodeXmlToBase64(xml: string): string {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(xml);
+  return btoa(String.fromCharCode(...data));
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -142,6 +149,7 @@ serve(async (req) => {
 
         const produkt = data.produkt as string;
         const xmlRequest = buildXmlRequest(produkt, data);
+        const xmlBase64 = encodeXmlToBase64(xmlRequest);
 
         const requestBody = {
           includeResult: true,
@@ -155,7 +163,7 @@ serve(async (req) => {
             usewareProdukt: 'GRUNDBUCH_ONLINE',
             weitereInfo: '',
           },
-          xml: xmlRequest,
+          xml: xmlBase64,
         };
 
         console.log('UVST GB Request:', JSON.stringify(requestBody, null, 2));
@@ -184,6 +192,7 @@ serve(async (req) => {
         // Support both GT_GBA and GT_GBP
         const produkt = (data.produkt as string) || 'GT_GBA';
         const xmlRequest = buildXmlRequest(produkt, data);
+        const xmlBase64 = encodeXmlToBase64(xmlRequest);
         const requestBody = {
           includeResult: true,
           produkt,
@@ -196,7 +205,7 @@ serve(async (req) => {
             usewareProdukt: 'GRUNDBUCH_ONLINE',
             weitereInfo: '',
           },
-          xml: xmlRequest,
+          xml: xmlBase64,
         };
 
         console.log('UVST Grundbuch Abfrage Request:', JSON.stringify(requestBody, null, 2));
@@ -222,6 +231,7 @@ serve(async (req) => {
         }
 
         const xmlRequest = buildXmlRequest('GT_URK', data);
+        const xmlBase64 = encodeXmlToBase64(xmlRequest);
         const requestBody = {
           includeResult: true,
           produkt: 'GT_URK',
@@ -234,7 +244,7 @@ serve(async (req) => {
             usewareProdukt: 'GRUNDBUCH_ONLINE',
             weitereInfo: '',
           },
-          xml: xmlRequest,
+          xml: xmlBase64,
         };
 
         response = await fetch(`${baseUrl}/api/v1/gb`, {
@@ -258,6 +268,7 @@ serve(async (req) => {
         }
 
         const xmlRequest = buildXmlRequest('GT_ADR', data);
+        const xmlBase64 = encodeXmlToBase64(xmlRequest);
         const requestBody = {
           includeResult: true,
           produkt: 'GT_ADR',
@@ -270,7 +281,7 @@ serve(async (req) => {
             usewareProdukt: 'GRUNDBUCH_ONLINE',
             weitereInfo: '',
           },
-          xml: xmlRequest,
+          xml: xmlBase64,
         };
 
         console.log('UVST Adresssuche Request:', JSON.stringify(requestBody, null, 2));
