@@ -280,7 +280,22 @@ serve(async (req) => {
           xml: xmlBase64,
         };
 
-        console.log('UVST Adresssuche Request:', JSON.stringify(requestBody, null, 2));
+        // Detailed logging for debugging
+        console.log('========== UVST ADRESSSUCHE DEBUG ==========');
+        console.log('Environment:', environment);
+        console.log('Endpoint:', `${baseUrl}/api/v1/gb`);
+        console.log('');
+        console.log('--- RAW XML (before Base64) ---');
+        console.log(xmlRequest);
+        console.log('');
+        console.log('--- FULL REQUEST BODY ---');
+        console.log(JSON.stringify(requestBody, null, 2));
+        console.log('');
+        console.log('--- REQUEST HEADERS ---');
+        console.log('Authorization: Bearer', data.token.substring(0, 20) + '...');
+        console.log('X-API-KEY:', apiKey?.substring(0, 10) + '...');
+        console.log('Content-Type: application/json');
+        console.log('=============================================');
 
         response = await fetch(`${baseUrl}/api/v1/gb`, {
           method: 'POST',
@@ -291,7 +306,59 @@ serve(async (req) => {
           },
           body: JSON.stringify(requestBody),
         });
-        break;
+        
+        // Log raw response
+        const rawResponseText = await response.text();
+        console.log('');
+        console.log('========== UVST RESPONSE ==========');
+        console.log('Status:', response.status, response.statusText);
+        console.log('');
+        console.log('--- RAW RESPONSE BODY ---');
+        console.log(rawResponseText);
+        console.log('');
+        
+        // Try to parse and decode if it contains base64 result
+        try {
+          const parsed = JSON.parse(rawResponseText);
+          if (parsed.result) {
+            console.log('--- DECODED RESULT (Base64 -> XML) ---');
+            try {
+              const decoded = atob(parsed.result);
+              console.log(decoded);
+            } catch (e) {
+              console.log('Could not decode result as Base64');
+            }
+          }
+        } catch (e) {
+          console.log('Response is not JSON');
+        }
+        console.log('====================================');
+        
+        // Return early with the response we already consumed
+        const duration = Date.now() - startTime;
+        let responseData;
+        try {
+          responseData = JSON.parse(rawResponseText);
+        } catch {
+          responseData = { rawResponse: rawResponseText };
+        }
+        
+        return new Response(
+          JSON.stringify({
+            success: response.ok,
+            status: response.status,
+            data: responseData,
+            duration,
+            debug: {
+              xmlSent: xmlRequest,
+              endpoint: `${baseUrl}/api/v1/gb`,
+            }
+          }),
+          { 
+            status: response.ok ? 200 : response.status,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
       }
 
       default:
