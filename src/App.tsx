@@ -17,6 +17,7 @@ import Widerruf from "./pages/Widerruf";
 import Impressum from "./pages/Impressum";
 import UeberUns from "./pages/UeberUns";
 import NotFound from "./pages/NotFound";
+import GrundbuchTest from "./pages/GrundbuchTest";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/widerruf" element={<Widerruf />} />
           <Route path="/impressum" element={<Impressum />} />
           <Route path="/ueber-uns" element={<UeberUns />} />
+          <Route path="/test/grundbuch" element={<GrundbuchTest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
