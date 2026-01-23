@@ -229,185 +229,48 @@ export function AddressStep() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h2 className="text-xl font-bold text-cyan-400 font-mono">Step 2: Adres Lookup</h2>
+        <h2 className="text-xl font-bold text-cyan-400 font-mono">Step 2: Adres & Product</h2>
         <p className="text-slate-400 text-sm">
-          Zoek een adres via de UVST Adresssuche API (GT_ADR) of selecteer een mock adres.
+          Selecteer een mock adres en kies het gewenste product.
         </p>
       </div>
 
-      {/* UVST Adresssuche (GT_ADR) */}
-      <div className="space-y-4 p-4 border border-cyan-500/30 rounded-lg bg-slate-800/50">
-        <Label className="text-cyan-400 flex items-center gap-2 font-semibold">
-          <Search className="w-4 h-4" />
-          UVST Adresssuche (GT_ADR)
-        </Label>
-        
-        {/* Address Search with Photon API */}
-        <div className="space-y-2">
-          <Label className="text-slate-400 text-xs flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
-            Adres zoeken (OpenStreetMap)
+      {/* Mock Address Selection */}
+      {!selectedAddress && (
+        <div className="space-y-4">
+          <Label className="text-slate-300 flex items-center gap-2 font-semibold">
+            <Building className="w-4 h-4" />
+            Selecteer een mock adres
           </Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-            <Input
-              type="text"
-              placeholder="Typ een adres, bijv. 'Kärntner Straße 1, Wien'..."
-              value={addressQuery}
-              onChange={(e) => setAddressQuery(e.target.value)}
-              className="pl-10 pr-10 h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
-            />
-            {isLoadingSuggestions && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cyan-400 animate-spin" />
-            )}
-            {addressQuery.length > 0 && !isLoadingSuggestions && (
+          <div className="grid grid-cols-1 gap-2">
+            {mockAddresses.map((addr, idx) => (
               <button
+                key={idx}
                 type="button"
-                onClick={() => { setAddressQuery(''); setAddressSuggestions([]); }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600 transition-colors"
+                onClick={() => handleSelectAddress(addr)}
+                className="w-full text-left p-4 rounded-lg border border-slate-700 bg-slate-800/50 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all group"
               >
-                <X className="h-3 w-3 text-slate-400" />
-              </button>
-            )}
-          </div>
-          
-          {/* Address Suggestions Dropdown */}
-          {addressSuggestions.length > 0 && (
-            <div className="border border-cyan-500/30 rounded-lg overflow-hidden bg-slate-900 max-h-48 overflow-y-auto">
-              {addressSuggestions.map((suggestion, index) => (
-                <button
-                  key={`suggestion-${index}`}
-                  type="button"
-                  onClick={() => handleSelectPhotonAddress(suggestion)}
-                  className="w-full text-left p-3 hover:bg-cyan-500/10 transition-colors border-b border-slate-800 last:border-b-0"
-                >
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
-                    <div>
-                      <p className="text-sm text-slate-200">{suggestion.adresse}</p>
-                      <p className="text-xs text-slate-400">
-                        {suggestion.plz} {suggestion.ort}
-                        {suggestion.bundesland && ` • ${suggestion.bundesland}`}
-                      </p>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-cyan-500/20 flex items-center justify-center shrink-0">
+                    <Building className="h-5 w-5 text-cyan-400" />
                   </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Mock Data & Reset Buttons */}
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setManualStrasse('Kärntner Straße');
-              setManualHausnummer('1');
-              setManualPlz('1010');
-              setManualOrt('Wien');
-            }}
-            className="border-cyan-600 text-cyan-400 hover:bg-cyan-500/20"
-          >
-            <Database className="w-3 h-3 mr-1.5" />
-            Mock data invullen
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setManualStrasse('');
-              setManualHausnummer('');
-              setManualPlz('');
-              setManualOrt('');
-              setAddressSearchResult(null);
-            }}
-            className="border-slate-600 text-slate-400 hover:bg-slate-700"
-          >
-            <X className="w-3 h-3 mr-1.5" />
-            Reset
-          </Button>
-        </div>
-
-        {/* Manual Input Fields */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="col-span-2 md:col-span-1">
-            <Label className="text-slate-400 text-xs mb-1 block">Straße</Label>
-            <Input
-              type="text"
-              placeholder="z.B. Kärntner Straße"
-              value={manualStrasse}
-              onChange={(e) => setManualStrasse(e.target.value)}
-              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
-            />
-          </div>
-          <div>
-            <Label className="text-slate-400 text-xs mb-1 block">Hausnummer</Label>
-            <Input
-              type="text"
-              placeholder="z.B. 1"
-              value={manualHausnummer}
-              onChange={(e) => setManualHausnummer(e.target.value)}
-              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
-            />
-          </div>
-          <div>
-            <Label className="text-slate-400 text-xs mb-1 block">PLZ</Label>
-            <Input
-              type="text"
-              placeholder="z.B. 1010"
-              value={manualPlz}
-              onChange={(e) => setManualPlz(e.target.value)}
-              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
-            />
-          </div>
-          <div>
-            <Label className="text-slate-400 text-xs mb-1 block">Ort</Label>
-            <Input
-              type="text"
-              placeholder="z.B. Wien"
-              value={manualOrt}
-              onChange={(e) => setManualOrt(e.target.value)}
-              className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
-            />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-slate-200 group-hover:text-cyan-400 transition-colors">
+                      {addr.adresse}
+                    </p>
+                    <p className="text-sm text-slate-400 mt-0.5">
+                      {addr.plz} {addr.ort} • {addr.bundesland}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1 font-mono">
+                      KG: {addr.kgNummer} ({addr.kgName}) | EZ: {addr.ez} | GST: {addr.gst}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
-        
-        <Button
-          type="button"
-          onClick={handleUvstAdresssuche}
-          disabled={isSearchingAddress || (!manualStrasse && !manualPlz && !manualOrt)}
-          className="w-full bg-cyan-600 hover:bg-cyan-500 text-white"
-        >
-          {isSearchingAddress ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Zoeken via UVST API...
-            </>
-          ) : (
-            <>
-              <Search className="w-4 h-4 mr-2" />
-              Adres zoeken (GT_ADR)
-            </>
-          )}
-        </Button>
-
-        {/* Address Search Result */}
-        {addressSearchResult && (
-          <Alert className="bg-slate-900 border-cyan-500/50">
-            <FileText className="h-4 w-4 text-cyan-400" />
-            <AlertTitle className="text-cyan-400">UVST Adresssuche Resultaat</AlertTitle>
-            <AlertDescription>
-              <pre className="text-xs text-slate-300 bg-slate-800 p-3 rounded mt-2 overflow-x-auto max-h-64 overflow-y-auto">
-                {JSON.stringify(addressSearchResult, null, 2)}
-              </pre>
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
+      )}
 
 
       {/* Selected Address Display */}
