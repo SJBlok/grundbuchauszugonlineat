@@ -41,6 +41,16 @@ function buildXmlRequest(produkt: string, data: Record<string, unknown>): string
   <Linked>${data.linked ? 'true' : 'false'}</Linked>
 </GBAuszugAnfrage>`;
 
+    case 'GT_GBP': // Grundbuchauszug historisch
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<HistorischerAuszugAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+  <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
+  <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
+  <Format>${escapeXml(data.format as string || 'PDF')}</Format>
+  <Signiert>${data.signiert ? 'true' : 'false'}</Signiert>
+  <Linked>${data.linked ? 'true' : 'false'}</Linked>
+</HistorischerAuszugAnfrage>`;
+
     case 'GT_URL': // Urkundenliste
       return `<?xml version="1.0" encoding="UTF-8"?>
 <UrkundenlisteAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
@@ -171,10 +181,12 @@ serve(async (req) => {
           );
         }
 
-        const xmlRequest = buildXmlRequest('GT_GBA', data);
+        // Support both GT_GBA and GT_GBP
+        const produkt = (data.produkt as string) || 'GT_GBA';
+        const xmlRequest = buildXmlRequest(produkt, data);
         const requestBody = {
           includeResult: true,
-          produkt: 'GT_GBA',
+          produkt,
           uvstInfo: {
             betriebssystem: 'Linux',
             geraeteName: 'WebServer',

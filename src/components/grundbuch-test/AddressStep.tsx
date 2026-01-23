@@ -7,6 +7,7 @@ import { CheckCircle, AlertCircle, Loader2, ArrowLeft, ArrowRight, Search, Build
 import { useGrundbuchTestStore } from '@/stores/grundbuch-test-store';
 import { authenticate, grundbuchAbfrage } from '@/lib/uvst-api';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface AddressSearchResult {
   kgNummer: string;
@@ -18,6 +19,30 @@ interface AddressSearchResult {
   ort: string;
   bundesland: string;
 }
+
+type ProductType = 'GT_GBA' | 'GT_GBP';
+
+interface ProductOption {
+  code: ProductType;
+  name: string;
+  description: string;
+  xmlElement: string;
+}
+
+const productOptions: ProductOption[] = [
+  { 
+    code: 'GT_GBA', 
+    name: 'Grundbuchauszug aktuell', 
+    description: 'Actuele status van het kadaster',
+    xmlElement: 'GBAuszugAnfrage'
+  },
+  { 
+    code: 'GT_GBP', 
+    name: 'Grundbuchauszug historisch', 
+    description: 'Historische wijzigingen en eigenaren',
+    xmlElement: 'HistorischerAuszugAnfrage'
+  },
+];
 
 // Mock addresses for testing
 const mockAddresses: AddressSearchResult[] = [
@@ -48,6 +73,7 @@ export function AddressStep() {
   } = useGrundbuchTestStore();
 
   const [selectedAddress, setSelectedAddress] = useState<AddressSearchResult | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductType>('GT_GBA');
   const [isFetchingDocs, setIsFetchingDocs] = useState(false);
   
   // Mock database search state
@@ -108,13 +134,14 @@ export function AddressStep() {
         throw new Error('Geen geldige token beschikbaar');
       }
       
-      // Fetch documents using the selected address KG data
+      // Fetch documents using the selected address KG data and product
       const result = await grundbuchAbfrage(
         environment,
         currentToken,
         selectedAddress.kgNummer,
         selectedAddress.ez,
         abfrageConfig,
+        selectedProduct,
         addApiLog
       );
       
@@ -258,6 +285,41 @@ export function AddressStep() {
         </div>
       )}
 
+      {/* Product Selection */}
+      {selectedAddress && (
+        <div className="space-y-3">
+          <Label className="text-slate-300 flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Product selecteren
+          </Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {productOptions.map((product) => (
+              <button
+                key={product.code}
+                type="button"
+                onClick={() => setSelectedProduct(product.code)}
+                className={cn(
+                  "p-4 rounded-lg border-2 text-left transition-all",
+                  selectedProduct === product.code
+                    ? "border-cyan-500 bg-cyan-500/10"
+                    : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
+                )}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-mono text-xs text-cyan-400">{product.code}</span>
+                  {selectedProduct === product.code && (
+                    <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+                  )}
+                </div>
+                <p className="font-medium text-slate-200 text-sm">{product.name}</p>
+                <p className="text-xs text-slate-400 mt-1">{product.description}</p>
+                <p className="text-xs text-slate-500 mt-1 font-mono">&lt;{product.xmlElement}&gt;</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Fetch Documents Button */}
       {selectedAddress && (
         <div className="space-y-4">
@@ -275,7 +337,7 @@ export function AddressStep() {
             ) : (
               <>
                 <FileText className="w-4 h-4 mr-2" />
-                Documenten ophalen (UVST API)
+                {productOptions.find(p => p.code === selectedProduct)?.name || 'Document'} ophalen
               </>
             )}
           </Button>
