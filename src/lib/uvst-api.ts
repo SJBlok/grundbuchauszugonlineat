@@ -78,12 +78,15 @@ export async function authenticate(
   };
 }
 
+export type ProductType = 'GT_GBA' | 'GT_GBP';
+
 export async function grundbuchAbfrage(
   environment: Environment,
   token: string,
   kgNummer: string,
   einlagezahl: string,
   config: AbfrageConfig,
+  produkt: ProductType = 'GT_GBA',
   onLog?: (log: APILogEntry) => void
 ): Promise<AbfrageResponse> {
   const startTime = Date.now();
@@ -99,6 +102,7 @@ export async function grundbuchAbfrage(
       historisch: config.historisch,
       signiert: config.signiert,
       linked: config.linked,
+      produkt,
       ...(config.stichtag && { stichtag: config.stichtag }),
     },
   };
@@ -109,14 +113,21 @@ export async function grundbuchAbfrage(
 
   const duration = Date.now() - startTime;
 
+  const xmlElement = produkt === 'GT_GBA' ? 'GBAuszugAnfrage' : 'HistorischerAuszugAnfrage';
+
   if (onLog) {
     onLog(createLogEntry(
       'POST',
-      `/api/v1/gb (GT_GBA)`,
+      `/api/v1/gb (${produkt})`,
       {
-        produkt: 'GT_GBA',
-        xml: `<GBAuszugAnfrage>...</GBAuszugAnfrage>`,
-        ...requestData.data,
+        produkt,
+        xml: `<${xmlElement}>...</${xmlElement}>`,
+        kgNummer,
+        einlagezahl,
+        format: config.format,
+        historisch: config.historisch,
+        signiert: config.signiert,
+        linked: config.linked,
       },
       data?.status ?? 500,
       data?.data ?? { error: error?.message },

@@ -53,6 +53,7 @@ export function AbfrageStep() {
         lookupResult.kgNummer,
         lookupResult.einlagezahl,
         abfrageConfig,
+        'GT_GBA',
         addApiLog
       );
       setAbfrageResult(result);
