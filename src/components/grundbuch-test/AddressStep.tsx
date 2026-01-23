@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,12 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2, MapPin, ArrowLeft, ArrowRight, Info, Search, Building, X, Edit2, CheckCircle2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, MapPin, ArrowLeft, ArrowRight, Info, Search, Building, X, Edit2, CheckCircle2, Database } from 'lucide-react';
 import { useGrundbuchTestStore } from '@/stores/grundbuch-test-store';
 import { mockAddressLookup } from '@/lib/uvst-api';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { useEffect, useRef } from 'react';
 
 const addressSchema = z.object({
   straat: z.string().min(1, 'Straat is verplicht'),
@@ -32,6 +31,15 @@ interface AddressSearchResult {
   ort: string;
   bundesland: string;
 }
+
+// Mock addresses for testing
+const mockAddresses: AddressSearchResult[] = [
+  { kgNummer: '01001', kgName: 'Innere Stadt', ez: '123', gst: '456', adresse: 'Kärntner Straße 1', plz: '1010', ort: 'Wien', bundesland: 'Wien' },
+  { kgNummer: '01002', kgName: 'Leopoldstadt', ez: '789', gst: '012', adresse: 'Praterstraße 25', plz: '1020', ort: 'Wien', bundesland: 'Wien' },
+  { kgNummer: '61001', kgName: 'Salzburg', ez: '234', gst: '567', adresse: 'Getreidegasse 9', plz: '5020', ort: 'Salzburg', bundesland: 'Salzburg' },
+  { kgNummer: '65001', kgName: 'Innsbruck', ez: '345', gst: '678', adresse: 'Maria-Theresien-Straße 18', plz: '6020', ort: 'Innsbruck', bundesland: 'Tirol' },
+  { kgNummer: '60101', kgName: 'Graz - Innere Stadt', ez: '456', gst: '789', adresse: 'Herrengasse 16', plz: '8010', ort: 'Graz', bundesland: 'Steiermark' },
+];
 
 export function AddressStep() {
   const {
@@ -103,7 +111,7 @@ export function AddressStep() {
         }
 
         setSearchResults(data.results || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Search error:", err);
         setSearchError("Fehler bei der Suche. Bitte versuchen Sie es erneut.");
         setSearchResults([]);
@@ -184,8 +192,30 @@ export function AddressStep() {
       <div className="space-y-2">
         <h2 className="text-xl font-bold text-cyan-400 font-mono">Step 2: Adres Lookup</h2>
         <p className="text-slate-400 text-sm">
-          Zoek eerst een adres via OpenStreetMap, dan lookup de KG-gegevens.
+          Zoek eerst een adres via OpenStreetMap of selecteer een mock adres.
         </p>
+      </div>
+
+      {/* Quick Mock Address Buttons */}
+      <div className="space-y-3">
+        <Label className="text-slate-300 flex items-center gap-2">
+          <Database className="w-4 h-4" />
+          Mock adressen (voor testen)
+        </Label>
+        <div className="flex flex-wrap gap-2">
+          {mockAddresses.map((addr, idx) => (
+            <Button
+              key={idx}
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleSelectAddress(addr)}
+              className="border-slate-600 text-slate-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-xs"
+            >
+              {addr.adresse}, {addr.ort}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {/* OpenStreetMap Address Search */}
