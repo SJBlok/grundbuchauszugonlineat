@@ -90,9 +90,6 @@ export function AddressStep() {
   const [manualPlz, setManualPlz] = useState('');
   const [manualOrt, setManualOrt] = useState('');
   
-  // Mock database search state
-  const [mockSearchQuery, setMockSearchQuery] = useState("");
-  const [mockSearchResults, setMockSearchResults] = useState<AddressSearchResult[]>([]);
 
   // Photon address search with debounce
   useEffect(() => {
@@ -121,22 +118,6 @@ export function AddressStep() {
     return () => clearTimeout(timeoutId);
   }, [addressQuery]);
 
-  // Mock database search effect
-  useEffect(() => {
-    if (mockSearchQuery.length === 0) {
-      setMockSearchResults([]);
-      return;
-    }
-    
-    const query = mockSearchQuery.toLowerCase();
-    const filtered = mockAddresses.filter(addr => 
-      addr.plz.includes(query) || 
-      addr.ort.toLowerCase().includes(query) ||
-      addr.adresse.toLowerCase().includes(query) ||
-      addr.kgName.toLowerCase().includes(query)
-    );
-    setMockSearchResults(filtered);
-  }, [mockSearchQuery]);
 
   // Select address from Photon search and fill UVST fields
   const handleSelectPhotonAddress = (result: AddressSearchResult) => {
@@ -159,18 +140,12 @@ export function AddressStep() {
     setSelectedAddress(result);
     setAbfrageResult(null);
     setError(null);
-    
-    // Clear mock search
-    setMockSearchQuery("");
-    setMockSearchResults([]);
   };
 
   const handleClearSelection = () => {
     setSelectedAddress(null);
     setAbfrageResult(null);
     setError(null);
-    setMockSearchQuery("");
-    setMockSearchResults([]);
   };
 
   // UVST Adresssuche (GT_ADR)
@@ -322,6 +297,41 @@ export function AddressStep() {
           )}
         </div>
 
+        {/* Mock Data & Reset Buttons */}
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setManualStrasse('Kärntner Straße');
+              setManualHausnummer('1');
+              setManualPlz('1010');
+              setManualOrt('Wien');
+            }}
+            className="border-cyan-600 text-cyan-400 hover:bg-cyan-500/20"
+          >
+            <Database className="w-3 h-3 mr-1.5" />
+            Mock data invullen
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setManualStrasse('');
+              setManualHausnummer('');
+              setManualPlz('');
+              setManualOrt('');
+              setAddressSearchResult(null);
+            }}
+            className="border-slate-600 text-slate-400 hover:bg-slate-700"
+          >
+            <X className="w-3 h-3 mr-1.5" />
+            Reset
+          </Button>
+        </div>
+
         {/* Manual Input Fields */}
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 md:col-span-1">
@@ -399,103 +409,6 @@ export function AddressStep() {
         )}
       </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 border-t border-slate-700" />
-        <span className="text-slate-500 text-xs">OF gebruik mock data</span>
-        <div className="flex-1 border-t border-slate-700" />
-      </div>
-
-      {/* Mock Database Search */}
-      <div className="space-y-3">
-        <Label className="text-slate-300 flex items-center gap-2">
-          <Database className="w-4 h-4" />
-          Mock database zoeken (postcode, stad, adres of KG)
-        </Label>
-        
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-          <Input
-            type="text"
-            placeholder="Zoek op postcode (bijv. 1010), stad, adres..."
-            value={mockSearchQuery}
-            onChange={(e) => setMockSearchQuery(e.target.value)}
-            className="pl-10 pr-10 h-10 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
-          />
-          {mockSearchQuery.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setMockSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600 transition-colors"
-            >
-              <X className="h-3 w-3 text-slate-400" />
-            </button>
-          )}
-        </div>
-
-        {/* Mock Search Results */}
-        {mockSearchResults.length > 0 && (
-          <div className="border border-cyan-500/30 rounded-lg overflow-hidden bg-slate-800">
-            <div className="bg-slate-700/50 px-3 py-2 border-b border-slate-700 text-xs font-medium text-slate-400">
-              {mockSearchResults.length} resultaat{mockSearchResults.length !== 1 ? 'en' : ''} gevonden
-            </div>
-            <div className="divide-y divide-slate-700 max-h-48 overflow-y-auto">
-              {mockSearchResults.map((result, index) => (
-                <button
-                  key={`mock-${result.kgNummer}-${index}`}
-                  onClick={() => handleSelectAddress(result)}
-                  type="button"
-                  className={cn(
-                    "w-full text-left p-3 transition-all duration-150 cursor-pointer",
-                    "hover:bg-cyan-500/10 active:bg-cyan-500/20",
-                    "focus:outline-none focus:bg-cyan-500/10",
-                    "group"
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-cyan-500/20 flex items-center justify-center shrink-0">
-                      <Building className="h-4 w-4 text-cyan-400" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-slate-200 text-sm group-hover:text-cyan-400 transition-colors">
-                        {result.adresse}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {result.plz} {result.ort} • KG: {result.kgName} ({result.kgNummer})
-                      </p>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        EZ: {result.ez} | GST: {result.gst}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {mockSearchQuery.length > 0 && mockSearchResults.length === 0 && (
-          <p className="text-sm text-slate-500 text-center py-2">
-            Geen mock adressen gevonden voor "{mockSearchQuery}"
-          </p>
-        )}
-
-        {/* Quick Mock Address Buttons */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          {mockAddresses.map((addr, idx) => (
-            <Button
-              key={idx}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleSelectAddress(addr)}
-              className="border-slate-600 text-slate-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 hover:text-cyan-400 text-xs"
-            >
-              {addr.adresse}, {addr.ort}
-            </Button>
-          ))}
-        </div>
-      </div>
 
       {/* Selected Address Display */}
       {selectedAddress && (
