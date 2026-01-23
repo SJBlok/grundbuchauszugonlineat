@@ -66,6 +66,10 @@ export function AddressStep() {
   const [selectedAddress, setSelectedAddress] = useState<AddressSearchResult | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Mock database search state
+  const [mockSearchQuery, setMockSearchQuery] = useState("");
+  const [mockSearchResults, setMockSearchResults] = useState<AddressSearchResult[]>([]);
 
   const {
     register,
@@ -126,6 +130,23 @@ export function AddressStep() {
       }
     };
   }, [searchQuery, selectedAddress]);
+
+  // Mock database search effect
+  useEffect(() => {
+    if (mockSearchQuery.length === 0) {
+      setMockSearchResults([]);
+      return;
+    }
+    
+    const query = mockSearchQuery.toLowerCase();
+    const filtered = mockAddresses.filter(addr => 
+      addr.plz.includes(query) || 
+      addr.ort.toLowerCase().includes(query) ||
+      addr.adresse.toLowerCase().includes(query) ||
+      addr.kgName.toLowerCase().includes(query)
+    );
+    setMockSearchResults(filtered);
+  }, [mockSearchQuery]);
 
   const handleSelectAddress = (result: AddressSearchResult) => {
     setSelectedAddress(result);
@@ -196,13 +217,82 @@ export function AddressStep() {
         </p>
       </div>
 
-      {/* Quick Mock Address Buttons */}
+      {/* Mock Database Search */}
       <div className="space-y-3">
         <Label className="text-slate-300 flex items-center gap-2">
           <Database className="w-4 h-4" />
-          Mock adressen (voor testen)
+          Mock database zoeken (postcode, stad, adres of KG)
         </Label>
-        <div className="flex flex-wrap gap-2">
+        
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Input
+            type="text"
+            placeholder="Zoek op postcode (bijv. 1010), stad, adres..."
+            value={mockSearchQuery}
+            onChange={(e) => setMockSearchQuery(e.target.value)}
+            className="pl-10 pr-10 h-10 bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-500"
+          />
+          {mockSearchQuery.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setMockSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600 transition-colors"
+            >
+              <X className="h-3 w-3 text-slate-400" />
+            </button>
+          )}
+        </div>
+
+        {/* Mock Search Results */}
+        {mockSearchResults.length > 0 && (
+          <div className="border border-cyan-500/30 rounded-lg overflow-hidden bg-slate-800">
+            <div className="bg-slate-700/50 px-3 py-2 border-b border-slate-700 text-xs font-medium text-slate-400">
+              {mockSearchResults.length} resultaat{mockSearchResults.length !== 1 ? 'en' : ''} gevonden
+            </div>
+            <div className="divide-y divide-slate-700 max-h-48 overflow-y-auto">
+              {mockSearchResults.map((result, index) => (
+                <button
+                  key={`mock-${result.kgNummer}-${index}`}
+                  onClick={() => handleSelectAddress(result)}
+                  type="button"
+                  className={cn(
+                    "w-full text-left p-3 transition-all duration-150 cursor-pointer",
+                    "hover:bg-cyan-500/10 active:bg-cyan-500/20",
+                    "focus:outline-none focus:bg-cyan-500/10",
+                    "group"
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-cyan-500/20 flex items-center justify-center shrink-0">
+                      <Building className="h-4 w-4 text-cyan-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-slate-200 text-sm group-hover:text-cyan-400 transition-colors">
+                        {result.adresse}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {result.plz} {result.ort} • KG: {result.kgName} ({result.kgNummer})
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        EZ: {result.ez} | GST: {result.gst}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {mockSearchQuery.length > 0 && mockSearchResults.length === 0 && (
+          <p className="text-sm text-slate-500 text-center py-2">
+            Geen mock adressen gevonden voor "{mockSearchQuery}"
+          </p>
+        )}
+
+        {/* Quick Mock Address Buttons */}
+        <div className="flex flex-wrap gap-2 pt-2">
           {mockAddresses.map((addr, idx) => (
             <Button
               key={idx}
