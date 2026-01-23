@@ -183,6 +183,14 @@ export function AddressStep() {
     setHasSearched(false);
     setLookupResult(null);
     setSuccess(false);
+    setMockSearchQuery("");
+    setMockSearchResults([]);
+    // Clear form fields
+    setValue('straat', '');
+    setValue('huisnummer', '');
+    setValue('postcode', '');
+    setValue('plaats', '');
+    setAddressData({ straat: '', huisnummer: '', postcode: '', plaats: '' });
     inputRef.current?.focus();
   };
 
