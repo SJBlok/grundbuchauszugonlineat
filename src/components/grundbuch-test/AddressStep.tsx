@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Loader2, ArrowLeft, ArrowRight, Search, Building, X, Edit2, CheckCircle2, Database, FileText } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, ArrowLeft, ArrowRight, Search, Building, X, Edit2, CheckCircle2, Database, FileText, MapPin } from 'lucide-react';
 import { useGrundbuchTestStore } from '@/stores/grundbuch-test-store';
 import { authenticate, grundbuchAbfrage, adresssuche } from '@/lib/uvst-api';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AddressSearchResult {
   kgNummer: string;
@@ -78,6 +79,11 @@ export function AddressStep() {
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   const [addressSearchResult, setAddressSearchResult] = useState<unknown>(null);
   
+  // Address search with Photon API
+  const [addressQuery, setAddressQuery] = useState('');
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSearchResult[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  
   // Manual address input for UVST Adresssuche
   const [manualStrasse, setManualStrasse] = useState('');
   const [manualHausnummer, setManualHausnummer] = useState('');
@@ -87,6 +93,33 @@ export function AddressStep() {
   // Mock database search state
   const [mockSearchQuery, setMockSearchQuery] = useState("");
   const [mockSearchResults, setMockSearchResults] = useState<AddressSearchResult[]>([]);
+
+  // Photon address search with debounce
+  useEffect(() => {
+    if (addressQuery.length < 3) {
+      setAddressSuggestions([]);
+      return;
+    }
+    
+    const timeoutId = setTimeout(async () => {
+      setIsLoadingSuggestions(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('search-address', {
+          body: { query: addressQuery }
+        });
+        
+        if (error) throw error;
+        setAddressSuggestions(data?.results || []);
+      } catch (err) {
+        console.error('Address search failed:', err);
+        setAddressSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 400);
+    
+    return () => clearTimeout(timeoutId);
+  }, [addressQuery]);
 
   // Mock database search effect
   useEffect(() => {
@@ -104,6 +137,23 @@ export function AddressStep() {
     );
     setMockSearchResults(filtered);
   }, [mockSearchQuery]);
+
+  // Select address from Photon search and fill UVST fields
+  const handleSelectPhotonAddress = (result: AddressSearchResult) => {
+    // Parse street and house number from adresse
+    const addressParts = result.adresse.match(/^(.+?)\s+(\d+.*)$/) || [result.adresse, result.adresse, ''];
+    const strasse = addressParts[1] || result.adresse;
+    const hausnummer = addressParts[2] || '';
+    
+    setManualStrasse(strasse);
+    setManualHausnummer(hausnummer);
+    setManualPlz(result.plz);
+    setManualOrt(result.ort);
+    
+    // Clear search
+    setAddressQuery('');
+    setAddressSuggestions([]);
+  };
 
   const handleSelectAddress = (result: AddressSearchResult) => {
     setSelectedAddress(result);
@@ -217,6 +267,62 @@ export function AddressStep() {
           UVST Adresssuche (GT_ADR)
         </Label>
         
+        {/* Address Search with Photon API */}
+        <div className="space-y-2">
+          <Label className="text-slate-400 text-xs flex items-center gap-1">
+            <MapPin className="w-3 h-3" />
+            Adres zoeken (OpenStreetMap)
+          </Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Input
+              type="text"
+              placeholder="Typ een adres, bijv. 'Kärntner Straße 1, Wien'..."
+              value={addressQuery}
+              onChange={(e) => setAddressQuery(e.target.value)}
+              className="pl-10 pr-10 h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
+            />
+            {isLoadingSuggestions && (
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cyan-400 animate-spin" />
+            )}
+            {addressQuery.length > 0 && !isLoadingSuggestions && (
+              <button
+                type="button"
+                onClick={() => { setAddressQuery(''); setAddressSuggestions([]); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600 transition-colors"
+              >
+                <X className="h-3 w-3 text-slate-400" />
+              </button>
+            )}
+          </div>
+          
+          {/* Address Suggestions Dropdown */}
+          {addressSuggestions.length > 0 && (
+            <div className="border border-cyan-500/30 rounded-lg overflow-hidden bg-slate-900 max-h-48 overflow-y-auto">
+              {addressSuggestions.map((suggestion, index) => (
+                <button
+                  key={`suggestion-${index}`}
+                  type="button"
+                  onClick={() => handleSelectPhotonAddress(suggestion)}
+                  className="w-full text-left p-3 hover:bg-cyan-500/10 transition-colors border-b border-slate-800 last:border-b-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <div>
+                      <p className="text-sm text-slate-200">{suggestion.adresse}</p>
+                      <p className="text-xs text-slate-400">
+                        {suggestion.plz} {suggestion.ort}
+                        {suggestion.bundesland && ` • ${suggestion.bundesland}`}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Manual Input Fields */}
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2 md:col-span-1">
             <Label className="text-slate-400 text-xs mb-1 block">Straße</Label>
