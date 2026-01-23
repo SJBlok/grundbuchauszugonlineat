@@ -17,50 +17,46 @@ function md5(message: string): string {
 }
 
 // Build XML request for different product types
+// Note: Using the namespace from UVST GB WebService documentation
 function buildXmlRequest(produkt: string, data: Record<string, unknown>): string {
+  const ns = 'http://www.justiz.gv.at/namespace/gb/sws/1';
+  
   switch (produkt) {
     case 'GT_ADR': // Adresssuche
       return `<?xml version="1.0" encoding="UTF-8"?>
-<AdresssucheAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
-  <Adresse>
-    <Strasse>${escapeXml(data.strasse as string || '')}</Strasse>
-    <Hausnummer>${escapeXml(data.hausnummer as string || '')}</Hausnummer>
-    <PLZ>${escapeXml(data.plz as string || '')}</PLZ>
-    <Ort>${escapeXml(data.ort as string || '')}</Ort>
-  </Adresse>
+<AdresssucheAnfrage xmlns="${ns}">
+  <Strasse>${escapeXml(data.strasse as string || '')}</Strasse>
+  <Hausnummer>${escapeXml(data.hausnummer as string || '')}</Hausnummer>
+  <PLZ>${escapeXml(data.plz as string || '')}</PLZ>
+  <Ort>${escapeXml(data.ort as string || '')}</Ort>
 </AdresssucheAnfrage>`;
 
     case 'GT_GBA': // Grundbuchauszug aktuell
       return `<?xml version="1.0" encoding="UTF-8"?>
-<GBAuszugAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+<GBAuszugAnfrage xmlns="${ns}">
   <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
   <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
-  <Format>${escapeXml(data.format as string || 'PDF')}</Format>
-  <Historisch>${data.historisch ? 'true' : 'false'}</Historisch>
   <Signiert>${data.signiert ? 'true' : 'false'}</Signiert>
-  <Linked>${data.linked ? 'true' : 'false'}</Linked>
 </GBAuszugAnfrage>`;
 
     case 'GT_GBP': // Grundbuchauszug historisch
       return `<?xml version="1.0" encoding="UTF-8"?>
-<HistorischerAuszugAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+<HistorischerAuszugAnfrage xmlns="${ns}">
   <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
   <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
-  <Format>${escapeXml(data.format as string || 'PDF')}</Format>
   <Signiert>${data.signiert ? 'true' : 'false'}</Signiert>
-  <Linked>${data.linked ? 'true' : 'false'}</Linked>
 </HistorischerAuszugAnfrage>`;
 
     case 'GT_URL': // Urkundenliste
       return `<?xml version="1.0" encoding="UTF-8"?>
-<UrkundenlisteAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+<UrkundenlisteAnfrage xmlns="${ns}">
   <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
   <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
 </UrkundenlisteAnfrage>`;
 
     case 'GT_URK': // Urkundenabfrage
       return `<?xml version="1.0" encoding="UTF-8"?>
-<UrkundenabfrageAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+<UrkundenabfrageAnfrage xmlns="${ns}">
   <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
   <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
   <UrkundenNummer>${escapeXml(data.urkundenNummer as string || '')}</UrkundenNummer>
@@ -69,7 +65,7 @@ function buildXmlRequest(produkt: string, data: Record<string, unknown>): string
 
     case 'GT_EZV': // Einlage-Validierung
       return `<?xml version="1.0" encoding="UTF-8"?>
-<EinlageValidierungAnfrage xmlns="http://statistik.at/namespace/gb/sws/1">
+<EinlageValidierungAnfrage xmlns="${ns}">
   <KGNummer>${escapeXml(data.kgNummer as string || '')}</KGNummer>
   <Einlagezahl>${escapeXml(data.einlagezahl as string || '')}</Einlagezahl>
 </EinlageValidierungAnfrage>`;
