@@ -23,17 +23,13 @@ function buildXmlRequest(produkt: string, data: Record<string, unknown>): string
   
   switch (produkt) {
     case 'GT_ADR': // Adresssuche
-      // Build XML with only non-empty fields
-      const adrFields: string[] = [];
-      if (data.strasse) adrFields.push(`  <Strasse>${escapeXml(data.strasse as string)}</Strasse>`);
-      if (data.hausnummer) adrFields.push(`  <Hausnummer>${escapeXml(data.hausnummer as string)}</Hausnummer>`);
-      if (data.plz) adrFields.push(`  <PLZ>${escapeXml(data.plz as string)}</PLZ>`);
-      if (data.ort) adrFields.push(`  <Ort>${escapeXml(data.ort as string)}</Ort>`);
-      
       return `<?xml version="1.0" encoding="UTF-8"?>
-<Adresssuche xmlns="${ns}">
-${adrFields.join('\n')}
-</Adresssuche>`;
+<AdresssucheAnfrage xmlns="${ns}">
+  <Strasse>${escapeXml(data.strasse as string || '')}</Strasse>
+  <Hausnummer>${escapeXml(data.hausnummer as string || '')}</Hausnummer>
+  <PLZ>${escapeXml(data.plz as string || '')}</PLZ>
+  <Ort>${escapeXml(data.ort as string || '')}</Ort>
+</AdresssucheAnfrage>`;
 
     case 'GT_GBA': // Grundbuchauszug aktuell
       return `<?xml version="1.0" encoding="UTF-8"?>
