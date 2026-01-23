@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { Md5 } from "https://deno.land/std@0.119.0/hash/md5.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,12 +11,9 @@ const UVST_URLS = {
   prod: 'https://sws.uvst.at',
 };
 
-// MD5 hash function
-async function md5(message: string): Promise<string> {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('MD5', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+// MD5 hash function using Deno std library
+function md5(message: string): string {
+  return new Md5().update(message).toString();
 }
 
 serve(async (req) => {
@@ -45,7 +43,7 @@ serve(async (req) => {
 
     switch (action) {
       case 'authenticate': {
-        const passwordHash = await md5(password);
+        const passwordHash = md5(password);
         
         response = await fetch(`${baseUrl}/api/v1/authenticate`, {
           method: 'POST',
