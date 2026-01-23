@@ -79,6 +79,11 @@ export function AddressStep() {
   const [isSearchingAddress, setIsSearchingAddress] = useState(false);
   const [addressSearchResult, setAddressSearchResult] = useState<unknown>(null);
   
+  // Manual KG/EZ input for testing with real UVST data
+  const [manualKgNummer, setManualKgNummer] = useState('');
+  const [manualEz, setManualEz] = useState('');
+  const [manualKgName, setManualKgName] = useState('Test KG');
+  
   // Address search with Photon API
   const [addressQuery, setAddressQuery] = useState('');
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSearchResult[]>([]);
@@ -235,12 +240,88 @@ export function AddressStep() {
         </p>
       </div>
 
+      {/* Manual KG/EZ Input for Real Test Data */}
+      {!selectedAddress && (
+        <div className="space-y-4 p-4 border-2 border-cyan-500/50 rounded-lg bg-cyan-500/5">
+          <Label className="text-cyan-400 flex items-center gap-2 font-semibold">
+            <Database className="w-4 h-4" />
+            Handmatige KG/EZ invoer (UVST Test Data)
+          </Label>
+          <p className="text-xs text-slate-400">
+            Voer geldige KG-Nummer en Einlagezahl in uit de UVST test database.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-slate-400 text-xs mb-1 block">KG-Nummer *</Label>
+              <Input
+                type="text"
+                placeholder="bijv. 01201"
+                value={manualKgNummer}
+                onChange={(e) => setManualKgNummer(e.target.value)}
+                className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500 font-mono"
+              />
+            </div>
+            <div>
+              <Label className="text-slate-400 text-xs mb-1 block">Einlagezahl (EZ) *</Label>
+              <Input
+                type="text"
+                placeholder="bijv. 1"
+                value={manualEz}
+                onChange={(e) => setManualEz(e.target.value)}
+                className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500 font-mono"
+              />
+            </div>
+            <div className="col-span-2">
+              <Label className="text-slate-400 text-xs mb-1 block">KG-Name (optioneel)</Label>
+              <Input
+                type="text"
+                placeholder="bijv. Innere Stadt"
+                value={manualKgName}
+                onChange={(e) => setManualKgName(e.target.value)}
+                className="h-10 bg-slate-900 border-slate-700 text-slate-100 placeholder:text-slate-500"
+              />
+            </div>
+          </div>
+          <Button
+            type="button"
+            onClick={() => {
+              if (manualKgNummer && manualEz) {
+                handleSelectAddress({
+                  kgNummer: manualKgNummer,
+                  kgName: manualKgName || 'Test KG',
+                  ez: manualEz,
+                  gst: '',
+                  adresse: 'Handmatige invoer',
+                  plz: '',
+                  ort: '',
+                  bundesland: '',
+                });
+              }
+            }}
+            disabled={!manualKgNummer || !manualEz}
+            className="w-full bg-cyan-600 hover:bg-cyan-500 text-white"
+          >
+            <CheckCircle2 className="w-4 h-4 mr-2" />
+            Gebruik deze KG/EZ
+          </Button>
+        </div>
+      )}
+
+      {/* Divider */}
+      {!selectedAddress && (
+        <div className="flex items-center gap-3">
+          <div className="flex-1 border-t border-slate-700" />
+          <span className="text-slate-500 text-xs">OF selecteer mock data</span>
+          <div className="flex-1 border-t border-slate-700" />
+        </div>
+      )}
+
       {/* Mock Address Selection */}
       {!selectedAddress && (
         <div className="space-y-4">
           <Label className="text-slate-300 flex items-center gap-2 font-semibold">
             <Building className="w-4 h-4" />
-            Selecteer een mock adres
+            Mock adressen (fictieve data)
           </Label>
           <div className="grid grid-cols-1 gap-2">
             {mockAddresses.map((addr, idx) => (
@@ -248,27 +329,27 @@ export function AddressStep() {
                 key={idx}
                 type="button"
                 onClick={() => handleSelectAddress(addr)}
-                className="w-full text-left p-4 rounded-lg border border-slate-700 bg-slate-800/50 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all group"
+                className="w-full text-left p-3 rounded-lg border border-slate-700 bg-slate-800/50 hover:border-slate-600 transition-all group opacity-60 hover:opacity-100"
               >
                 <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-cyan-500/20 flex items-center justify-center shrink-0">
-                    <Building className="h-5 w-5 text-cyan-400" />
+                  <div className="h-8 w-8 rounded-lg bg-slate-700 flex items-center justify-center shrink-0">
+                    <Building className="h-4 w-4 text-slate-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-200 group-hover:text-cyan-400 transition-colors">
+                    <p className="font-medium text-slate-300 text-sm group-hover:text-slate-200 transition-colors">
                       {addr.adresse}
                     </p>
-                    <p className="text-sm text-slate-400 mt-0.5">
-                      {addr.plz} {addr.ort} • {addr.bundesland}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1 font-mono">
-                      KG: {addr.kgNummer} ({addr.kgName}) | EZ: {addr.ez} | GST: {addr.gst}
+                    <p className="text-xs text-slate-500 mt-0.5 font-mono">
+                      KG: {addr.kgNummer} | EZ: {addr.ez}
                     </p>
                   </div>
                 </div>
               </button>
             ))}
           </div>
+          <p className="text-xs text-orange-400/80 text-center">
+            ⚠️ Mock data werkt niet met echte UVST API - gebruik handmatige invoer hierboven
+          </p>
         </div>
       )}
 
