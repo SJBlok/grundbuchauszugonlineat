@@ -16,11 +16,17 @@ interface ThankYouStepProps {
 }
 
 export function ThankYouStep({ orderNumber, email }: ThankYouStepProps) {
-  // Track purchase conversion
+  // Track purchase conversions
   useEffect(() => {
     if (window.gtag) {
+      // Original conversion tracking
       window.gtag('event', 'conversion', {
         'send_to': 'AW-10868807904/yBP-CILkyugbEOCx074o',
+        'transaction_id': orderNumber
+      });
+      // New conversion tracking (AW-17892973244)
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-17892973244/F7FXCK6a7-sbELy1hNRC',
         'transaction_id': orderNumber
       });
     }
