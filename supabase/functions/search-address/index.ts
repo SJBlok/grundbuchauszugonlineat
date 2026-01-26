@@ -9,9 +9,16 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8080",
 ];
 
+// Additional pattern matching for Lovable preview URLs
+function isLovablePreview(origin: string): boolean {
+  return /^https:\/\/[a-f0-9-]+\.lovableproject\.com$/.test(origin) ||
+         /^https:\/\/[a-z0-9-]+-preview--[a-f0-9-]+\.lovable\.app$/.test(origin);
+}
+
 function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("origin") || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  // Allow origin if it's in the list or is a Lovable preview
+  const allowedOrigin = (ALLOWED_ORIGINS.includes(origin) || isLovablePreview(origin)) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -23,9 +30,9 @@ function isValidOrigin(req: Request): boolean {
   const origin = req.headers.get("origin") || "";
   const referer = req.headers.get("referer") || "";
   
-  // Check if origin or referer matches allowed domains
-  const isValidOriginHeader = ALLOWED_ORIGINS.some(allowed => origin.includes(new URL(allowed).host));
-  const isValidReferer = ALLOWED_ORIGINS.some(allowed => referer.includes(new URL(allowed).host));
+  // Check if origin matches allowed domains or is a Lovable preview
+  const isValidOriginHeader = ALLOWED_ORIGINS.some(allowed => origin.includes(new URL(allowed).host)) || isLovablePreview(origin);
+  const isValidReferer = ALLOWED_ORIGINS.some(allowed => referer.includes(new URL(allowed).host)) || isLovablePreview(referer);
   
   return isValidOriginHeader || isValidReferer;
 }
