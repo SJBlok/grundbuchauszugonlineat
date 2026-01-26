@@ -158,28 +158,33 @@ export function CheckoutStep({
     setIsSubmitting(true);
 
     try {
-      const { data: orderResult, error } = await supabase
-        .from("orders")
-        .insert([{
-          katastralgemeinde: propertyData.katastralgemeinde,
-          grundstuecksnummer: propertyData.grundstuecksnummer,
-          grundbuchsgericht: propertyData.grundbuchsgericht,
-          bundesland: propertyData.bundesland,
-          wohnungs_hinweis: propertyData.wohnungsHinweis || null,
-          adresse: propertyData.adresse || null,
-          plz: propertyData.plz || null,
-          ort: propertyData.ort || null,
-          vorname: formData.vorname,
-          nachname: formData.nachname,
-          email: formData.email,
-          wohnsitzland: formData.wohnsitzland,
-          firma: formData.firma || null,
-          order_number: "PENDING", // Will be replaced by database trigger
-        }])
-        .select("id, order_number")
-        .single();
+      const { data: orderResult, error } = await supabase.functions.invoke(
+        "create-order",
+        {
+          body: {
+            katastralgemeinde: propertyData.katastralgemeinde,
+            grundstuecksnummer: propertyData.grundstuecksnummer,
+            grundbuchsgericht: propertyData.grundbuchsgericht,
+            bundesland: propertyData.bundesland,
+            wohnungs_hinweis: propertyData.wohnungsHinweis || null,
+            adresse: propertyData.adresse || null,
+            plz: propertyData.plz || null,
+            ort: propertyData.ort || null,
+            vorname: formData.vorname,
+            nachname: formData.nachname,
+            email: formData.email,
+            wohnsitzland: formData.wohnsitzland,
+            firma: formData.firma || null,
+            product_name: "Aktueller Grundbuchauszug",
+            product_price: 19.9,
+          },
+        }
+      );
 
       if (error) throw error;
+      if (!orderResult?.id || !orderResult?.order_number) {
+        throw new Error("Order creation failed");
+      }
 
       // Trigger document delivery via edge function (this also marks session as completed)
       const { error: deliveryError } = await supabase.functions.invoke(
