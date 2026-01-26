@@ -174,7 +174,7 @@ export function CheckoutStep({
           email: formData.email,
           wohnsitzland: formData.wohnsitzland,
           firma: formData.firma || null,
-          order_number: "",
+          order_number: "PENDING", // Will be replaced by database trigger
         }])
         .select("id, order_number")
         .single();
