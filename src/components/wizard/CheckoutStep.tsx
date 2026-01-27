@@ -460,10 +460,7 @@ export function CheckoutStep({
 
           {/* Legal Confirmations */}
           <div className="space-y-2">
-            <div 
-              className="flex items-start gap-2.5 cursor-pointer"
-              onClick={() => setConfirmTerms(!confirmTerms)}
-            >
+            <div className="flex items-start gap-2.5">
               <Checkbox
                 id="confirmTerms"
                 checked={confirmTerms}
@@ -471,14 +468,11 @@ export function CheckoutStep({
                 className="mt-0.5 h-4 w-4"
               />
               <Label htmlFor="confirmTerms" className="font-normal text-xs leading-relaxed cursor-pointer">
-                Ich habe die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
+                Ich habe die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline">Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
               </Label>
             </div>
 
-            <div 
-              className="flex items-start gap-2.5 cursor-pointer"
-              onClick={() => setConfirmNoRefund(!confirmNoRefund)}
-            >
+            <div className="flex items-start gap-2.5">
               <Checkbox
                 id="confirmNoRefund"
                 checked={confirmNoRefund}
