@@ -264,24 +264,27 @@ export function CheckoutStep({
             </div>
           </div>
 
-          {/* Property Details */}
-          <div className="mt-3 pt-3 border-t border-border">
-            <div className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-medium text-foreground">
+          {/* Property Details - Highlighted */}
+          <div className="mt-4 bg-primary/5 border border-primary/20 rounded-sm p-3">
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 bg-primary/10 rounded-sm flex items-center justify-center shrink-0">
+                <MapPin className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-primary uppercase tracking-wide mb-1">Grundstück</p>
+                <p className="font-semibold text-foreground text-sm">
                   KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}
                 </p>
                 {propertyData.adresse && (
-                  <p className="text-muted-foreground text-xs mt-0.5">
+                  <p className="text-foreground text-sm mt-1">
                     {propertyData.adresse}{propertyData.plz || propertyData.ort ? `, ${propertyData.plz} ${propertyData.ort}` : ''}
                   </p>
                 )}
-                <p className="text-muted-foreground text-xs mt-0.5">
+                <p className="text-muted-foreground text-xs mt-1">
                   {propertyData.bundesland} • {propertyData.grundbuchsgericht}
                 </p>
                 {propertyData.wohnungsHinweis && (
-                  <p className="text-muted-foreground text-xs mt-0.5">
+                  <p className="text-muted-foreground text-xs mt-1">
                     Hinweis: {propertyData.wohnungsHinweis}
                   </p>
                 )}
