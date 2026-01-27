@@ -111,7 +111,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="property-details-step">
       {/* Product Selection Card */}
       <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
         {/* Subtle Section Header */}
