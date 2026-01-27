@@ -113,8 +113,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
     <div className="space-y-6">
       {/* Product Selection Card */}
       <div className="bg-white rounded-lg border border-border overflow-hidden">
-        <div className="bg-header px-5 py-3">
-          <h2 className="text-base font-semibold text-white">Dokument auswählen</h2>
+        <div className="bg-muted/60 px-5 py-3 border-b border-border flex items-center gap-3">
+          <div className="w-1 h-5 bg-primary rounded-full" />
+          <h2 className="text-base font-semibold text-foreground">Dokument auswählen</h2>
         </div>
         
         <div className="p-5">
@@ -155,8 +156,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
       {/* Property Details Card */}
       <div className="bg-white rounded-lg border border-border overflow-hidden">
-        <div className="bg-header px-5 py-3">
-          <h2 className="text-base font-semibold text-white">Grundstück identifizieren</h2>
+        <div className="bg-muted/60 px-5 py-3 border-b border-border flex items-center gap-3">
+          <div className="w-1 h-5 bg-primary rounded-full" />
+          <h2 className="text-base font-semibold text-foreground">Grundstück identifizieren</h2>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
