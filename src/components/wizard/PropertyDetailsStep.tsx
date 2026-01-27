@@ -144,7 +144,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
               <div>
                 <h3 className="font-bold text-foreground text-base">Aktueller Grundbuchauszug</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Vollständiger Auszug aus dem österreichischen Grundbuch
+                  Enthält Eigentümer, Grundstücksdaten und eingetragene Lasten – ideal für Immobilienkauf, Finanzierung oder rechtliche Prüfungen.
                 </p>
               </div>
               <div className="sm:text-right shrink-0">
