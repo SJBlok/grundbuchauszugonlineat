@@ -243,26 +243,24 @@ export function CheckoutStep({
             
             {/* Product Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold text-foreground text-sm">Aktueller Grundbuchauszug</h3>
-                <div className="text-right shrink-0">
-                  <span className="text-xl font-bold text-foreground">€19,90</span>
-                  <p className="text-xs text-muted-foreground">inkl. USt.</p>
-                </div>
-              </div>
+              <h3 className="font-bold text-foreground text-sm">Aktueller Grundbuchauszug</h3>
+              <p className="text-xs text-muted-foreground mt-1">Vollständiger Auszug mit allen drei Blättern:</p>
               
               {/* Blatt Info */}
-              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-primary" />A-Blatt
-                </span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-primary" />B-Blatt
-                </span>
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-primary" />C-Blatt
-                </span>
-              </div>
+              <ul className="mt-2 space-y-1">
+                <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
+                  <span><span className="font-medium text-foreground">A-Blatt</span> – Grundstücksdaten & Flächen</span>
+                </li>
+                <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
+                  <span><span className="font-medium text-foreground">B-Blatt</span> – Eigentümer & Anteile</span>
+                </li>
+                <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <CheckCircle2 className="h-3 w-3 text-primary shrink-0" />
+                  <span><span className="font-medium text-foreground">C-Blatt</span> – Lasten & Beschränkungen</span>
+                </li>
+              </ul>
             </div>
           </div>
 
