@@ -392,12 +392,20 @@ export function CheckoutStep({
 
         <div className="p-4 space-y-4">
           {/* Payment Method Info */}
-          <div className="bg-info border border-primary/15 p-3 flex items-center justify-between gap-4">
-            <p className="text-xs text-foreground">
-              <span className="font-semibold">Zahlung auf Rechnung:</span>{" "}
-              Die Rechnung wird per E-Mail an {email || "Ihre E-Mail-Adresse"} übermittelt.
-            </p>
-            <span className="text-lg font-bold text-foreground shrink-0">€19,90</span>
+          <div className="bg-info border border-primary/15 p-3">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-xs text-foreground">
+                <span className="font-semibold">Zahlung auf Rechnung:</span>{" "}
+                Die Rechnung wird per E-Mail übermittelt.
+              </p>
+              <span className="text-lg font-bold text-foreground shrink-0">€19,90</span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-primary/10">
+              <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+              <p className="text-xs font-medium text-primary">
+                Sofortige Zustellung per E-Mail nach Bestellung
+              </p>
+            </div>
           </div>
 
           {/* Legal Confirmations */}
