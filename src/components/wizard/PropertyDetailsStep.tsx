@@ -141,40 +141,29 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
             
             {/* Product Info */}
             <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-              <div>
+              <div className="flex-1">
                 <h3 className="font-bold text-foreground text-base">Aktueller Grundbuchauszug</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Enthält Eigentümer, Grundstücksdaten und eingetragene Lasten – ideal für Immobilienkauf, Finanzierung oder rechtliche Prüfungen.
+                <p className="text-sm text-muted-foreground mt-1.5">
+                  Vollständiger Auszug mit allen drei Blättern:
                 </p>
+                <ul className="mt-2 space-y-1">
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span><span className="font-medium text-foreground">A-Blatt</span> – Grundstücksdaten & Flächen</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span><span className="font-medium text-foreground">B-Blatt</span> – Eigentümer & Anteile</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span><span className="font-medium text-foreground">C-Blatt</span> – Lasten & Beschränkungen</span>
+                  </li>
+                </ul>
               </div>
               <div className="sm:text-right shrink-0">
                 <span className="text-2xl font-bold text-foreground">€19,90</span>
                 <p className="text-xs text-muted-foreground">inkl. USt.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Content Description */}
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm border border-border/50">
-              <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-semibold text-foreground">Eigentümer</p>
-                <p className="text-xs text-muted-foreground">B-Blatt Informationen</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm border border-border/50">
-              <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-semibold text-foreground">Grundstück</p>
-                <p className="text-xs text-muted-foreground">A1/A2-Blatt Daten</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm border border-border/50">
-              <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-semibold text-foreground">Lasten</p>
-                <p className="text-xs text-muted-foreground">C-Blatt Einträge</p>
               </div>
             </div>
           </div>
