@@ -112,43 +112,71 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   return (
     <div className="space-y-6">
       {/* Product Selection Card */}
-      <div className="bg-white border border-border overflow-hidden">
-        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
-          <div className="w-0.5 h-4 bg-primary" />
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Dokument</h2>
+      <div className="bg-card border border-border overflow-hidden shadow-sm">
+        <div className="bg-header px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-header-foreground" />
+            <h2 className="text-sm font-semibold text-header-foreground">Ihr Dokument</h2>
+          </div>
+          <div className="bg-header-foreground/20 px-2 py-0.5 rounded-sm">
+            <span className="text-xs font-medium text-header-foreground">Offiziell</span>
+          </div>
         </div>
         
         <div className="p-4">
-          {/* Single Product Option */}
-          <div className="flex items-start gap-3 p-3 border border-primary/40 bg-primary/5">
-            <div className="h-8 w-8 bg-primary/10 flex items-center justify-center shrink-0">
-              <FileText className="h-4 w-4 text-primary" />
-            </div>
+          {/* Product Header */}
+          <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="font-semibold text-foreground text-sm">Aktueller Grundbuchauszug</p>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    Enthält Eigentumsinformationen, Grundstücksdaten und eingetragene Lasten.
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xl font-bold text-foreground">€19,90</span>
-                  <p className="text-xs text-muted-foreground">inkl. USt.</p>
-                </div>
+              <h3 className="font-bold text-foreground text-base">Aktueller Grundbuchauszug</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Vollständiger Auszug aus dem österreichischen Grundbuch
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              <span className="text-2xl font-bold text-foreground">€19,90</span>
+              <p className="text-xs text-muted-foreground">inkl. USt.</p>
+            </div>
+          </div>
+
+          {/* Content Description */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm">
+              <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-foreground">Eigentümer</p>
+                <p className="text-xs text-muted-foreground">B-Blatt Informationen</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm">
+              <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-foreground">Grundstück</p>
+                <p className="text-xs text-muted-foreground">A1/A2-Blatt Daten</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm">
+              <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-foreground">Lasten</p>
+                <p className="text-xs text-muted-foreground">C-Blatt Einträge</p>
               </div>
             </div>
           </div>
 
-          {/* Features */}
-          <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap gap-4">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock className="h-3.5 w-3.5 text-primary" />
-              <span>Sofortige Zustellung</span>
+          {/* Trust Features */}
+          <div className="mt-4 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Clock className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium">Sofort per E-Mail</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <BadgeCheck className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium">Amtlich beglaubigt</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <BadgeCheck className="h-3.5 w-3.5 text-primary" />
-              <span>Offizielles Dokument</span>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span>Zahlung auf Rechnung</span>
             </div>
           </div>
         </div>
