@@ -213,43 +213,43 @@ export function CheckoutStep({
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
       {/* Order Summary Card */}
-      <div className="bg-white rounded-lg border border-border overflow-hidden">
-        <div className="bg-muted/60 px-5 py-3 border-b border-border flex items-center gap-3">
-          <div className="w-1 h-5 bg-primary rounded-full" />
-          <h2 className="text-base font-semibold text-foreground">Bestellübersicht</h2>
+      <div className="bg-white border border-border overflow-hidden">
+        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
+          <div className="w-0.5 h-4 bg-primary" />
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Bestellung</h2>
         </div>
         
-        <div className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <FileText className="h-5 w-5 text-primary" />
+        <div className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 bg-primary/10 flex items-center justify-center shrink-0">
+              <FileText className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground">Aktueller Grundbuchauszug</p>
-              <div className="flex items-center gap-1.5 mt-1 text-sm text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <p className="font-semibold text-foreground text-sm">Aktueller Grundbuchauszug</p>
+              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
+                <MapPin className="h-3 w-3 shrink-0" />
                 <span className="truncate">KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {propertyData.bundesland} • {propertyData.grundbuchsgericht}
               </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-2xl font-bold text-foreground">€19,90</p>
+              <p className="text-xl font-bold text-foreground">€19,90</p>
               <p className="text-xs text-muted-foreground">inkl. USt.</p>
             </div>
           </div>
 
           {/* Features */}
-          <div className="mt-4 pt-4 border-t border-border/50 grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4 text-primary" />
+          <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap gap-4">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5 text-primary" />
               <span>Sofortige Zustellung</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <BadgeCheck className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <BadgeCheck className="h-3.5 w-3.5 text-primary" />
               <span>Offizielles Dokument</span>
             </div>
           </div>
@@ -257,90 +257,90 @@ export function CheckoutStep({
       </div>
 
       {/* Contact Details Card */}
-      <div className="bg-white rounded-lg border border-border overflow-hidden">
-        <div className="bg-muted/60 px-5 py-3 border-b border-border flex items-center gap-3">
-          <div className="w-1 h-5 bg-primary rounded-full" />
-          <h2 className="text-base font-semibold text-foreground">Kontakt & Zustellung</h2>
+      <div className="bg-white border border-border overflow-hidden">
+        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
+          <div className="w-0.5 h-4 bg-primary" />
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Kontakt</h2>
         </div>
 
-        <div className="p-5 space-y-4">
-          <p className="text-sm text-muted-foreground -mt-1">
+        <div className="p-4 space-y-3">
+          <p className="text-xs text-muted-foreground">
             Der Grundbuchauszug wird per E-Mail an Sie versendet.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="vorname" className="text-sm font-medium">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="vorname" className="text-xs font-medium">
                 Vorname <span className="text-destructive">*</span>
               </Label>
               <Input 
                 id="vorname" 
                 {...register("vorname")} 
                 placeholder="Max"
-                className="h-11 text-base bg-white border-border"
+                className="h-10 text-sm bg-white border-border"
               />
               {errors.vorname && (
-                <p className="text-sm text-destructive">{errors.vorname.message}</p>
+                <p className="text-xs text-destructive">{errors.vorname.message}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="nachname" className="text-sm font-medium">
+            <div className="space-y-1">
+              <Label htmlFor="nachname" className="text-xs font-medium">
                 Nachname <span className="text-destructive">*</span>
               </Label>
               <Input 
                 id="nachname" 
                 {...register("nachname")} 
                 placeholder="Mustermann"
-                className="h-11 text-base bg-white border-border"
+                className="h-10 text-sm bg-white border-border"
               />
               {errors.nachname && (
-                <p className="text-sm text-destructive">{errors.nachname.message}</p>
+                <p className="text-xs text-destructive">{errors.nachname.message}</p>
               )}
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
+          <div className="space-y-1">
+            <Label htmlFor="email" className="text-xs font-medium">
               E-Mail-Adresse <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input 
                 id="email" 
                 type="email" 
                 {...register("email")} 
                 placeholder="max.mustermann@email.at"
-                className="pl-10 h-11 text-base bg-white border-border"
+                className="pl-9 h-10 text-sm bg-white border-border"
               />
             </div>
             {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
+              <p className="text-xs text-destructive">{errors.email.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="emailConfirm" className="text-sm font-medium">
+          <div className="space-y-1">
+            <Label htmlFor="emailConfirm" className="text-xs font-medium">
               E-Mail-Adresse bestätigen <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input 
                 id="emailConfirm" 
                 type="email" 
                 {...register("emailConfirm")} 
                 placeholder="E-Mail-Adresse wiederholen"
-                className="pl-10 h-11 text-base bg-white border-border"
+                className="pl-9 h-10 text-sm bg-white border-border"
               />
             </div>
             {errors.emailConfirm && (
-              <p className="text-sm text-destructive">{errors.emailConfirm.message}</p>
+              <p className="text-xs text-destructive">{errors.emailConfirm.message}</p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="wohnsitzland" className="text-sm font-medium">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="wohnsitzland" className="text-xs font-medium">
                 Wohnsitzland <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -349,33 +349,33 @@ export function CheckoutStep({
                   setValue("wohnsitzland", value, { shouldValidate: true })
                 }
               >
-                <SelectTrigger className="h-11 text-base bg-white border-border">
+                <SelectTrigger className="h-10 text-sm bg-white border-border">
                   <SelectValue placeholder="Auswählen..." />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem key={country} value={country} className="py-2.5">
+                    <SelectItem key={country} value={country} className="py-2">
                       {country}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.wohnsitzland && (
-                <p className="text-sm text-destructive">{errors.wohnsitzland.message}</p>
+                <p className="text-xs text-destructive">{errors.wohnsitzland.message}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="firma" className="text-sm font-medium text-muted-foreground">
+            <div className="space-y-1">
+              <Label htmlFor="firma" className="text-xs font-medium text-muted-foreground">
                 Firma <span className="text-xs font-normal">(optional)</span>
               </Label>
               <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input 
                   id="firma" 
                   {...register("firma")} 
                   placeholder="Firmenname"
-                  className="pl-10 h-11 text-base bg-white border-border"
+                  className="pl-9 h-10 text-sm bg-white border-border"
                 />
               </div>
             </div>
@@ -384,25 +384,25 @@ export function CheckoutStep({
       </div>
 
       {/* Payment & Confirmation Card */}
-      <div className="bg-white rounded-lg border border-border overflow-hidden">
-        <div className="bg-muted/60 px-5 py-3 border-b border-border flex items-center gap-3">
-          <div className="w-1 h-5 bg-primary rounded-full" />
-          <h2 className="text-base font-semibold text-foreground">Zahlung & Bestätigung</h2>
+      <div className="bg-white border border-border overflow-hidden">
+        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
+          <div className="w-0.5 h-4 bg-primary" />
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Zahlung</h2>
         </div>
 
-        <div className="p-5 space-y-5">
+        <div className="p-4 space-y-4">
           {/* Payment Method Info */}
-          <div className="bg-info border border-primary/20 rounded-lg p-4">
-            <p className="text-sm text-foreground">
+          <div className="bg-info border border-primary/15 p-3">
+            <p className="text-xs text-foreground">
               <span className="font-semibold">Zahlung auf Rechnung:</span>{" "}
               Die Rechnung wird per E-Mail an {email || "Ihre E-Mail-Adresse"} übermittelt.
             </p>
           </div>
 
           {/* Legal Confirmations */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div 
-              className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+              className={`flex items-start gap-2.5 p-2.5 border cursor-pointer transition-colors ${
                 confirmTerms 
                   ? "border-primary bg-primary/5" 
                   : "border-border hover:bg-muted/30"
@@ -413,15 +413,15 @@ export function CheckoutStep({
                 id="confirmTerms"
                 checked={confirmTerms}
                 onCheckedChange={(checked) => setConfirmTerms(checked as boolean)}
-                className="mt-0.5 h-5 w-5"
+                className="mt-0.5 h-4 w-4"
               />
-              <Label htmlFor="confirmTerms" className="font-normal text-sm leading-relaxed cursor-pointer">
+              <Label htmlFor="confirmTerms" className="font-normal text-xs leading-relaxed cursor-pointer">
                 Ich habe die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
               </Label>
             </div>
 
             <div 
-              className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+              className={`flex items-start gap-2.5 p-2.5 border cursor-pointer transition-colors ${
                 confirmNoRefund 
                   ? "border-primary bg-primary/5" 
                   : "border-border hover:bg-muted/30"
@@ -432,27 +432,27 @@ export function CheckoutStep({
                 id="confirmNoRefund"
                 checked={confirmNoRefund}
                 onCheckedChange={(checked) => setConfirmNoRefund(checked as boolean)}
-                className="mt-0.5 h-5 w-5"
+                className="mt-0.5 h-4 w-4"
               />
-              <Label htmlFor="confirmNoRefund" className="font-normal text-sm leading-relaxed cursor-pointer">
+              <Label htmlFor="confirmNoRefund" className="font-normal text-xs leading-relaxed cursor-pointer">
                 Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
               </Label>
             </div>
           </div>
 
           {/* Price Summary */}
-          <div className="bg-muted/30 rounded-lg p-4">
-            <div className="flex items-center justify-between text-sm mb-2">
+          <div className="bg-muted/30 p-3">
+            <div className="flex items-center justify-between text-xs mb-1.5">
               <span className="text-muted-foreground">Zwischensumme</span>
               <span>€16,58</span>
             </div>
-            <div className="flex items-center justify-between text-sm mb-3">
+            <div className="flex items-center justify-between text-xs mb-2">
               <span className="text-muted-foreground">USt. (20%)</span>
               <span>€3,32</span>
             </div>
-            <div className="flex items-center justify-between pt-3 border-t border-border">
-              <span className="font-semibold text-foreground">Gesamtbetrag</span>
-              <span className="text-xl font-bold text-foreground">€19,90</span>
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="font-semibold text-sm text-foreground">Gesamtbetrag</span>
+              <span className="text-lg font-bold text-foreground">€19,90</span>
             </div>
           </div>
 
