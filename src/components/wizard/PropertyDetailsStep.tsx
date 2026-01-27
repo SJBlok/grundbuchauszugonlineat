@@ -17,7 +17,7 @@ import { AddressSearch } from "@/components/AddressSearch";
 import { KatastralgemeindeCombobox } from "@/components/KatastralgemeindeCombobox";
 import type { PropertyData } from "@/pages/Anfordern";
 import { Search, FileText, MapPin, Hash, Info, ChevronRight, CheckCircle2, ExternalLink, Clock, BadgeCheck } from "lucide-react";
-import grundbuchBeispiel from "@/assets/grundbuchauszug-beispiel.png";
+import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
 
 const propertySchema = z.object({
   katastralgemeinde: z.string().max(100).optional(),
@@ -132,7 +132,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
             <div className="hidden sm:block shrink-0">
               <div className="w-20 h-28 bg-muted/30 border border-border rounded-sm overflow-hidden shadow-sm">
                 <img 
-                  src={grundbuchBeispiel} 
+                  src={grundbuchPreview} 
                   alt="Grundbuchauszug Beispiel" 
                   className="w-full h-full object-cover object-top"
                 />
