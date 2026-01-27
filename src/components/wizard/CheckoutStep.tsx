@@ -228,17 +228,18 @@ export function CheckoutStep({
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-foreground text-sm">Aktueller Grundbuchauszug</p>
-              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
                 <MapPin className="h-3 w-3 shrink-0" />
-                <span className="truncate">KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}</span>
+                <span>KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}</span>
               </div>
               <p className="text-xs text-muted-foreground">
                 {propertyData.bundesland} • {propertyData.grundbuchsgericht}
               </p>
-            </div>
-            <div className="text-right shrink-0">
-              <p className="text-xl font-bold text-foreground">€19,90</p>
-              <p className="text-xs text-muted-foreground">inkl. USt.</p>
+              {propertyData.wohnungsHinweis && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Hinweis: {propertyData.wohnungsHinweis}
+                </p>
+              )}
             </div>
           </div>
 
