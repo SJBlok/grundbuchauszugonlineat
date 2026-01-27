@@ -17,6 +17,7 @@ import { AddressSearch } from "@/components/AddressSearch";
 import { KatastralgemeindeCombobox } from "@/components/KatastralgemeindeCombobox";
 import type { PropertyData } from "@/pages/Anfordern";
 import { Search, FileText, MapPin, Hash, Info, ChevronRight, CheckCircle2, ExternalLink, Clock, BadgeCheck } from "lucide-react";
+import grundbuchBeispiel from "@/assets/grundbuchauszug-beispiel.png";
 
 const propertySchema = z.object({
   katastralgemeinde: z.string().max(100).optional(),
@@ -125,17 +126,31 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
         </div>
         
         <div className="p-4">
-          {/* Product Header */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-foreground text-base">Aktueller Grundbuchauszug</h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Vollständiger Auszug aus dem österreichischen Grundbuch
-              </p>
+          {/* Product Header with Preview */}
+          <div className="flex items-start gap-4">
+            {/* Document Preview */}
+            <div className="hidden sm:block shrink-0">
+              <div className="w-20 h-28 bg-muted/30 border border-border rounded-sm overflow-hidden shadow-sm">
+                <img 
+                  src={grundbuchBeispiel} 
+                  alt="Grundbuchauszug Beispiel" 
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
             </div>
-            <div className="text-right shrink-0">
-              <span className="text-2xl font-bold text-foreground">€19,90</span>
-              <p className="text-xs text-muted-foreground">inkl. USt.</p>
+            
+            {/* Product Info */}
+            <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+              <div>
+                <h3 className="font-bold text-foreground text-base">Aktueller Grundbuchauszug</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Vollständiger Auszug aus dem österreichischen Grundbuch
+                </p>
+              </div>
+              <div className="sm:text-right shrink-0">
+                <span className="text-2xl font-bold text-foreground">€19,90</span>
+                <p className="text-xs text-muted-foreground">inkl. USt.</p>
+              </div>
             </div>
           </div>
 
