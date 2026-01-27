@@ -112,14 +112,15 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   return (
     <div className="space-y-6">
       {/* Product Selection Card */}
-      <div className="bg-card border border-border overflow-hidden shadow-sm">
-        <div className="bg-header px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-header-foreground" />
-            <h2 className="text-sm font-semibold text-header-foreground">Ihr Dokument</h2>
+      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+        {/* Subtle Section Header */}
+        <div className="bg-muted/60 px-4 py-2.5 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-0.5 h-4 bg-primary" />
+            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Ihr Dokument</h2>
           </div>
-          <div className="bg-header-foreground/20 px-2 py-0.5 rounded-sm">
-            <span className="text-xs font-medium text-header-foreground">Offiziell</span>
+          <div className="bg-primary/10 text-primary px-2 py-0.5 rounded-sm">
+            <span className="text-xs font-semibold">Offiziell</span>
           </div>
         </div>
         
@@ -140,21 +141,21 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
           {/* Content Description */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm">
+            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm border border-border/50">
               <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="text-xs font-semibold text-foreground">Eigentümer</p>
                 <p className="text-xs text-muted-foreground">B-Blatt Informationen</p>
               </div>
             </div>
-            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm">
+            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm border border-border/50">
               <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="text-xs font-semibold text-foreground">Grundstück</p>
                 <p className="text-xs text-muted-foreground">A1/A2-Blatt Daten</p>
               </div>
             </div>
-            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm">
+            <div className="flex items-start gap-2 p-2.5 bg-muted/40 rounded-sm border border-border/50">
               <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="text-xs font-semibold text-foreground">Lasten</p>
@@ -183,8 +184,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
       </div>
 
       {/* Property Details Card */}
-      <div className="bg-white border border-border overflow-hidden">
-        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
+      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-muted/60 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
           <div className="w-0.5 h-4 bg-primary" />
           <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Grundstück</h2>
         </div>
