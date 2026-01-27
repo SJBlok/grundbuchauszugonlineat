@@ -213,7 +213,7 @@ export function CheckoutStep({
     }
   };
 
-    return (
+  return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5" data-testid="checkout-step">
       {/* Order Summary Card */}
       <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
