@@ -391,22 +391,32 @@ export function CheckoutStep({
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Payment Method Info */}
+          {/* Payment Method Info with Pricing */}
           <div className="bg-info border border-primary/15 p-3">
-            <p className="text-xs text-foreground">
+            <p className="text-xs text-foreground mb-3">
               <span className="font-semibold">Zahlung auf Rechnung:</span>{" "}
               Die Rechnung wird per E-Mail an {email || "Ihre E-Mail-Adresse"} übermittelt.
             </p>
+            <div className="pt-3 border-t border-primary/10">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-muted-foreground">Zwischensumme</span>
+                <span>€16,58</span>
+              </div>
+              <div className="flex items-center justify-between text-xs mb-2">
+                <span className="text-muted-foreground">USt. (20%)</span>
+                <span>€3,32</span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-primary/10">
+                <span className="font-semibold text-sm text-foreground">Gesamtbetrag</span>
+                <span className="text-lg font-bold text-foreground">€19,90</span>
+              </div>
+            </div>
           </div>
 
           {/* Legal Confirmations */}
           <div className="space-y-2">
             <div 
-              className={`flex items-start gap-2.5 p-2.5 border cursor-pointer transition-colors ${
-                confirmTerms 
-                  ? "border-primary bg-primary/5" 
-                  : "border-border hover:bg-muted/30"
-              }`}
+              className="flex items-start gap-2.5 cursor-pointer"
               onClick={() => setConfirmTerms(!confirmTerms)}
             >
               <Checkbox
@@ -421,11 +431,7 @@ export function CheckoutStep({
             </div>
 
             <div 
-              className={`flex items-start gap-2.5 p-2.5 border cursor-pointer transition-colors ${
-                confirmNoRefund 
-                  ? "border-primary bg-primary/5" 
-                  : "border-border hover:bg-muted/30"
-              }`}
+              className="flex items-start gap-2.5 cursor-pointer"
               onClick={() => setConfirmNoRefund(!confirmNoRefund)}
             >
               <Checkbox
@@ -437,22 +443,6 @@ export function CheckoutStep({
               <Label htmlFor="confirmNoRefund" className="font-normal text-xs leading-relaxed cursor-pointer">
                 Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
               </Label>
-            </div>
-          </div>
-
-          {/* Price Summary */}
-          <div className="bg-muted/30 p-3">
-            <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className="text-muted-foreground">Zwischensumme</span>
-              <span>€16,58</span>
-            </div>
-            <div className="flex items-center justify-between text-xs mb-2">
-              <span className="text-muted-foreground">USt. (20%)</span>
-              <span>€3,32</span>
-            </div>
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-              <span className="font-semibold text-sm text-foreground">Gesamtbetrag</span>
-              <span className="text-lg font-bold text-foreground">€19,90</span>
             </div>
           </div>
 
