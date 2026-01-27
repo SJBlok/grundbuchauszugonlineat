@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Mail, Building2, MapPin, FileText, CreditCard } from "lucide-react";
+import { ArrowLeft, Mail, Building2, MapPin, FileText, CreditCard, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
@@ -422,6 +422,7 @@ export function CheckoutStep({
               variant="outline"
               onClick={onBack}
               className="h-14 text-base px-6 rounded-xl"
+              disabled={isSubmitting}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück
@@ -431,9 +432,35 @@ export function CheckoutStep({
               className="flex-1 h-14 px-6 text-base md:text-lg font-bold shadow-lg hover:shadow-xl transition-all rounded-xl"
               disabled={isSubmitting || !allConfirmed}
             >
-              {isSubmitting ? "Wird verarbeitet..." : "Kostenpflichtig bestellen • €19,90"}
+              {isSubmitting ? (
+                <span className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Bestellung wird verarbeitet...
+                </span>
+              ) : (
+                "Kostenpflichtig bestellen • €19,90"
+              )}
             </Button>
           </div>
+
+          {/* Loading Overlay */}
+          {isSubmitting && (
+            <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="bg-card border rounded-2xl p-8 shadow-2xl max-w-sm mx-4 text-center animate-scale-in">
+                <div className="relative mx-auto w-16 h-16 mb-6">
+                  <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                  <FileText className="absolute inset-0 m-auto h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Bestellung wird verarbeitet
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Ihr Grundbuchauszug wird angefordert. Bitte warten Sie einen Moment...
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </form>
