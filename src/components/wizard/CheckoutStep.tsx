@@ -13,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Mail, Building2, MapPin, FileText, Loader2, Check, Shield, Clock, BadgeCheck } from "lucide-react";
+import { ArrowLeft, Mail, Building2, MapPin, FileText, Loader2, Check, Shield, Clock, BadgeCheck, CheckCircle2 } from "lucide-react";
+import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
@@ -215,43 +216,90 @@ export function CheckoutStep({
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
       {/* Order Summary Card */}
-      <div className="bg-white border border-border overflow-hidden">
-        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
-          <div className="w-0.5 h-4 bg-primary" />
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Bestellung</h2>
+      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-muted/60 px-4 py-2.5 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-0.5 h-4 bg-primary" />
+            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Ihre Bestellung</h2>
+          </div>
+          <div className="bg-primary/10 text-primary px-2 py-0.5 rounded-sm">
+            <span className="text-xs font-semibold">Offiziell</span>
+          </div>
         </div>
         
         <div className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="h-8 w-8 bg-primary/10 flex items-center justify-center shrink-0">
-              <FileText className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground text-sm">Aktueller Grundbuchauszug</p>
-              <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
-                <MapPin className="h-3 w-3 shrink-0" />
-                <span>KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}</span>
+          {/* Product Header with Preview */}
+          <div className="flex items-start gap-4">
+            {/* Document Preview */}
+            <div className="hidden sm:block shrink-0">
+              <div className="w-16 h-22 bg-muted/30 border border-border rounded-sm overflow-hidden shadow-sm">
+                <img 
+                  src={grundbuchPreview} 
+                  alt="Grundbuchauszug Beispiel" 
+                  className="w-full h-full object-cover object-top"
+                />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {propertyData.bundesland} • {propertyData.grundbuchsgericht}
-              </p>
-              {propertyData.wohnungsHinweis && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Hinweis: {propertyData.wohnungsHinweis}
-                </p>
-              )}
+            </div>
+            
+            {/* Product Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-bold text-foreground text-sm">Aktueller Grundbuchauszug</h3>
+                <div className="text-right shrink-0">
+                  <span className="text-xl font-bold text-foreground">€19,90</span>
+                  <p className="text-xs text-muted-foreground">inkl. USt.</p>
+                </div>
+              </div>
+              
+              {/* Blatt Info */}
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3 text-primary" />A-Blatt
+                </span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3 text-primary" />B-Blatt
+                </span>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3 text-primary" />C-Blatt
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Features */}
-          <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap gap-4">
+          {/* Property Details */}
+          <div className="mt-3 pt-3 border-t border-border">
+            <div className="flex items-start gap-2">
+              <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-foreground">
+                  KG {propertyData.katastralgemeinde}, EZ/GST {propertyData.grundstuecksnummer}
+                </p>
+                {propertyData.adresse && (
+                  <p className="text-muted-foreground text-xs mt-0.5">
+                    {propertyData.adresse}{propertyData.plz || propertyData.ort ? `, ${propertyData.plz} ${propertyData.ort}` : ''}
+                  </p>
+                )}
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  {propertyData.bundesland} • {propertyData.grundbuchsgericht}
+                </p>
+                {propertyData.wohnungsHinweis && (
+                  <p className="text-muted-foreground text-xs mt-0.5">
+                    Hinweis: {propertyData.wohnungsHinweis}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Features */}
+          <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-4">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5 text-primary" />
-              <span>Sofortige Zustellung</span>
+              <span className="font-medium">Sofort per E-Mail</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <BadgeCheck className="h-3.5 w-3.5 text-primary" />
-              <span>Offizielles Dokument</span>
+              <span className="font-medium">Amtlich beglaubigt</span>
             </div>
           </div>
         </div>
