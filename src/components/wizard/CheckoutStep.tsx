@@ -313,84 +313,84 @@ export function CheckoutStep({
           <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Kontakt</h2>
         </div>
 
-        <div className="p-4 space-y-3">
-          <p className="text-xs text-muted-foreground">
+        <div className="p-4 space-y-4">
+          <p className="text-sm text-muted-foreground">
             Der Grundbuchauszug wird per E-Mail an Sie versendet.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor="vorname" className="text-xs font-medium">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="vorname" className="text-sm font-medium">
                 Vorname <span className="text-destructive">*</span>
               </Label>
               <Input 
                 id="vorname" 
                 {...register("vorname")} 
                 placeholder="Max"
-                className="h-10 text-sm bg-white border-border"
+                className="h-12 text-base bg-white border-border"
               />
               {errors.vorname && (
-                <p className="text-xs text-destructive">{errors.vorname.message}</p>
+                <p className="text-sm text-destructive">{errors.vorname.message}</p>
               )}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="nachname" className="text-xs font-medium">
+            <div className="space-y-1.5">
+              <Label htmlFor="nachname" className="text-sm font-medium">
                 Nachname <span className="text-destructive">*</span>
               </Label>
               <Input 
                 id="nachname" 
                 {...register("nachname")} 
                 placeholder="Mustermann"
-                className="h-10 text-sm bg-white border-border"
+                className="h-12 text-base bg-white border-border"
               />
               {errors.nachname && (
-                <p className="text-xs text-destructive">{errors.nachname.message}</p>
+                <p className="text-sm text-destructive">{errors.nachname.message}</p>
               )}
             </div>
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="email" className="text-xs font-medium">
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-sm font-medium">
               E-Mail-Adresse <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 id="email" 
                 type="email" 
                 {...register("email")} 
                 placeholder="max.mustermann@email.at"
-                className="pl-9 h-10 text-sm bg-white border-border"
+                className="pl-10 h-12 text-base bg-white border-border"
               />
             </div>
             {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
+              <p className="text-sm text-destructive">{errors.email.message}</p>
             )}
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="emailConfirm" className="text-xs font-medium">
+          <div className="space-y-1.5">
+            <Label htmlFor="emailConfirm" className="text-sm font-medium">
               E-Mail-Adresse bestätigen <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 id="emailConfirm" 
                 type="email" 
                 {...register("emailConfirm")} 
                 placeholder="E-Mail-Adresse wiederholen"
-                className="pl-9 h-10 text-sm bg-white border-border"
+                className="pl-10 h-12 text-base bg-white border-border"
               />
             </div>
             {errors.emailConfirm && (
-              <p className="text-xs text-destructive">{errors.emailConfirm.message}</p>
+              <p className="text-sm text-destructive">{errors.emailConfirm.message}</p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor="wohnsitzland" className="text-xs font-medium">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="wohnsitzland" className="text-sm font-medium">
                 Wohnsitzland <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -399,33 +399,33 @@ export function CheckoutStep({
                   setValue("wohnsitzland", value, { shouldValidate: true })
                 }
               >
-                <SelectTrigger className="h-10 text-sm bg-white border-border">
+                <SelectTrigger className="h-12 text-base bg-white border-border">
                   <SelectValue placeholder="Auswählen..." />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem key={country} value={country} className="py-2">
+                    <SelectItem key={country} value={country} className="py-3 text-base">
                       {country}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.wohnsitzland && (
-                <p className="text-xs text-destructive">{errors.wohnsitzland.message}</p>
+                <p className="text-sm text-destructive">{errors.wohnsitzland.message}</p>
               )}
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="firma" className="text-xs font-medium text-muted-foreground">
-                Firma <span className="text-xs font-normal">(optional)</span>
+            <div className="space-y-1.5">
+              <Label htmlFor="firma" className="text-sm font-medium text-muted-foreground">
+                Firma <span className="text-sm font-normal">(optional)</span>
               </Label>
               <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   id="firma" 
                   {...register("firma")} 
                   placeholder="Firmenname"
-                  className="pl-9 h-10 text-sm bg-white border-border"
+                  className="pl-10 h-12 text-base bg-white border-border"
                 />
               </div>
             </div>
@@ -459,27 +459,27 @@ export function CheckoutStep({
           </div>
 
           {/* Legal Confirmations */}
-          <div className="space-y-2">
-            <div className="flex items-start gap-2.5">
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 p-3 -mx-3 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => setConfirmTerms(!confirmTerms)}>
               <Checkbox
                 id="confirmTerms"
                 checked={confirmTerms}
                 onCheckedChange={(checked) => setConfirmTerms(checked as boolean)}
-                className="mt-0.5 h-4 w-4"
+                className="mt-0.5 h-5 w-5 shrink-0"
               />
-              <Label htmlFor="confirmTerms" className="font-normal text-xs leading-relaxed cursor-pointer">
-                Ich habe die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline">Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
+              <Label htmlFor="confirmTerms" className="font-normal text-sm leading-relaxed cursor-pointer">
+                Ich habe die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
               </Label>
             </div>
 
-            <div className="flex items-start gap-2.5">
+            <div className="flex items-start gap-3 p-3 -mx-3 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => setConfirmNoRefund(!confirmNoRefund)}>
               <Checkbox
                 id="confirmNoRefund"
                 checked={confirmNoRefund}
                 onCheckedChange={(checked) => setConfirmNoRefund(checked as boolean)}
-                className="mt-0.5 h-4 w-4"
+                className="mt-0.5 h-5 w-5 shrink-0"
               />
-              <Label htmlFor="confirmNoRefund" className="font-normal text-xs leading-relaxed cursor-pointer">
+              <Label htmlFor="confirmNoRefund" className="font-normal text-sm leading-relaxed cursor-pointer">
                 Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
               </Label>
             </div>
