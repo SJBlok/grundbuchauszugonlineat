@@ -254,11 +254,11 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       };
                       onSubmit(formData);
                     }} 
-                    className="w-full h-12 text-sm font-semibold" 
+                    className="w-full h-14 text-base font-semibold" 
                     size="lg"
                   >
                     Weiter zu Kontaktdaten
-                    <ChevronRight className="ml-2 h-4 w-4" />
+                    <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               )}
@@ -312,33 +312,33 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label htmlFor="bundesland" className="text-xs font-medium">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="bundesland" className="text-sm font-medium">
                       Bundesland <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={bundesland}
                       onValueChange={(value) => setValue("bundesland", value, { shouldValidate: true })}
                     >
-                      <SelectTrigger className="h-10 text-sm bg-white border-border">
+                      <SelectTrigger className="h-12 text-base bg-white border-border">
                         <SelectValue placeholder="Auswählen..." />
                       </SelectTrigger>
                       <SelectContent>
                         {bundeslaender.map((land) => (
-                          <SelectItem key={land} value={land} className="py-2">
+                          <SelectItem key={land} value={land} className="py-3 text-base">
                             {land}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     {errors.bundesland && !selectedFromSearch && (
-                      <p className="text-xs text-destructive">Bundesland ist erforderlich</p>
+                      <p className="text-sm text-destructive">Bundesland ist erforderlich</p>
                     )}
                   </div>
 
-                  <div className="space-y-1">
-                    <Label htmlFor="katastralgemeinde" className="text-xs font-medium">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="katastralgemeinde" className="text-sm font-medium">
                       Katastralgemeinde (KG) <span className="text-destructive">*</span>
                     </Label>
                     <KatastralgemeindeCombobox
@@ -348,52 +348,52 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                       placeholder="KG suchen..."
                     />
                     {errors.katastralgemeinde && !selectedFromSearch && (
-                      <p className="text-xs text-destructive">Katastralgemeinde ist erforderlich</p>
+                      <p className="text-sm text-destructive">Katastralgemeinde ist erforderlich</p>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label htmlFor="grundstuecksnummer" className="text-xs font-medium">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="grundstuecksnummer" className="text-sm font-medium">
                       Einlagezahl (EZ) / GST-Nr. <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="grundstuecksnummer"
                       {...register("grundstuecksnummer")}
                       placeholder="z.B. 123 oder 123/4"
-                      className="h-10 text-sm bg-white border-border"
+                      className="h-12 text-base bg-white border-border"
                     />
                     {errors.grundstuecksnummer && !selectedFromSearch && (
-                      <p className="text-xs text-destructive">Grundstücksnummer ist erforderlich</p>
+                      <p className="text-sm text-destructive">Grundstücksnummer ist erforderlich</p>
                     )}
                   </div>
 
-                  <div className="space-y-1">
-                    <Label htmlFor="grundbuchsgericht" className="text-xs font-medium">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="grundbuchsgericht" className="text-sm font-medium">
                       Grundbuchsgericht <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="grundbuchsgericht"
                       {...register("grundbuchsgericht")}
                       placeholder="z.B. BG Innere Stadt Wien"
-                      className="h-10 text-sm bg-white border-border"
+                      className="h-12 text-base bg-white border-border"
                     />
                     {errors.grundbuchsgericht && !selectedFromSearch && (
-                      <p className="text-xs text-destructive">Grundbuchsgericht ist erforderlich</p>
+                      <p className="text-sm text-destructive">Grundbuchsgericht ist erforderlich</p>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <Label htmlFor="wohnungsHinweis" className="text-xs font-medium text-muted-foreground">
-                    Wohnungs- / Anteilshinweis <span className="text-xs font-normal">(optional)</span>
+                <div className="space-y-1.5">
+                  <Label htmlFor="wohnungsHinweis" className="text-sm font-medium text-muted-foreground">
+                    Wohnungs- / Anteilshinweis <span className="text-sm font-normal">(optional)</span>
                   </Label>
                   <Input
                     id="wohnungsHinweis"
                     {...register("wohnungsHinweis")}
                     placeholder="z.B. Top 5, Anteil 1/10"
-                    className="h-10 text-sm bg-white border-border"
+                    className="h-12 text-base bg-white border-border"
                   />
                 </div>
 
