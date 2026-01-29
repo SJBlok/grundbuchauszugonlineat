@@ -91,21 +91,21 @@ function getAbandonedReminderTemplate(reminderNumber: 1 | 2 | 3) {
 
   if (reminderNumber === 1) {
     const content = `
-      ${getEmailHeader("Dokumentenservice")}
+      ${getEmailHeader()}
       ${getRefBanner(orderReference)}
       <div class="content">
         <p class="greeting">${salutation},</p>
-        <p>Sie haben kürzlich eine Anfrage für einen Grundbuchauszug gestartet. Wir haben festgestellt, dass Ihre Bestellung noch nicht abgeschlossen wurde.</p>
-        <p>Ihre eingegebenen Daten wurden vorübergehend gespeichert. Sie können die Bestellung jederzeit fortsetzen:</p>
+        <p>Sie haben kürzlich eine Anfrage für einen Grundbuchauszug gestartet. Ihre Bestellung wurde noch nicht abgeschlossen.</p>
+        <p>Ihre Daten wurden gespeichert. Sie können jederzeit fortfahren:</p>
         ${orderTable}
         ${getCtaButton(resumeUrl, "Bestellung fortsetzen")}
-        <p style="font-size: 14px; color: ${BRAND_COLORS.textMuted};">Bei Fragen stehen wir Ihnen gerne unter <a href="mailto:info@grundbuchauszugonline.at" style="color: ${BRAND_COLORS.primary}; text-decoration: none;">info@grundbuchauszugonline.at</a> zur Verfügung.</p>
+        <p style="font-size: 13px; color: ${BRAND_COLORS.textMuted};">Fragen? Schreiben Sie uns: <a href="mailto:info@grundbuchauszugonline.at" style="color: ${BRAND_COLORS.primary}; text-decoration: none;">info@grundbuchauszugonline.at</a></p>
         ${getSignature()}
       </div>
       ${getEmailFooter()}
     `;
     return {
-      subject: `Ihre Anfrage ${orderReference} – Noch nicht abgeschlossen`,
+      subject: `Anfrage ${orderReference} – Noch nicht abgeschlossen`,
       timing: "1 Stunde nach Sitzung",
       icon: Clock,
       htmlBody: wrapEmailContent(content, { preheader: "Ihre Grundbuchauszug-Bestellung wartet auf Sie" }),
@@ -114,21 +114,20 @@ function getAbandonedReminderTemplate(reminderNumber: 1 | 2 | 3) {
 
   if (reminderNumber === 2) {
     const content = `
-      ${getEmailHeader("Dokumentenservice")}
+      ${getEmailHeader()}
       ${getRefBanner(orderReference, "Erinnerung")}
       <div class="content">
         <p class="greeting">${salutation},</p>
-        ${getNoticeBox("<strong>Wichtiger Hinweis zur Datenspeicherung</strong><br>Ihre Sitzungsdaten werden aus Datenschutzgründen nur <strong>72 Stunden</strong> gespeichert. Danach werden alle eingegebenen Daten automatisch und unwiderruflich gelöscht.", "warning")}
-        <p>Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch nicht abgeschlossen wurde.</p>
+        ${getNoticeBox("<strong>Datenspeicherung:</strong> Ihre Sitzungsdaten werden nach 72 Stunden automatisch gelöscht.", "warning")}
+        <p>Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch offen ist.</p>
         ${orderTable}
-        ${getCtaButton(resumeUrl, "Jetzt Bestellung abschließen")}
-        <p style="font-size: 14px; color: ${BRAND_COLORS.textMuted};">Um Datenverlust zu vermeiden, empfehlen wir Ihnen, die Bestellung zeitnah abzuschließen.</p>
+        ${getCtaButton(resumeUrl, "Jetzt abschließen")}
         ${getSignature()}
       </div>
       ${getEmailFooter()}
     `;
     return {
-      subject: `Erinnerung: Ihre Anfrage ${orderReference} läuft in 48 Stunden ab`,
+      subject: `Erinnerung: Anfrage ${orderReference} läuft in 48 Stunden ab`,
       timing: "25 Stunden nach Sitzung",
       icon: AlertTriangle,
       htmlBody: wrapEmailContent(content, { preheader: "Ihre Daten werden in 48 Stunden gelöscht" }),
@@ -137,15 +136,14 @@ function getAbandonedReminderTemplate(reminderNumber: 1 | 2 | 3) {
 
   // Reminder 3
   const content = `
-    ${getEmailHeader("Dokumentenservice")}
+    ${getEmailHeader()}
     ${getRefBanner(orderReference, "Letzte Erinnerung")}
     <div class="content">
       <p class="greeting">${salutation},</p>
-      ${getNoticeBox("<strong>⚠️ Hinweis zur Datenlöschung</strong><br>Dies ist die letzte Erinnerung. Nach Ablauf der 72-Stunden-Frist werden alle eingegebenen Daten gemäß unserer Datenschutzrichtlinien <strong>automatisch gelöscht</strong>. Eine Wiederherstellung ist danach nicht mehr möglich.", "error")}
-      <p>Sie haben eine Anfrage für einen Grundbuchauszug begonnen, die noch nicht abgeschlossen wurde.</p>
+      ${getNoticeBox("<strong>Datenlöschung heute:</strong> Nach Ablauf der 72-Stunden-Frist werden Ihre Daten automatisch gelöscht.", "error")}
+      <p>Ihre Anfrage für einen Grundbuchauszug ist noch offen.</p>
       ${orderTable}
-      ${getCtaButton(resumeUrl, "Bestellung jetzt abschließen")}
-      <p style="font-size: 14px; color: ${BRAND_COLORS.textMuted};">Um Ihre eingegebenen Daten zu sichern, empfehlen wir Ihnen, die Bestellung heute abzuschließen.</p>
+      ${getCtaButton(resumeUrl, "Bestellung abschließen")}
       ${getSignature()}
     </div>
     ${getEmailFooter()}
@@ -154,7 +152,7 @@ function getAbandonedReminderTemplate(reminderNumber: 1 | 2 | 3) {
     subject: `Letzte Erinnerung: Anfrage ${orderReference} läuft heute ab`,
     timing: "72 Stunden nach Sitzung",
     icon: XCircle,
-    htmlBody: wrapEmailContent(content, { preheader: "Ihre Daten werden heute gelöscht – letzte Chance zur Bestellung" }),
+    htmlBody: wrapEmailContent(content, { preheader: "Letzte Chance – Ihre Daten werden heute gelöscht" }),
   };
 }
 
@@ -171,35 +169,34 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
   });
 
   const documentNotice = hasDocument 
-    ? `<p style="color: ${BRAND_COLORS.success}; font-weight: 600;">✅ Ihr angeforderter Grundbuchauszug liegt dieser E-Mail als PDF-Dokument bei.</p>`
-    : getNoticeBox("<strong>⚠️ Hinweis zur Dokumentzustellung</strong><br>Der automatische Abruf war nicht möglich. Unser Fachteam wird Ihren Grundbuchauszug manuell beschaffen und Ihnen umgehend zusenden.", "error");
+    ? `<p style="color: ${BRAND_COLORS.success}; font-weight: 500;">Ihr Grundbuchauszug liegt dieser E-Mail als PDF bei.</p>`
+    : getNoticeBox("<strong>Hinweis:</strong> Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument manuell zu.", "error");
 
   const content = `
-    ${getEmailHeader("Offizieller Auszugs-Service")}
+    ${getEmailHeader()}
     ${getRefBanner(order.order_number, "Bestellbestätigung")}
     <div class="content">
-      <p class="greeting">Sehr geehrte(r) ${order.vorname} ${order.nachname},</p>
-      <p>Wir bestätigen den Eingang Ihrer Bestellung für einen offiziellen Grundbuchauszug.</p>
+      <p class="greeting">Sehr geehrte/r ${order.vorname} ${order.nachname},</p>
+      <p>Wir bestätigen den Eingang Ihrer Bestellung.</p>
       ${documentNotice}
       ${orderTable}
       ${getPaymentDetailsBox(order.order_number)}
       <p style="font-size: 13px; color: ${BRAND_COLORS.textMuted};">
-        📄 <strong>Hinweis:</strong> Eine detaillierte Rechnung wird Ihnen separat von unserem Buchhaltungssystem zugestellt.
+        Eine Rechnung wird Ihnen separat zugestellt.
       </p>
-      <p>Bei Rückfragen erreichen Sie unseren Kundenservice unter <a href="mailto:info@grundbuchauszugonline.at" style="color: ${BRAND_COLORS.primary}; font-weight: 600; text-decoration: none;">info@grundbuchauszugonline.at</a></p>
       ${getSignature()}
     </div>
     ${getEmailFooter()}
   `;
 
   return {
-    subject: `Bestätigung Ihrer Grundbuchanfrage – ${order.order_number}`,
+    subject: `Bestellbestätigung – ${order.order_number}`,
     timing: "Direkt nach Bestellung",
     icon: CheckCircle,
     htmlBody: wrapEmailContent(content, { 
       preheader: hasDocument 
         ? "Ihr Grundbuchauszug liegt bei" 
-        : "Bestellung bestätigt – Dokument folgt in Kürze" 
+        : "Bestellung bestätigt" 
     }),
   };
 }
@@ -209,124 +206,102 @@ function getInternalNotificationTemplate(hasDocument: boolean) {
   const documentFetchError = "API timeout - connection refused";
   const currentYear = new Date().getFullYear();
   
-  // Internal emails use a simpler, functional design
+  const statusColor = hasDocument ? BRAND_COLORS.success : BRAND_COLORS.error;
+  const statusBg = hasDocument ? '#f0fdf4' : BRAND_COLORS.errorBg;
+  const statusBorder = hasDocument ? '#bbf7d0' : '#fecaca';
+  
   const content = `
 <!DOCTYPE html>
 <html>
-  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto; background-color: #f8fafb;">
-    <div style="background: linear-gradient(135deg, ${BRAND_COLORS.primary} 0%, ${BRAND_COLORS.primaryDark} 100%); color: white; padding: 24px 32px;">
-      <h1 style="margin: 0; font-size: 20px; font-weight: 600;">
-        ${hasDocument ? '✅' : '⚠️'} Neue Bestellung eingegangen
-      </h1>
-      <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 14px;">Auftragsnummer: ${order.order_number}</p>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: ${BRAND_COLORS.text}; max-width: 600px; margin: 0 auto; background-color: #f4f4f5;">
+    <div style="background-color: ${BRAND_COLORS.primary}; color: white; padding: 20px 32px;">
+      <p style="margin: 0; font-size: 14px; font-weight: 500;">
+        ${hasDocument ? '✓' : '!'} Neue Bestellung · ${order.order_number}
+      </p>
     </div>
     
     <div style="padding: 32px; background-color: #ffffff;">
-      <p style="color: #6b7280; font-size: 14px; margin: 0 0 24px 0;">
-        Bestellt am: ${new Date(order.created_at).toLocaleString('de-AT', { dateStyle: 'full', timeStyle: 'short' })}
+      <p style="color: ${BRAND_COLORS.textMuted}; font-size: 13px; margin: 0 0 24px 0;">
+        ${new Date(order.created_at).toLocaleString('de-AT', { dateStyle: 'medium', timeStyle: 'short' })}
       </p>
       
-      <!-- Status Box -->
-      ${hasDocument 
-        ? `<div style="background-color: ${BRAND_COLORS.successBg}; border: 1px solid ${BRAND_COLORS.successBorder}; border-radius: 8px; padding: 16px; margin: 0 0 24px 0;">
-            <p style="margin: 0; color: ${BRAND_COLORS.success}; font-weight: 600;">✅ Dokument erfolgreich an Kunde zugestellt</p>
-          </div>`
-        : `<div style="background-color: ${BRAND_COLORS.errorBg}; border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin: 0 0 24px 0;">
-            <p style="margin: 0 0 8px 0; color: ${BRAND_COLORS.error}; font-weight: 600;">⚠️ AKTION ERFORDERLICH: Dokument konnte nicht abgerufen werden!</p>
-            <p style="margin: 0; color: ${BRAND_COLORS.error}; font-size: 14px;">Fehler: ${documentFetchError}</p>
-            <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.error}; font-size: 14px; font-weight: 600;">Bitte manuell zusenden!</p>
-          </div>`}
-      
-      <!-- Klantgegevens -->
-      <div style="background-color: #f9fafb; border: 1px solid ${BRAND_COLORS.border}; border-radius: 8px; padding: 20px; margin: 0 0 20px 0;">
-        <h3 style="color: ${BRAND_COLORS.primaryDark}; margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid ${BRAND_COLORS.primary}; padding-bottom: 8px;">👤 Kundendaten</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 8px 0; color: #6b7280; width: 40%; font-size: 14px;">Name:</td>
-            <td style="padding: 8px 0; font-weight: 600; font-size: 14px;">${order.vorname} ${order.nachname}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">E-Mail:</td>
-            <td style="padding: 8px 0; font-size: 14px;"><a href="mailto:${order.email}" style="color: ${BRAND_COLORS.primary};">${order.email}</a></td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Wohnsitzland:</td>
-            <td style="padding: 8px 0; font-size: 14px;">${order.wohnsitzland}</td>
-          </tr>
-          ${order.firma ? `<tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Firma:</td>
-            <td style="padding: 8px 0; font-size: 14px;">${order.firma}</td>
-          </tr>` : ''}
-        </table>
+      <!-- Status -->
+      <div style="background-color: ${statusBg}; border: 1px solid ${statusBorder}; border-radius: 4px; padding: 14px 16px; margin: 0 0 24px 0;">
+        <p style="margin: 0; color: ${statusColor}; font-size: 14px; font-weight: 500;">
+          ${hasDocument 
+            ? '✓ Dokument zugestellt' 
+            : `! Manuell zusenden – ${documentFetchError}`}
+        </p>
       </div>
       
-      <!-- Grundstück Details -->
-      <div style="background-color: #f9fafb; border: 1px solid ${BRAND_COLORS.border}; border-radius: 8px; padding: 20px; margin: 0 0 20px 0;">
-        <h3 style="color: ${BRAND_COLORS.primaryDark}; margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid ${BRAND_COLORS.primary}; padding-bottom: 8px;">🏠 Grundstück</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          ${order.adresse ? `<tr>
-            <td style="padding: 8px 0; color: #6b7280; width: 40%; font-size: 14px;">Adresse:</td>
-            <td style="padding: 8px 0; font-weight: 600; font-size: 14px;">${order.adresse}</td>
-          </tr>` : ''}
-          ${order.plz || order.ort ? `<tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">PLZ / Ort:</td>
-            <td style="padding: 8px 0; font-weight: 600; font-size: 14px;">${[order.plz, order.ort].filter(Boolean).join(' ')}</td>
-          </tr>` : ''}
-          <tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Bundesland:</td>
-            <td style="padding: 8px 0; font-weight: 600; font-size: 14px;">${order.bundesland}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Katastralgemeinde:</td>
-            <td style="padding: 8px 0; font-weight: 600; font-size: 14px;">${order.katastralgemeinde}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Grundstücksnummer / EZ:</td>
-            <td style="padding: 8px 0; font-weight: 600; font-size: 14px; font-family: 'SF Mono', Monaco, Consolas, monospace;">${order.grundstuecksnummer}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Grundbuchsgericht:</td>
-            <td style="padding: 8px 0; font-size: 14px;">${order.grundbuchsgericht}</td>
-          </tr>
-          ${order.wohnungs_hinweis ? `<tr>
-            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Wohnungshinweis:</td>
-            <td style="padding: 8px 0; font-style: italic; font-size: 14px;">${order.wohnungs_hinweis}</td>
-          </tr>` : ''}
-        </table>
-      </div>
+      <!-- Kunde -->
+      <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px 0;">
+        <tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; width: 35%; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">Name</td>
+          <td style="padding: 10px 0; font-size: 14px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.vorname} ${order.nachname}</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">E-Mail</td>
+          <td style="padding: 10px 0; font-size: 14px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};"><a href="mailto:${order.email}" style="color: ${BRAND_COLORS.primary}; text-decoration: none;">${order.email}</a></td>
+        </tr>
+        ${order.firma ? `<tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">Firma</td>
+          <td style="padding: 10px 0; font-size: 14px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.firma}</td>
+        </tr>` : ''}
+        <tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">Land</td>
+          <td style="padding: 10px 0; font-size: 14px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.wohnsitzland}</td>
+        </tr>
+      </table>
       
-      <!-- Product & Prijs -->
-      <div style="background-color: #f9fafb; border: 1px solid ${BRAND_COLORS.border}; border-radius: 8px; padding: 20px; margin: 0 0 20px 0;">
-        <h3 style="color: ${BRAND_COLORS.primaryDark}; margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid ${BRAND_COLORS.primary}; padding-bottom: 8px;">📋 Bestellung</h3>
-        <table style="width: 100%; border-collapse: collapse;">
+      <!-- Grundstück -->
+      <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px 0;">
+        ${order.adresse ? `<tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; width: 35%; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">Adresse</td>
+          <td style="padding: 10px 0; font-size: 14px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.adresse}, ${order.plz} ${order.ort}</td>
+        </tr>` : ''}
+        <tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">KG</td>
+          <td style="padding: 10px 0; font-size: 14px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.katastralgemeinde}</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">EZ/GST</td>
+          <td style="padding: 10px 0; font-size: 14px; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.grundstuecksnummer}</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">Gericht</td>
+          <td style="padding: 10px 0; font-size: 14px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.grundbuchsgericht}</td>
+        </tr>
+        ${order.wohnungs_hinweis ? `<tr>
+          <td style="padding: 10px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">Hinweis</td>
+          <td style="padding: 10px 0; font-size: 14px; font-style: italic; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">${order.wohnungs_hinweis}</td>
+        </tr>` : ''}
+      </table>
+      
+      <!-- Betrag -->
+      <div style="background-color: ${BRAND_COLORS.surface}; padding: 16px; border-radius: 4px;">
+        <table style="width: 100%;">
           <tr>
-            <td style="padding: 8px 0; color: #6b7280; width: 40%; font-size: 14px;">Produkt:</td>
-            <td style="padding: 8px 0; font-size: 14px;">${order.product_name}</td>
-          </tr>
-          <tr style="border-top: 1px solid ${BRAND_COLORS.border};">
-            <td style="padding: 16px 0 8px 0; color: #6b7280; font-weight: 600; font-size: 14px;">Gesamtbetrag:</td>
-            <td style="padding: 16px 0 8px 0; font-weight: 700; font-size: 20px; color: ${BRAND_COLORS.primary};">€ ${order.product_price.toFixed(2)}</td>
+            <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted};">${order.product_name}</td>
+            <td style="font-size: 18px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right;">€ ${order.product_price.toFixed(2)}</td>
           </tr>
         </table>
       </div>
       
-      <div style="background-color: ${BRAND_COLORS.warningBg}; border: 1px solid ${BRAND_COLORS.warningBorder}; border-radius: 8px; padding: 16px;">
-        <p style="margin: 0; color: ${BRAND_COLORS.warning}; font-weight: 600;">⏳ Zahlung: Ausstehend (auf Rechnung)</p>
-      </div>
+      <p style="margin: 24px 0 0 0; font-size: 13px; color: ${BRAND_COLORS.warning};">
+        ⏳ Zahlung ausstehend
+      </p>
     </div>
     
-    <div style="background-color: #f3f4f6; padding: 20px 32px; text-align: center; border-top: 1px solid ${BRAND_COLORS.border};">
-      <p style="margin: 0; font-size: 12px; color: #6b7280;">
-        Automatische Benachrichtigung von GrundbuchauszugOnline.at<br>
-        © ${currentYear}
-      </p>
+    <div style="padding: 16px 32px; text-align: center; font-size: 11px; color: ${BRAND_COLORS.textMuted};">
+      GrundbuchauszugOnline.at · ${currentYear}
     </div>
   </body>
 </html>`;
 
   return {
-    subject: `[${hasDocument ? 'NEUE BESTELLUNG' : '⚠️ AKTION ERFORDERLICH'}] ${order.order_number} - ${order.vorname} ${order.nachname}`,
-    timing: "Intern - nach jeder Bestellung",
+    subject: `${hasDocument ? '' : '⚠ '}${order.order_number} · ${order.vorname} ${order.nachname}`,
+    timing: "Intern – nach jeder Bestellung",
     icon: Bell,
     htmlBody: content,
   };
@@ -346,9 +321,9 @@ const EmailTemplates = () => {
 
   const orderTemplates = [
     { id: "order-success", ...getOrderConfirmationTemplate(true), label: "Mit Dokument" },
-    { id: "order-manual", ...getOrderConfirmationTemplate(false), label: "Ohne Dokument (manuell)" },
-    { id: "internal-success", ...getInternalNotificationTemplate(true), label: "Intern - Erfolg" },
-    { id: "internal-error", ...getInternalNotificationTemplate(false), label: "Intern - Aktion erforderlich" },
+    { id: "order-manual", ...getOrderConfirmationTemplate(false), label: "Manuell" },
+    { id: "internal-success", ...getInternalNotificationTemplate(true), label: "Intern" },
+    { id: "internal-error", ...getInternalNotificationTemplate(false), label: "Intern – Aktion" },
   ];
 
   const currentTemplates = activeCategory === "abandoned" ? abandonedTemplates : orderTemplates;
@@ -368,7 +343,7 @@ const EmailTemplates = () => {
             Email Templates
           </h1>
           <p className="text-muted-foreground">
-            Vorschau aller automatisierten E-Mails mit einheitlichem Branding
+            Vorschau aller automatisierten E-Mails
           </p>
         </div>
 
@@ -394,7 +369,7 @@ const EmailTemplates = () => {
             }`}
           >
             <FileText className="h-4 w-4 inline-block mr-2" />
-            Bestellbestätigungen
+            Bestellungen
           </button>
         </div>
 
@@ -430,7 +405,7 @@ const EmailTemplates = () => {
                           {template.timing}
                         </Badge>
                         <span>•</span>
-                        <span>Von: info@grundbuchauszugonline.at</span>
+                        <span>info@grundbuchauszugonline.at</span>
                       </div>
                     </div>
                   </div>
@@ -439,7 +414,7 @@ const EmailTemplates = () => {
                   <div className="border-t">
                     <iframe
                       srcDoc={template.htmlBody}
-                      className="w-full h-[800px] border-0"
+                      className="w-full h-[700px] border-0"
                       title={`Email template ${template.id}`}
                     />
                   </div>
@@ -452,9 +427,7 @@ const EmailTemplates = () => {
         {/* Overview Cards */}
         <Card className="bg-muted/50">
           <CardContent className="pt-6">
-            <h3 className="font-semibold mb-4">
-              {activeCategory === "abandoned" ? "Erinnerungs-Flow" : "Bestell-Flow"} Übersicht
-            </h3>
+            <h3 className="font-semibold mb-4">Übersicht</h3>
             <div className={`grid gap-4 ${activeCategory === "abandoned" ? "md:grid-cols-3" : "md:grid-cols-2 lg:grid-cols-4"}`}>
               {currentTemplates.map((template) => {
                 const Icon = template.icon;
