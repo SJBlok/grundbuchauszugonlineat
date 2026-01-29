@@ -180,16 +180,39 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
           </p>
         </div>
         
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; border-top: 1px solid ${BRAND_COLORS.border}; border-bottom: 1px solid ${BRAND_COLORS.border};">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; background-color: ${BRAND_COLORS.surface}; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px;">
           <tr>
-            <td style="padding: 16px 0;">
+            <td style="padding: 24px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
-                  <td colspan="2" style="padding-bottom: 12px; font-size: 13px; font-weight: 500; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Bestellübersicht</td>
+                  <td colspan="2" style="padding-bottom: 16px; font-size: 13px; font-weight: 500; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid ${BRAND_COLORS.border};">Bestellübersicht</td>
                 </tr>
                 <tr>
-                  <td style="font-size: 15px; color: ${BRAND_COLORS.text};">${order.product_name}</td>
-                  <td style="font-size: 15px; font-weight: 600; color: ${BRAND_COLORS.text}; text-align: right;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+                  <td style="padding: 12px 0 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">Produkt</td>
+                  <td style="padding: 12px 0 8px 0; font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right;">${order.product_name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">Betrag</td>
+                  <td style="padding: 8px 0; font-size: 16px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding: 16px 0 12px 0; font-size: 13px; font-weight: 500; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid ${BRAND_COLORS.border}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">Zahlungsinformationen</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">Empfänger</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right;">Tophallen Bouw B.V.</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">IBAN</td>
+                  <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">DE56 2022 0800 0058 7945 48</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">BIC</td>
+                  <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">SXPYDEHHXXX</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">Verwendungszweck</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: ${BRAND_COLORS.text}; font-weight: 500; text-align: right;">${order.order_number}</td>
                 </tr>
               </table>
             </td>
@@ -232,8 +255,6 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
             <strong>Hinweis:</strong> Falls Sie die Einlagezahl (EZ) oder Grundstücksnummer bereits kennen, antworten Sie bitte auf diese E-Mail mit dieser Information, um den Vorgang zu beschleunigen.
           </p>
         </div>
-        
-        ${getPaymentDetailsBox(order.order_number)}
         
         ${getSignature()}
       </div>
