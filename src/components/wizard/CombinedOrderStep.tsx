@@ -84,7 +84,7 @@ interface AddressSearchResult {
 interface CombinedOrderStepProps {
   initialPropertyData: PropertyData;
   initialApplicantData: ApplicantData;
-  onSubmit: (orderNumber: string) => void;
+  onSubmit: (orderNumber: string, email: string, propertyInfo: string) => void;
 }
 
 export function CombinedOrderStep({
@@ -265,7 +265,15 @@ export function CombinedOrderStep({
       }
 
       sessionStorage.removeItem("grundbuch_session_id");
-      onSubmit(orderResult.order_number);
+      
+      // Build property info string
+      const propertyInfo = [
+        katastralgemeinde ? `KG ${katastralgemeinde}` : '',
+        grundstuecksnummer ? `EZ/GST ${grundstuecksnummer}` : '',
+        selectedAddress || ''
+      ].filter(Boolean).join(', ');
+      
+      onSubmit(orderResult.order_number, formData.email, propertyInfo);
     } catch (error) {
       console.error("Order submission error:", error);
       toast({
