@@ -32,7 +32,7 @@ const mockSession = {
   plz: "1010",
   ort: "Wien",
   product_name: "Aktueller Grundbuchauszug",
-  product_price: 24.90,
+  product_price: 23.88,
 };
 
 // Mock order data for order confirmation
@@ -51,7 +51,7 @@ const mockOrder = {
   ort: "Wien",
   wohnsitzland: "Österreich",
   product_name: "Aktueller Grundbuchauszug",
-  product_price: 19.90,
+  product_price: 23.88,
   wohnungs_hinweis: "Top 4, 2. Stock",
   created_at: new Date().toISOString(),
 };
@@ -182,7 +182,14 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
 
   const documentNotice = hasDocument 
     ? `<p style="color: ${BRAND_COLORS.success}; font-weight: 500;">Ihr Grundbuchauszug liegt dieser E-Mail als PDF bei.</p>`
-    : getNoticeBox("<strong>Hinweis:</strong> Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument manuell zu.", "error");
+    : `<div style="background-color: ${BRAND_COLORS.surface}; border-left: 3px solid ${BRAND_COLORS.warning}; padding: 16px 20px; margin: 0 0 24px 0;">
+        <p style="margin: 0 0 8px 0; font-size: 14px; color: ${BRAND_COLORS.text}; line-height: 1.5;">
+          <strong>Hinweis:</strong> Der automatische Abruf war nicht möglich.
+        </p>
+        <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.textMuted}; line-height: 1.5;">
+          Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
+        </p>
+      </div>`;
 
   const content = `
     ${getEmailHeader()}
