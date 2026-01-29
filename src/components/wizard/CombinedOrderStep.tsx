@@ -582,20 +582,23 @@ export function CombinedOrderStep({
 
         <div className="p-4 lg:p-6 space-y-4">
           {/* Payment Info */}
-          <div className="bg-muted/40 border border-border/50 rounded p-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-muted-foreground">
-                  Zahlung auf Rechnung
+          <div className="bg-info border border-primary/15 rounded p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm text-foreground">
+                  <span className="font-semibold">Zahlung auf Rechnung</span>
                 </p>
-                <span className="text-sm text-muted-foreground">•</span>
-                <span className="text-sm text-foreground">€23,88</span>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  €19,90 netto zzgl. 20% MwSt. (€3,98) = €23,88 • Rechnung per E-Mail
+                </p>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3 shrink-0" />
-                <span className="hidden sm:inline">Zustellung in ca. 1 Std.</span>
-                <span className="sm:hidden">~1 Std.</span>
-              </div>
+              <span className="text-2xl font-bold text-foreground shrink-0">€23,88</span>
+            </div>
+            <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/10">
+              <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+              <p className="text-xs font-medium text-primary">
+                Zustellung per E-Mail in der Regel innerhalb von 1 Stunde
+              </p>
             </div>
           </div>
 
