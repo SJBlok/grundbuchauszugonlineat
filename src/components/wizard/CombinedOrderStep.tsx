@@ -355,7 +355,7 @@ export function CombinedOrderStep({
             <TabsContent value="gst" className="mt-0 space-y-5">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="kg-gst" className="text-sm font-medium">Katastralgemeinde (KG)</Label>
+                  <Label htmlFor="kg-gst" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
                   <KatastralgemeindeCombobox
                     value={katastralgemeinde}
                     onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
@@ -365,17 +365,18 @@ export function CombinedOrderStep({
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="gst-nr" className="text-sm font-medium">Grundstücksnummer (GST-NR)</Label>
+                  <Label htmlFor="gst-nr" className="text-sm font-medium text-foreground">Grundstücksnummer (GST-NR)</Label>
                   <Input
                     id="gst-nr"
                     {...register("grundstuecksnummer")}
                     placeholder="z.B. 123/4"
+                    className="h-11 text-sm placeholder:text-muted-foreground/60"
                   />
                   <button 
                     type="button"
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
                   >
-                    <HelpCircle className="h-3.5 w-3.5" />
+                    <HelpCircle className="h-3 w-3" />
                     <span>Was ist die Grundstücksnummer?</span>
                   </button>
                 </div>
@@ -385,7 +386,7 @@ export function CombinedOrderStep({
             <TabsContent value="ez" className="mt-0 space-y-5">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="kg-ez" className="text-sm font-medium">Katastralgemeinde (KG)</Label>
+                  <Label htmlFor="kg-ez" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
                   <KatastralgemeindeCombobox
                     value={katastralgemeinde}
                     onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
@@ -395,17 +396,18 @@ export function CombinedOrderStep({
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="ez-nr" className="text-sm font-medium">Einlagezahl (EZ)</Label>
+                  <Label htmlFor="ez-nr" className="text-sm font-medium text-foreground">Einlagezahl (EZ)</Label>
                   <Input
                     id="ez-nr"
                     {...register("grundstuecksnummer")}
                     placeholder="z.B. 567"
+                    className="h-11 text-sm placeholder:text-muted-foreground/60"
                   />
                   <button 
                     type="button"
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
                   >
-                    <HelpCircle className="h-3.5 w-3.5" />
+                    <HelpCircle className="h-3 w-3" />
                     <span>Was ist die Einlagezahl?</span>
                   </button>
                 </div>
@@ -461,78 +463,78 @@ export function CombinedOrderStep({
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="vorname" className="text-sm font-medium">
+            <div className="space-y-2">
+              <Label htmlFor="vorname" className="text-sm font-medium text-foreground">
                 Vorname <span className="text-destructive">*</span>
               </Label>
               <Input 
                 id="vorname" 
                 {...register("vorname")} 
                 placeholder="Max"
-                className="h-12 text-base bg-background"
+                className="h-11 text-sm bg-background placeholder:text-muted-foreground/60"
               />
               {errors.vorname && (
-                <p className="text-sm text-destructive">{errors.vorname.message}</p>
+                <p className="text-xs text-destructive">{errors.vorname.message}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="nachname" className="text-sm font-medium">
+            <div className="space-y-2">
+              <Label htmlFor="nachname" className="text-sm font-medium text-foreground">
                 Nachname <span className="text-destructive">*</span>
               </Label>
               <Input 
                 id="nachname" 
                 {...register("nachname")} 
                 placeholder="Mustermann"
-                className="h-12 text-base bg-background"
+                className="h-11 text-sm bg-background placeholder:text-muted-foreground/60"
               />
               {errors.nachname && (
-                <p className="text-sm text-destructive">{errors.nachname.message}</p>
+                <p className="text-xs text-destructive">{errors.nachname.message}</p>
               )}
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-sm font-medium">
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-medium text-foreground">
               E-Mail-Adresse <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
               <Input 
                 id="email" 
                 type="email" 
                 {...register("email")} 
                 placeholder="max.mustermann@email.at"
-                className="pl-10 h-12 text-base bg-background"
+                className="pl-9 h-11 text-sm bg-background placeholder:text-muted-foreground/60"
               />
             </div>
             {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
+              <p className="text-xs text-destructive">{errors.email.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="emailConfirm" className="text-sm font-medium">
+          <div className="space-y-2">
+            <Label htmlFor="emailConfirm" className="text-sm font-medium text-foreground">
               E-Mail-Adresse bestätigen <span className="text-destructive">*</span>
             </Label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
               <Input 
                 id="emailConfirm" 
                 type="email" 
                 {...register("emailConfirm")} 
                 placeholder="E-Mail-Adresse wiederholen"
-                className="pl-10 h-12 text-base bg-background"
+                className="pl-9 h-11 text-sm bg-background placeholder:text-muted-foreground/60"
               />
             </div>
             {errors.emailConfirm && (
-              <p className="text-sm text-destructive">{errors.emailConfirm.message}</p>
+              <p className="text-xs text-destructive">{errors.emailConfirm.message}</p>
             )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="wohnsitzland" className="text-sm font-medium">
+            <div className="space-y-2">
+              <Label htmlFor="wohnsitzland" className="text-sm font-medium text-foreground">
                 Wohnsitzland <span className="text-destructive">*</span>
               </Label>
               <Select
@@ -541,33 +543,33 @@ export function CombinedOrderStep({
                   setValue("wohnsitzland", value, { shouldValidate: true })
                 }
               >
-                <SelectTrigger className="h-12 text-base bg-background">
+                <SelectTrigger className="h-11 text-sm bg-background">
                   <SelectValue placeholder="Auswählen..." />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((country) => (
-                    <SelectItem key={country} value={country} className="py-3 text-base">
+                    <SelectItem key={country} value={country} className="text-sm">
                       {country}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.wohnsitzland && (
-                <p className="text-sm text-destructive">{errors.wohnsitzland.message}</p>
+                <p className="text-xs text-destructive">{errors.wohnsitzland.message}</p>
               )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="firma" className="text-sm font-medium text-muted-foreground">
-                Firma <span className="text-sm font-normal">(optional)</span>
+                Firma <span className="text-xs font-normal">(optional)</span>
               </Label>
               <div className="relative">
-                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
                 <Input 
                   id="firma" 
                   {...register("firma")} 
                   placeholder="Firmenname"
-                  className="pl-10 h-12 text-base bg-background"
+                  className="pl-9 h-11 text-sm bg-background placeholder:text-muted-foreground/60"
                 />
               </div>
             </div>
