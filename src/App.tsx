@@ -18,7 +18,7 @@ import Impressum from "./pages/Impressum";
 import UeberUns from "./pages/UeberUns";
 import NotFound from "./pages/NotFound";
 import GrundbuchTest from "./pages/GrundbuchTest";
-
+import EmailTemplates from "./pages/EmailTemplates";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -42,6 +42,7 @@ const App = () => (
           <Route path="/impressum" element={<Impressum />} />
           <Route path="/ueber-uns" element={<UeberUns />} />
           <Route path="/test/grundbuch" element={<GrundbuchTest />} />
+          <Route path="/email-templates" element={<EmailTemplates />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
