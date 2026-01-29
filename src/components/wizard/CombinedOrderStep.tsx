@@ -288,11 +288,12 @@ export function CombinedOrderStep({
           </div>
           
           <div className="relative">
+            <p className="text-xs font-medium text-primary uppercase tracking-wider mb-2">Offizieller Dokumentenservice</p>
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight font-serif leading-tight">
               Grundbuchauszug anfordern
             </h1>
             <p className="text-muted-foreground mt-2">
-              Aktueller Auszug aus dem österreichischen Grundbuch
+              Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch – digital zugestellt innerhalb von 24–48 Stunden.
             </p>
           </div>
         </div>
