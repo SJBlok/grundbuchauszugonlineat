@@ -158,15 +158,27 @@ function getAbandonedReminderTemplate(reminderNumber: 1 | 2 | 3) {
 
 function getOrderConfirmationTemplate(hasDocument: boolean) {
   const order = mockOrder;
-  const orderTable = getOrderDetailsTable({
-    product: order.product_name,
-    katastralgemeinde: order.katastralgemeinde,
-    grundstuecksnummer: order.grundstuecksnummer,
-    grundbuchsgericht: order.grundbuchsgericht,
-    bundesland: order.bundesland,
-    adresse: order.adresse ? `${order.adresse}, ${order.plz} ${order.ort}` : undefined,
-    price: `€ ${order.product_price.toFixed(2).replace('.', ',')}`,
-  });
+  
+  // Simplified product summary
+  const productSummary = `
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; background-color: ${BRAND_COLORS.surface}; border-radius: 4px;">
+      <tr>
+        <td style="padding: 20px;">
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            <tr>
+              <td style="font-size: 14px; color: ${BRAND_COLORS.textSecondary};">
+                ${order.product_name}<br>
+                <span style="font-size: 13px; color: ${BRAND_COLORS.textMuted};">KG ${order.katastralgemeinde} · EZ ${order.grundstuecksnummer}</span>
+              </td>
+              <td style="font-size: 18px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right; vertical-align: top;">
+                € ${order.product_price.toFixed(2).replace('.', ',')}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  `;
 
   const documentNotice = hasDocument 
     ? `<p style="color: ${BRAND_COLORS.success}; font-weight: 500;">Ihr Grundbuchauszug liegt dieser E-Mail als PDF bei.</p>`
@@ -179,8 +191,8 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
       <p class="greeting">Sehr geehrte/r ${order.vorname} ${order.nachname},</p>
       <p>Wir bestätigen den Eingang Ihrer Bestellung.</p>
       ${documentNotice}
-      ${orderTable}
       ${getPaymentDetailsBox(order.order_number)}
+      ${productSummary}
       <p style="font-size: 13px; color: ${BRAND_COLORS.textMuted};">
         Eine Rechnung wird Ihnen separat zugestellt.
       </p>
