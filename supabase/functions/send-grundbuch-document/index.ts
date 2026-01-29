@@ -457,10 +457,10 @@ serve(async (req: Request): Promise<Response> => {
                 ${!hasDocument ? `
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 0 0 24px 0;">
                   <tr>
-                    <td style="background-color: #fef2f2; border-left: 4px solid #dc2626; padding: 16px 20px; border-radius: 0 6px 6px 0;">
-                      <p style="margin: 0; font-size: 14px; color: #991b1b; font-weight: 600;">⚠ Hinweis zur Dokumentzustellung</p>
-                      <p style="margin: 8px 0 0 0; font-size: 14px; color: #7f1d1d; line-height: 1.5;">
-                        Der automatische Abruf war nicht möglich. Unser Fachteam wird Ihren Grundbuchauszug manuell beschaffen und Ihnen umgehend zusenden.
+                    <td style="background-color: #fffbeb; border-left: 4px solid #b45309; padding: 16px 20px; border-radius: 0 6px 6px 0;">
+                      <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 600;">Hinweis zur Dokumentzustellung</p>
+                      <p style="margin: 8px 0 0 0; font-size: 14px; color: #78350f; line-height: 1.5;">
+                        Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
                       </p>
                     </td>
                   </tr>
