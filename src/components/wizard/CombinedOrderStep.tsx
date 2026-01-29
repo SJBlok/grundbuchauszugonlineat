@@ -632,18 +632,20 @@ export function CombinedOrderStep({
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-14 text-base font-semibold shadow-lg"
+            className="w-full h-14 md:h-14 text-sm md:text-base font-semibold shadow-lg touch-target-lg"
             disabled={isSubmitting || !allConfirmed || !hasPropertyData}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                Wird verarbeitet...
+                <span className="hidden sm:inline">Wird verarbeitet...</span>
+                <span className="sm:hidden">Verarbeiten...</span>
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <Check className="h-5 w-5" />
-                Kostenpflichtig bestellen – €23,88 inkl. MwSt.
+                <Check className="h-5 w-5 shrink-0" />
+                <span className="hidden sm:inline">Kostenpflichtig bestellen – €23,88 inkl. MwSt.</span>
+                <span className="sm:hidden">Bestellen – €23,88</span>
               </span>
             )}
           </Button>
