@@ -477,6 +477,12 @@ serve(async (req: Request): Promise<Response> => {
             <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 40%;">Produkt</td>
             <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.product_name}</td>
           </tr>
+          ${order.adresse ? `
+          <tr>
+            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Adresse</td>
+            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.adresse}${order.plz && order.ort ? `, ${order.plz} ${order.ort}` : ''}</td>
+          </tr>
+          ` : ''}
           <tr>
             <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Katastralgemeinde</td>
             <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.katastralgemeinde}</td>
@@ -572,7 +578,8 @@ ${documentTextMessage}
 BESTELLÜBERSICHT
 ----------------
 Auftragsnummer: ${order.order_number}
-Dokumenttyp: ${order.product_name}
+Dokumenttyp: ${order.product_name}${order.adresse ? `
+Adresse: ${order.adresse}${order.plz && order.ort ? `, ${order.plz} ${order.ort}` : ''}` : ''}
 Katastralgemeinde: ${order.katastralgemeinde}
 Einlagezahl / Grundstücksnr.: ${order.grundstuecksnummer}
 Rechnungsbetrag: € ${order.product_price.toFixed(2)}
