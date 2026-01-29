@@ -41,7 +41,7 @@ export function Header() {
           : "bg-background border-b border-border/40"
       }`}>
         <div className="container mx-auto">
-          <div className="flex items-center justify-between h-20 lg:h-[88px]">
+          <div className="flex items-center justify-between h-16 lg:h-[88px]">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3.5 text-foreground hover:no-underline min-w-0 group">
               {/* Austrian flag colors - refined */}
@@ -94,13 +94,13 @@ export function Header() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className="lg:hidden py-6 border-t border-border/40 animate-fade-in">
+            <nav className="lg:hidden py-4 border-t border-border/40 animate-fade-in safe-area-inset-bottom">
               <div className="flex flex-col gap-1">
                 {navItems.map((item, index) => (
                   <Link
                     key={item.href}
                     to={item.href}
-                    className={`px-5 py-4 text-base font-medium rounded transition-all duration-200 hover:no-underline animate-fade-in-up ${
+                    className={`px-4 py-3.5 text-base font-medium rounded transition-all duration-200 hover:no-underline animate-fade-in-up touch-target ${
                       location.pathname === item.href
                         ? "bg-primary text-primary-foreground"
                         : "text-foreground hover:bg-muted"

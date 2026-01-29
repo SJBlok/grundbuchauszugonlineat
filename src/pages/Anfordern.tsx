@@ -92,7 +92,7 @@ export default function Anfordern() {
   if (step === 2) {
     return (
       <Layout>
-        <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-10 md:py-14 lg:py-16">
+        <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-8 md:py-14 lg:py-16 pb-16 md:pb-24 lg:pb-32">
           <div className="container mx-auto px-4">
             <div className="max-w-lg mx-auto">
               <OrderConfirmationStep
@@ -112,7 +112,7 @@ export default function Anfordern() {
   return (
     <Layout>
       {/* Premium background */}
-      <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-10 md:py-14 lg:py-16">
+      <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-8 md:py-14 lg:py-16 pb-16 md:pb-24 lg:pb-32">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             <CombinedOrderStep
