@@ -174,22 +174,26 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
         
         <p>Vielen Dank für Ihre Bestellung. Der automatische Abruf aus der Grundbuchdatenbank war anhand der angegebenen Daten leider nicht möglich:</p>
         
-        <div style="background-color: ${BRAND_COLORS.surface}; padding: 20px; border-radius: 4px; margin: 24px 0;">
-          <p style="margin: 0; font-size: 15px; color: ${BRAND_COLORS.text}; line-height: 1.6;">
-            ${addressDisplay}
-          </p>
-        </div>
-        
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; border-top: 1px solid ${BRAND_COLORS.border}; border-bottom: 1px solid ${BRAND_COLORS.border};">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; background-color: ${BRAND_COLORS.surface}; border-radius: 4px;">
           <tr>
-            <td style="padding: 16px 0;">
+            <td style="padding: 20px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
-                  <td colspan="2" style="padding-bottom: 12px; font-size: 13px; font-weight: 500; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Bestellübersicht</td>
+                  <td style="padding-bottom: 16px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
+                    <p style="margin: 0; font-size: 15px; color: ${BRAND_COLORS.text}; line-height: 1.6;">
+                      ${addressDisplay}
+                    </p>
+                  </td>
                 </tr>
                 <tr>
-                  <td style="font-size: 15px; color: ${BRAND_COLORS.text};">${order.product_name}</td>
-                  <td style="font-size: 15px; font-weight: 600; color: ${BRAND_COLORS.text}; text-align: right;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+                  <td style="padding-top: 16px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                      <tr>
+                        <td style="font-size: 15px; color: ${BRAND_COLORS.text};">${order.product_name}</td>
+                        <td style="font-size: 15px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+                      </tr>
+                    </table>
+                  </td>
                 </tr>
               </table>
             </td>
