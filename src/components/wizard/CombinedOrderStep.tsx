@@ -585,7 +585,7 @@ export function CombinedOrderStep({
                   Die Rechnung wird per E-Mail übermittelt.
                 </p>
               </div>
-              <span className="text-2xl font-bold text-foreground shrink-0">€19,90</span>
+              <span className="text-2xl font-bold text-foreground shrink-0">€23,88</span>
             </div>
             <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/10">
               <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
@@ -636,7 +636,7 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5" />
-                Kostenpflichtig bestellen – €19,90
+                Kostenpflichtig bestellen – €23,88 inkl. MwSt.
               </span>
             )}
           </Button>
