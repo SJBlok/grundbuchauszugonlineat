@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Check, FileText, Building2, CreditCard, Copy } from "lucide-react";
+import { Check, FileText, CreditCard, Copy, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface OrderConfirmationStepProps {
@@ -42,11 +42,28 @@ export function OrderConfirmationStep({
           <Check className="h-8 w-8 text-primary" />
         </div>
         <h1 className="text-2xl font-bold text-foreground font-serif">
-          Bestellung erfolgreich
+          Anfrage eingegangen
         </h1>
         <p className="text-muted-foreground mt-2">
-          Ihre Bestellung wurde erfasst und wird bearbeitet.
+          Ihre Anfrage wird nach Zahlungseingang innerhalb von 1 Stunde bearbeitet.
         </p>
+      </div>
+
+      {/* Important Notice */}
+      <div className="bg-primary/5 border border-primary/20 rounded p-4">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
+            <Clock className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              Schließen Sie Ihre Anfrage ab
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Überweisen Sie den unten angegebenen Betrag, um Ihren Grundbuchauszug zu erhalten.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Order Summary Card */}
@@ -144,13 +161,18 @@ export function OrderConfirmationStep({
       </div>
 
       {/* Confirm Button */}
-      <Button
-        onClick={onConfirm}
-        className="w-full h-14 text-base font-semibold shadow-lg"
-      >
-        <Check className="h-5 w-5 mr-2" />
-        Anfrage abschließen
-      </Button>
+      <div className="space-y-3">
+        <Button
+          onClick={onConfirm}
+          className="w-full h-14 text-base font-semibold shadow-lg"
+        >
+          <Check className="h-5 w-5 mr-2" />
+          Anfrage abschließen
+        </Button>
+        <p className="text-xs text-muted-foreground text-center">
+          Klicken Sie auf „Anfrage abschließen", nachdem Sie die Zahlung durchgeführt haben.
+        </p>
+      </div>
     </div>
   );
 }
