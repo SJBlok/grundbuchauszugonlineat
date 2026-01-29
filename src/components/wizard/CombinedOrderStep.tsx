@@ -370,7 +370,6 @@ export function CombinedOrderStep({
                     id="gst-nr"
                     {...register("grundstuecksnummer")}
                     placeholder="z.B. 123/4"
-                    className="h-11 text-sm placeholder:text-muted-foreground/60"
                   />
                   <button 
                     type="button"
@@ -401,7 +400,6 @@ export function CombinedOrderStep({
                     id="ez-nr"
                     {...register("grundstuecksnummer")}
                     placeholder="z.B. 567"
-                    className="h-11 text-sm placeholder:text-muted-foreground/60"
                   />
                   <button 
                     type="button"
@@ -471,7 +469,6 @@ export function CombinedOrderStep({
                 id="vorname" 
                 {...register("vorname")} 
                 placeholder="Max"
-                className="h-11 text-sm bg-background placeholder:text-muted-foreground/60"
               />
               {errors.vorname && (
                 <p className="text-xs text-destructive">{errors.vorname.message}</p>
@@ -486,7 +483,6 @@ export function CombinedOrderStep({
                 id="nachname" 
                 {...register("nachname")} 
                 placeholder="Mustermann"
-                className="h-11 text-sm bg-background placeholder:text-muted-foreground/60"
               />
               {errors.nachname && (
                 <p className="text-xs text-destructive">{errors.nachname.message}</p>
@@ -505,7 +501,7 @@ export function CombinedOrderStep({
                 type="email" 
                 {...register("email")} 
                 placeholder="max.mustermann@email.at"
-                className="pl-9 h-11 text-sm bg-background placeholder:text-muted-foreground/60"
+                className="pl-9"
               />
             </div>
             {errors.email && (
@@ -524,7 +520,7 @@ export function CombinedOrderStep({
                 type="email" 
                 {...register("emailConfirm")} 
                 placeholder="E-Mail-Adresse wiederholen"
-                className="pl-9 h-11 text-sm bg-background placeholder:text-muted-foreground/60"
+                className="pl-9"
               />
             </div>
             {errors.emailConfirm && (
@@ -543,7 +539,7 @@ export function CombinedOrderStep({
                   setValue("wohnsitzland", value, { shouldValidate: true })
                 }
               >
-                <SelectTrigger className="h-11 text-sm bg-background">
+                <SelectTrigger>
                   <SelectValue placeholder="Auswählen..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -569,7 +565,7 @@ export function CombinedOrderStep({
                   id="firma" 
                   {...register("firma")} 
                   placeholder="Firmenname"
-                  className="pl-9 h-11 text-sm bg-background placeholder:text-muted-foreground/60"
+                  className="pl-9"
                 />
               </div>
             </div>
