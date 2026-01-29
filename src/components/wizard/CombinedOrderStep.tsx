@@ -592,7 +592,7 @@ export function CombinedOrderStep({
                   €19,90 netto zzgl. 20% MwSt. (€3,98) = €23,88 • Rechnung per E-Mail
                 </p>
               </div>
-              <span className="text-2xl font-bold text-foreground shrink-0">€23,88</span>
+              <span className="text-lg md:text-xl font-bold text-foreground shrink-0">€23,88</span>
             </div>
             <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/10">
               <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
