@@ -23,14 +23,26 @@ const BRAND_COLORS = {
   success: '#15803d',
 };
 
-// Logo in banner style
+// Logo URL from Supabase Storage
+const LOGO_URL = "https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg";
+
+// Logo in banner style with actual logo image
 const getLogoHtml = () => `
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
   <tr>
     <td style="text-align: center;">
-      <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px;">
-        Grundbuchauszug<span style="font-weight: 400; opacity: 0.85;">Online.at</span>
-      </span>
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display: inline-table;">
+        <tr>
+          <td style="vertical-align: middle; padding-right: 12px;">
+            <img src="${LOGO_URL}" alt="Logo" width="28" height="28" style="display: block; border: 0;" />
+          </td>
+          <td style="vertical-align: middle;">
+            <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px;">
+              Grundbuchauszug<span style="font-weight: 400; opacity: 0.85;">Online.at</span>
+            </span>
+          </td>
+        </tr>
+      </table>
     </td>
   </tr>
 </table>

@@ -432,11 +432,20 @@ serve(async (req: Request): Promise<Response> => {
   <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
     <div style="background-color: #ffffff; border-radius: 4px; border: 1px solid #e4e4e7;">
       
-      <!-- Header -->
+      <!-- Header with Logo -->
       <div style="background-color: #1a5f4a; padding: 24px 40px; text-align: center;">
-        <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px;">
-          Grundbuchauszug<span style="font-weight: 400; opacity: 0.85;">Online.at</span>
-        </span>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display: inline-table; margin: 0 auto;">
+          <tr>
+            <td style="vertical-align: middle; padding-right: 12px;">
+              <img src="https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg" alt="Logo" width="28" height="28" style="display: block; border: 0;" />
+            </td>
+            <td style="vertical-align: middle;">
+              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px;">
+                Grundbuchauszug<span style="font-weight: 400; opacity: 0.85;">Online.at</span>
+              </span>
+            </td>
+          </tr>
+        </table>
       </div>
       
       <!-- Reference Banner -->
