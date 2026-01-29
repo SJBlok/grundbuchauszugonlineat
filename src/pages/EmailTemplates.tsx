@@ -159,7 +159,72 @@ function getAbandonedReminderTemplate(reminderNumber: 1 | 2 | 3) {
 function getOrderConfirmationTemplate(hasDocument: boolean) {
   const order = mockOrder;
   
-  // Simplified product summary
+  // Format address
+  const addressDisplay = order.adresse 
+    ? `${order.adresse}${order.wohnungs_hinweis ? `, ${order.wohnungs_hinweis}` : ''}<br>${order.plz} ${order.ort}`
+    : `${order.katastralgemeinde}<br>EZ ${order.grundstuecksnummer}`;
+
+  if (!hasDocument) {
+    // Manual processing email - new format
+    const content = `
+      ${getEmailHeader()}
+      ${getRefBanner(order.order_number)}
+      <div class="content">
+        <p class="greeting">Sehr geehrte/r ${order.vorname} ${order.nachname},</p>
+        
+        <p>Vielen Dank für Ihre Bestellung. Der automatische Abruf aus der Grundbuchdatenbank war anhand der angegebenen Daten leider nicht möglich:</p>
+        
+        <div style="background-color: ${BRAND_COLORS.surface}; padding: 20px; border-radius: 4px; margin: 24px 0;">
+          <p style="margin: 0; font-size: 15px; color: ${BRAND_COLORS.text}; line-height: 1.6;">
+            ${addressDisplay}
+          </p>
+        </div>
+        
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; border-top: 1px solid ${BRAND_COLORS.border}; border-bottom: 1px solid ${BRAND_COLORS.border};">
+          <tr>
+            <td style="padding: 16px 0;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td colspan="2" style="padding-bottom: 12px; font-size: 13px; font-weight: 500; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Bestellübersicht</td>
+                </tr>
+                <tr>
+                  <td style="font-size: 15px; color: ${BRAND_COLORS.text};">${order.product_name}</td>
+                  <td style="font-size: 15px; font-weight: 600; color: ${BRAND_COLORS.text}; text-align: right;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        
+        <div style="background-color: ${BRAND_COLORS.surface}; border-left: 3px solid ${BRAND_COLORS.primary}; padding: 20px; margin: 24px 0;">
+          <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.text};">Was passiert als nächstes?</p>
+          <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.6;">
+            Unser Team wird Ihre Bestellung manuell bearbeiten und die korrekte Liegenschaft ermitteln. Dies kann etwas länger dauern als unsere übliche Bearbeitungszeit. Wir senden Ihnen eine E-Mail, sobald Ihr Dokument bereit ist.
+          </p>
+        </div>
+        
+        <p style="font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.6;">
+          Falls Sie die genaue Einlagezahl (EZ) oder Grundstücksnummer für diese Liegenschaft kennen, antworten Sie bitte auf diese E-Mail mit diesen Informationen – das beschleunigt die Bearbeitung.
+        </p>
+        
+        ${getPaymentDetailsBox(order.order_number)}
+        
+        ${getSignature()}
+      </div>
+      ${getEmailFooter()}
+    `;
+    
+    return {
+      subject: `Bestellbestätigung – ${order.order_number}`,
+      timing: "Direkt nach Bestellung",
+      icon: AlertTriangle,
+      htmlBody: wrapEmailContent(content, { 
+        preheader: "Ihre Bestellung wird manuell bearbeitet" 
+      }),
+    };
+  }
+  
+  // With document - simplified version
   const productSummary = `
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; background-color: ${BRAND_COLORS.surface}; border-radius: 4px;">
       <tr>
@@ -180,24 +245,13 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
     </table>
   `;
 
-  const documentNotice = hasDocument 
-    ? `<p style="color: ${BRAND_COLORS.success}; font-weight: 500;">Ihr Grundbuchauszug liegt dieser E-Mail als PDF bei.</p>`
-    : `<div style="background-color: ${BRAND_COLORS.surface}; border-left: 3px solid ${BRAND_COLORS.warning}; padding: 16px 20px; margin: 0 0 24px 0;">
-        <p style="margin: 0 0 8px 0; font-size: 14px; color: ${BRAND_COLORS.text}; line-height: 1.5;">
-          <strong>Hinweis:</strong> Der automatische Abruf war nicht möglich.
-        </p>
-        <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.textMuted}; line-height: 1.5;">
-          Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
-        </p>
-      </div>`;
-
   const content = `
     ${getEmailHeader()}
     ${getRefBanner(order.order_number, "Bestellbestätigung")}
     <div class="content">
       <p class="greeting">Sehr geehrte/r ${order.vorname} ${order.nachname},</p>
       <p>Wir bestätigen den Eingang Ihrer Bestellung.</p>
-      ${documentNotice}
+      <p style="color: ${BRAND_COLORS.success}; font-weight: 500;">Ihr Grundbuchauszug liegt dieser E-Mail als PDF bei.</p>
       ${getPaymentDetailsBox(order.order_number)}
       ${productSummary}
       <p style="font-size: 13px; color: ${BRAND_COLORS.textMuted};">
@@ -213,9 +267,7 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
     timing: "Direkt nach Bestellung",
     icon: CheckCircle,
     htmlBody: wrapEmailContent(content, { 
-      preheader: hasDocument 
-        ? "Ihr Grundbuchauszug liegt bei" 
-        : "Bestellung bestätigt" 
+      preheader: "Ihr Grundbuchauszug liegt bei" 
     }),
   };
 }
