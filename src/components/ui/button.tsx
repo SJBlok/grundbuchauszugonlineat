@@ -5,22 +5,28 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-[15px] font-semibold ring-offset-background transition-all duration-300 ease-premium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-premium-sm hover:bg-primary/90 hover:shadow-premium-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-premium-sm",
-        destructive: "bg-destructive text-destructive-foreground shadow-premium-sm hover:bg-destructive/90 hover:shadow-premium-md hover:-translate-y-0.5",
-        outline: "border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent",
-        secondary: "bg-secondary text-secondary-foreground shadow-premium-sm hover:bg-secondary/90 hover:shadow-premium-md hover:-translate-y-0.5",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-secondary underline-offset-4 hover:underline",
+        default: 
+          "bg-primary text-primary-foreground shadow-md hover:shadow-hover hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm",
+        destructive: 
+          "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90 hover:shadow-lg hover:-translate-y-0.5",
+        outline: 
+          "border-2 border-border bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground/20 transition-colors",
+        secondary: 
+          "bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/90 hover:shadow-lg hover:-translate-y-0.5",
+        ghost: 
+          "hover:bg-accent hover:text-accent-foreground",
+        link: 
+          "text-secondary underline-offset-4 hover:underline p-0 h-auto",
       },
       size: {
-        default: "h-11 px-5 py-2.5",
-        sm: "h-9 rounded-md px-4 text-xs",
-        lg: "h-14 rounded-lg px-8 text-base",
-        xl: "h-16 rounded-xl px-10 text-lg",
+        default: "h-12 px-6 py-3",
+        sm: "h-10 rounded-lg px-4 text-sm",
+        lg: "h-14 rounded-xl px-8 text-base",
+        xl: "h-16 rounded-xl px-10 text-lg [&_svg]:size-5",
         icon: "h-11 w-11",
       },
     },

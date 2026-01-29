@@ -5,18 +5,11 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddressSearch } from "@/components/AddressSearch";
 import { KatastralgemeindeCombobox } from "@/components/KatastralgemeindeCombobox";
 import type { PropertyData } from "@/pages/Anfordern";
-import { ChevronRight, CheckCircle2, FileText, Info, Clock, Shield } from "lucide-react";
+import { ChevronRight, CheckCircle2, FileText, Info, Clock, Shield, HelpCircle } from "lucide-react";
 
 const propertySchema = z.object({
   katastralgemeinde: z.string().max(100).optional(),
@@ -25,18 +18,6 @@ const propertySchema = z.object({
   bundesland: z.string().optional(),
   wohnungsHinweis: z.string().max(200).optional(),
 });
-
-const bundeslaender = [
-  "Burgenland",
-  "Kärnten",
-  "Niederösterreich",
-  "Oberösterreich",
-  "Salzburg",
-  "Steiermark",
-  "Tirol",
-  "Vorarlberg",
-  "Wien",
-];
 
 interface AddressSearchResult {
   kgNummer: string;
@@ -61,11 +42,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
   const {
     register,
-    handleSubmit,
     setValue,
     watch,
-    trigger,
-    formState: { errors },
   } = useForm<PropertyData>({
     resolver: zodResolver(propertySchema),
     defaultValues: initialData,
@@ -126,46 +104,44 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   return (
     <div className="space-y-8 animate-fade-in" data-testid="property-details-step">
       {/* Main Product Card */}
-      <div className="bg-white rounded-2xl shadow-premium-lg overflow-hidden border border-border/30">
+      <div className="bg-card rounded-2xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="px-8 py-8 lg:px-10 lg:py-10 border-b border-border/30 bg-gradient-to-b from-muted/30 to-transparent">
-          <div className="flex items-start justify-between gap-6">
-            <div className="flex-1">
-              <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight font-serif">
-                Grundbuchauszug
-              </h1>
-              <p className="text-muted-foreground mt-2 text-lg">
-                Aktueller Auszug aus dem Grundbuch
-              </p>
-            </div>
-            {/* GB Logo/Badge */}
-            <div className="hidden sm:flex flex-col items-center text-muted-foreground/20">
-              <span className="text-5xl lg:text-6xl font-bold tracking-tighter font-serif">GB</span>
-              <span className="text-[10px] uppercase tracking-widest">Grundbuch</span>
-            </div>
+        <div className="px-8 py-10 lg:px-12 lg:py-12 border-b border-border/40 bg-gradient-to-b from-muted/20 to-transparent relative overflow-hidden">
+          {/* Decorative GB watermark */}
+          <div className="absolute top-6 right-8 lg:right-12 text-muted/[0.08] select-none pointer-events-none hidden sm:block">
+            <span className="text-8xl lg:text-9xl font-bold tracking-tighter font-serif">GB</span>
+          </div>
+          
+          <div className="relative">
+            <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight font-serif leading-tight">
+              Grundbuchauszug
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">
+              Aktueller Auszug aus dem österreichischen Grundbuch
+            </p>
           </div>
         </div>
 
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="border-b border-border/30 bg-muted/20">
-            <div className="px-8 lg:px-10">
-              <TabsList className="h-auto p-0 bg-transparent rounded-none w-full justify-start gap-8">
+          <div className="border-b border-border/40 bg-muted/10">
+            <div className="px-8 lg:px-12">
+              <TabsList className="h-auto p-0 bg-transparent rounded-none w-full justify-start gap-10">
                 <TabsTrigger 
                   value="address" 
-                  className="relative px-0 py-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
+                  className="relative px-0 py-5 text-[15px] font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
                 >
                   Adresse
                 </TabsTrigger>
                 <TabsTrigger 
                   value="gst" 
-                  className="relative px-0 py-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
+                  className="relative px-0 py-5 text-[15px] font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
                 >
                   Grundstücksnummer
                 </TabsTrigger>
                 <TabsTrigger 
                   value="ez" 
-                  className="relative px-0 py-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
+                  className="relative px-0 py-5 text-[15px] font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
                 >
                   Einlagezahl
                 </TabsTrigger>
@@ -174,20 +150,20 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
           </div>
 
           {/* Form Content */}
-          <div className="p-8 lg:p-10">
+          <div className="p-8 lg:p-12">
             {/* Address Search Tab */}
             <TabsContent value="address" className="mt-0 space-y-6">
               <AddressSearch onSelectResult={handleAddressSelect} />
               
               {selectedFromSearch && (
-                <div className="flex items-start gap-4 bg-primary/5 border border-primary/20 rounded-xl p-5 animate-scale-in">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <div className="flex items-start gap-4 bg-primary/5 border border-primary/15 rounded-xl p-6 animate-scale-in">
+                  <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <CheckCircle2 className="h-5 w-5 text-primary" />
                   </div>
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground">Adresse gefunden</p>
                     {selectedAddress && (
-                      <p className="text-sm text-muted-foreground mt-1">{selectedAddress}</p>
+                      <p className="text-[15px] text-muted-foreground mt-1">{selectedAddress}</p>
                     )}
                   </div>
                 </div>
@@ -196,9 +172,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
             {/* GST Number Tab */}
             <TabsContent value="gst" className="mt-0 space-y-6">
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="kg-gst" className="text-sm font-semibold">Katastralgemeinde (KG)</Label>
+              <div className="space-y-6">
+                <div className="space-y-2.5">
+                  <Label htmlFor="kg-gst" className="text-[15px] font-medium">Katastralgemeinde (KG)</Label>
                   <KatastralgemeindeCombobox
                     value={katastralgemeinde}
                     onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
@@ -207,19 +183,18 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="gst-nr" className="text-sm font-semibold">Grundstücksnummer (GST-NR)</Label>
+                <div className="space-y-2.5">
+                  <Label htmlFor="gst-nr" className="text-[15px] font-medium">Grundstücksnummer (GST-NR)</Label>
                   <Input
                     id="gst-nr"
                     {...register("grundstuecksnummer")}
-                    placeholder=""
-                    className="h-14 text-base bg-white border-2 border-border rounded-xl px-5 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="z.B. 123/4"
                   />
                   <button 
                     type="button"
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1"
                   >
-                    <Info className="h-3.5 w-3.5" />
+                    <HelpCircle className="h-4 w-4" />
                     <span>Was ist die Grundstücksnummer?</span>
                   </button>
                 </div>
@@ -228,9 +203,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
             {/* EZ Number Tab */}
             <TabsContent value="ez" className="mt-0 space-y-6">
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="kg-ez" className="text-sm font-semibold">Katastralgemeinde (KG)</Label>
+              <div className="space-y-6">
+                <div className="space-y-2.5">
+                  <Label htmlFor="kg-ez" className="text-[15px] font-medium">Katastralgemeinde (KG)</Label>
                   <KatastralgemeindeCombobox
                     value={katastralgemeinde}
                     onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
@@ -239,19 +214,18 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="ez-nr" className="text-sm font-semibold">Einlagezahl (EZ)</Label>
+                <div className="space-y-2.5">
+                  <Label htmlFor="ez-nr" className="text-[15px] font-medium">Einlagezahl (EZ)</Label>
                   <Input
                     id="ez-nr"
                     {...register("grundstuecksnummer")}
-                    placeholder=""
-                    className="h-14 text-base bg-white border-2 border-border rounded-xl px-5 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                    placeholder="z.B. 567"
                   />
                   <button 
                     type="button"
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1"
                   >
-                    <Info className="h-3.5 w-3.5" />
+                    <HelpCircle className="h-4 w-4" />
                     <span>Was ist die Einlagezahl?</span>
                   </button>
                 </div>
@@ -267,9 +241,9 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
             )}
 
             {/* Legal Notice */}
-            <div className="mt-8 pt-6 border-t border-border/50 space-y-3">
-              <p className="text-sm text-muted-foreground flex items-start gap-3">
-                <Info className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground/70" />
+            <div className="mt-10 pt-8 border-t border-border/40 space-y-4">
+              <p className="text-[15px] text-muted-foreground flex items-start gap-3">
+                <Info className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground/60" />
                 <span>
                   Bei Bestellung akzeptieren Sie unsere{" "}
                   <a href="/agb" className="text-secondary hover:underline font-medium">AGB</a>{" "}
@@ -278,8 +252,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
                 </span>
               </p>
               
-              <p className="text-sm text-muted-foreground flex items-start gap-3">
-                <Clock className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground/70" />
+              <p className="text-[15px] text-muted-foreground flex items-start gap-3">
+                <Clock className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground/60" />
                 <span>Sofort-Download als PDF & Versand per E-Mail</span>
               </p>
             </div>
@@ -288,7 +262,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
             <Button 
               onClick={handleFormSubmit}
               disabled={!selectedFromSearch && activeTab === "address"}
-              className="w-full h-16 text-lg font-semibold mt-8 rounded-xl" 
+              className="w-full h-16 text-lg font-semibold mt-10 rounded-xl shadow-lg" 
               size="xl"
             >
               <FileText className="h-5 w-5 mr-2" />
@@ -299,43 +273,49 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
       </div>
 
       {/* Trust indicators */}
-      <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Shield className="h-4 w-4 text-primary" />
+      <div className="flex flex-wrap items-center justify-center gap-8 text-[15px] text-muted-foreground">
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Shield className="h-4 w-4 text-primary" />
+          </div>
           <span>SSL-verschlüsselt</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-primary" />
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Clock className="h-4 w-4 text-primary" />
+          </div>
           <span>Sofortige Zustellung</span>
         </div>
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-primary" />
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+          </div>
           <span>Amtlich beglaubigt</span>
         </div>
       </div>
 
       {/* Property data summary */}
       {selectedFromSearch && (
-        <div className="bg-white rounded-xl shadow-premium-sm p-6 border border-border/30 animate-fade-in-up">
-          <h3 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wide">
+        <div className="bg-card rounded-2xl shadow-sm p-8 border border-border/30 animate-fade-in-up">
+          <h3 className="text-sm font-semibold text-foreground mb-5 uppercase tracking-wide">
             Ermittelte Grundbuchdaten
           </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-2 gap-6 text-[15px]">
             <div>
               <span className="text-muted-foreground">Katastralgemeinde</span>
-              <p className="font-medium mt-0.5">{watch("katastralgemeinde") || "–"}</p>
+              <p className="font-medium mt-1">{watch("katastralgemeinde") || "–"}</p>
             </div>
             <div>
               <span className="text-muted-foreground">EZ/GST-Nr</span>
-              <p className="font-medium mt-0.5">{watch("grundstuecksnummer") || "–"}</p>
+              <p className="font-medium mt-1">{watch("grundstuecksnummer") || "–"}</p>
             </div>
             <div>
               <span className="text-muted-foreground">Bundesland</span>
-              <p className="font-medium mt-0.5">{watch("bundesland") || "–"}</p>
+              <p className="font-medium mt-1">{watch("bundesland") || "–"}</p>
             </div>
             <div>
               <span className="text-muted-foreground">Bezirksgericht</span>
-              <p className="font-medium mt-0.5">{watch("grundbuchsgericht") || "–"}</p>
+              <p className="font-medium mt-1">{watch("grundbuchsgericht") || "–"}</p>
             </div>
           </div>
         </div>
