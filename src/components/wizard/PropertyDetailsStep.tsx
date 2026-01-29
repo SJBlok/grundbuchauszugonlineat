@@ -16,8 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddressSearch } from "@/components/AddressSearch";
 import { KatastralgemeindeCombobox } from "@/components/KatastralgemeindeCombobox";
 import type { PropertyData } from "@/pages/Anfordern";
-import { Search, FileText, MapPin, Hash, Info, ChevronRight, CheckCircle2, ExternalLink, Clock, BadgeCheck } from "lucide-react";
-import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
+import { Search, MapPin, Hash, ChevronRight, CheckCircle2, FileText, Info } from "lucide-react";
 
 const propertySchema = z.object({
   katastralgemeinde: z.string().max(100).optional(),
@@ -110,327 +109,215 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
     setSelectedFromSearch(true);
   };
 
+  const handleFormSubmit = () => {
+    const formData = {
+      katastralgemeinde: watch("katastralgemeinde") || "",
+      grundstuecksnummer: watch("grundstuecksnummer") || "",
+      grundbuchsgericht: watch("grundbuchsgericht") || "",
+      bundesland: watch("bundesland") || "",
+      wohnungsHinweis: watch("wohnungsHinweis") || "",
+      adresse: selectedAddressData?.adresse || "",
+      plz: selectedAddressData?.plz || "",
+      ort: selectedAddressData?.ort || "",
+    };
+    onSubmit(formData);
+  };
+
   return (
     <div className="space-y-6" data-testid="property-details-step">
-      {/* Product Selection Card */}
-      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
-        {/* Subtle Section Header */}
-        <div className="bg-muted/60 px-4 py-2.5 border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-0.5 h-4 bg-primary" />
-            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Ihr Dokument</h2>
-          </div>
-          <div className="bg-primary/10 text-primary px-2 py-0.5 rounded-sm">
-            <span className="text-xs font-semibold">Offiziell</span>
-          </div>
-        </div>
-        
-        <div className="p-4">
-          {/* Product Header with Preview */}
-          <div className="flex items-start gap-4">
-            {/* Document Preview */}
-            <div className="hidden sm:block shrink-0">
-              <div className="w-20 h-28 bg-muted/30 border border-border rounded-sm overflow-hidden shadow-sm">
-                <img 
-                  src={grundbuchPreview} 
-                  alt="Grundbuchauszug Beispiel" 
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
+      {/* Main Product Card */}
+      <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-border">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                Grundbuchauszug
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Aktueller Auszug aus dem Grundbuch
+              </p>
             </div>
-            
-            {/* Product Info */}
-            <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-              <div className="flex-1">
-                <h3 className="font-bold text-foreground text-base">Aktueller Grundbuchauszug</h3>
-                <p className="text-sm text-muted-foreground mt-1.5">
-                  Vollständiger Auszug mit allen drei Blättern:
-                </p>
-                <ul className="mt-2 space-y-1">
-                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span><span className="font-medium text-foreground">A-Blatt</span> – Grundstücksdaten & Flächen</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span><span className="font-medium text-foreground">B-Blatt</span> – Eigentümer & Anteile</span>
-                  </li>
-                  <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span><span className="font-medium text-foreground">C-Blatt</span> – Lasten & Beschränkungen</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="sm:text-right shrink-0">
-                <span className="text-2xl font-bold text-foreground">€19,90</span>
-                <p className="text-xs text-muted-foreground">inkl. USt.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Trust Features */}
-          <div className="mt-4 pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5 text-primary" />
-                <span className="font-medium">Sofort per E-Mail</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <BadgeCheck className="h-3.5 w-3.5 text-primary" />
-                <span className="font-medium">Amtlich beglaubigt</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span>Zahlung auf Rechnung</span>
+            {/* GB Logo/Badge */}
+            <div className="hidden sm:flex flex-col items-center text-muted-foreground/30">
+              <span className="text-4xl font-bold tracking-tighter">GB</span>
+              <span className="text-[10px] uppercase tracking-wider">Grundbuch</span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Property Details Card */}
-      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
-        <div className="bg-muted/60 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
-          <div className="w-0.5 h-4 bg-primary" />
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Grundstück</h2>
-        </div>
-
+        {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="px-4 pt-4">
-            <TabsList className="grid w-full grid-cols-2 h-auto p-0.5 bg-muted/40 gap-0.5">
+          <div className="border-b border-border">
+            <TabsList className="h-auto p-0 bg-transparent rounded-none w-full justify-start">
               <TabsTrigger 
                 value="address" 
-                className="flex items-center justify-center gap-1.5 py-2 px-2 text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                className="relative px-6 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-colors"
               >
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
-                <span className="font-medium">Adresssuche</span>
+                Adresse
               </TabsTrigger>
               <TabsTrigger 
-                value="manual" 
-                className="flex items-center justify-center gap-1.5 py-2 px-2 text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                value="gst" 
+                className="relative px-6 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-colors"
               >
-                <Hash className="h-3.5 w-3.5 shrink-0" />
-                <span className="font-medium">Manuelle Eingabe</span>
+                Grundstücksnummer
+              </TabsTrigger>
+              <TabsTrigger 
+                value="ez" 
+                className="relative px-6 py-3 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-colors"
+              >
+                Einlagezahl
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <div className="p-4">
+          {/* Form Content */}
+          <div className="p-6">
             {/* Address Search Tab */}
-            <TabsContent value="address" className="mt-0 space-y-3">
-              <div className="bg-info border border-primary/15 p-3">
-                <div className="flex items-start gap-2">
-                  <Search className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                  <p className="text-xs text-muted-foreground">
-                    Geben Sie die Straße und den Ort ein. Die Grundbuchdaten werden automatisch ermittelt.
-                  </p>
-                </div>
-              </div>
-              
+            <TabsContent value="address" className="mt-0 space-y-4">
               <AddressSearch onSelectResult={handleAddressSelect} />
               
               {selectedFromSearch && (
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2 bg-success/10 border border-success/30 p-3">
-                    <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="font-medium text-foreground text-xs">Adresse gefunden</p>
-                      {selectedAddress && (
-                        <p className="text-xs text-muted-foreground mt-0.5">{selectedAddress}</p>
-                      )}
-                    </div>
+                <div className="flex items-start gap-3 bg-primary/5 border border-primary/20 rounded p-4">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground">Adresse gefunden</p>
+                    {selectedAddress && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{selectedAddress}</p>
+                    )}
                   </div>
-                  
-                  <Button 
-                    onClick={() => {
-                      const formData = {
-                        katastralgemeinde: watch("katastralgemeinde") || "",
-                        grundstuecksnummer: watch("grundstuecksnummer") || "",
-                        grundbuchsgericht: watch("grundbuchsgericht") || "",
-                        bundesland: watch("bundesland") || "",
-                        wohnungsHinweis: watch("wohnungsHinweis") || "",
-                        adresse: selectedAddressData?.adresse || "",
-                        plz: selectedAddressData?.plz || "",
-                        ort: selectedAddressData?.ort || "",
-                      };
-                      onSubmit(formData);
-                    }} 
-                    className="w-full h-14 text-base font-semibold" 
-                    size="lg"
-                  >
-                    Weiter zu Kontaktdaten
-                    <ChevronRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </div>
-              )}
-              
-              {!selectedFromSearch && (
-                <div className="text-center pt-3 border-t border-border">
-                  <p className="text-xs text-muted-foreground">
-                    Kennen Sie bereits die Grundstücksnummer?{" "}
-                    <button 
-                      type="button"
-                      onClick={() => setActiveTab("manual")}
-                      className="text-primary font-medium hover:underline"
-                    >
-                      Direkt eingeben
-                    </button>
-                  </p>
                 </div>
               )}
             </TabsContent>
 
-            {/* Manual Entry Tab */}
-            <TabsContent value="manual" className="mt-0">
-              <form onSubmit={handleSubmit((data) => {
-                const formData = {
-                  katastralgemeinde: data.katastralgemeinde || "",
-                  grundstuecksnummer: data.grundstuecksnummer || "",
-                  grundbuchsgericht: data.grundbuchsgericht || "",
-                  bundesland: data.bundesland || "",
-                  wohnungsHinweis: data.wohnungsHinweis || "",
-                  adresse: "",
-                  plz: "",
-                  ort: "",
-                };
-                
-                if (!formData.katastralgemeinde || !formData.grundstuecksnummer || !formData.grundbuchsgericht || !formData.bundesland) {
-                  if (!formData.katastralgemeinde) trigger("katastralgemeinde");
-                  if (!formData.grundstuecksnummer) trigger("grundstuecksnummer");
-                  if (!formData.grundbuchsgericht) trigger("grundbuchsgericht");
-                  if (!formData.bundesland) trigger("bundesland");
-                  return;
-                }
-                
-                onSubmit(formData);
-              })} className="space-y-3">
-                {selectedFromSearch && selectedAddress && (
-                  <div className="flex items-center gap-2 bg-success/10 border border-success/30 p-2.5">
-                    <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium text-foreground">Adresse: {selectedAddress}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="bundesland" className="text-sm font-medium">
-                      Bundesland <span className="text-destructive">*</span>
-                    </Label>
-                    <Select
-                      value={bundesland}
-                      onValueChange={(value) => setValue("bundesland", value, { shouldValidate: true })}
-                    >
-                      <SelectTrigger className="h-12 text-base bg-white border-border">
-                        <SelectValue placeholder="Auswählen..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {bundeslaender.map((land) => (
-                          <SelectItem key={land} value={land} className="py-3 text-base">
-                            {land}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.bundesland && !selectedFromSearch && (
-                      <p className="text-sm text-destructive">Bundesland ist erforderlich</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="katastralgemeinde" className="text-sm font-medium">
-                      Katastralgemeinde (KG) <span className="text-destructive">*</span>
-                    </Label>
-                    <KatastralgemeindeCombobox
-                      value={katastralgemeinde}
-                      onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
-                      bundesland={bundesland}
-                      placeholder="KG suchen..."
-                    />
-                    {errors.katastralgemeinde && !selectedFromSearch && (
-                      <p className="text-sm text-destructive">Katastralgemeinde ist erforderlich</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="grundstuecksnummer" className="text-sm font-medium">
-                      Einlagezahl (EZ) / GST-Nr. <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="grundstuecksnummer"
-                      {...register("grundstuecksnummer")}
-                      placeholder="z.B. 123 oder 123/4"
-                      className="h-12 text-base bg-white border-border"
-                    />
-                    {errors.grundstuecksnummer && !selectedFromSearch && (
-                      <p className="text-sm text-destructive">Grundstücksnummer ist erforderlich</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="grundbuchsgericht" className="text-sm font-medium">
-                      Grundbuchsgericht <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="grundbuchsgericht"
-                      {...register("grundbuchsgericht")}
-                      placeholder="z.B. BG Innere Stadt Wien"
-                      className="h-12 text-base bg-white border-border"
-                    />
-                    {errors.grundbuchsgericht && !selectedFromSearch && (
-                      <p className="text-sm text-destructive">Grundbuchsgericht ist erforderlich</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="wohnungsHinweis" className="text-sm font-medium text-muted-foreground">
-                    Wohnungs- / Anteilshinweis <span className="text-sm font-normal">(optional)</span>
-                  </Label>
-                  <Input
-                    id="wohnungsHinweis"
-                    {...register("wohnungsHinweis")}
-                    placeholder="z.B. Top 5, Anteil 1/10"
-                    className="h-12 text-base bg-white border-border"
+            {/* GST Number Tab */}
+            <TabsContent value="gst" className="mt-0 space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="kg-gst" className="text-sm font-medium">Katastralgemeinde (KG)</Label>
+                  <KatastralgemeindeCombobox
+                    value={katastralgemeinde}
+                    onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
+                    bundesland={bundesland}
+                    placeholder="Gemeinde eingeben..."
                   />
                 </div>
-
-                <div className="bg-muted/30 border p-3">
-                  <div className="flex items-start gap-2">
-                    <Info className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                    <div className="text-xs">
-                      <p className="font-medium text-foreground">KG-Nummer nicht bekannt?</p>
-                      <p className="text-muted-foreground mt-0.5">
-                        Nutzen Sie das{" "}
-                        <a 
-                          href="https://kataster.bev.gv.at/" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary font-medium hover:underline inline-flex items-center gap-0.5"
-                        >
-                          BEV-Katasterverzeichnis
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </p>
-                    </div>
-                  </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="gst-nr" className="text-sm font-medium">Grundstücksnummer (GST-NR)</Label>
+                  <Input
+                    id="gst-nr"
+                    {...register("grundstuecksnummer")}
+                    placeholder=""
+                    className="h-12 text-base bg-white"
+                  />
+                  <button 
+                    type="button"
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                    <span>Was ist die Grundstücksnummer?</span>
+                  </button>
                 </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 text-sm font-semibold" 
-                  size="lg"
-                >
-                  Weiter zu Kontaktdaten
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
+              </div>
             </TabsContent>
+
+            {/* EZ Number Tab */}
+            <TabsContent value="ez" className="mt-0 space-y-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="kg-ez" className="text-sm font-medium">Katastralgemeinde (KG)</Label>
+                  <KatastralgemeindeCombobox
+                    value={katastralgemeinde}
+                    onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
+                    bundesland={bundesland}
+                    placeholder="Gemeinde eingeben..."
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="ez-nr" className="text-sm font-medium">Einlagezahl (EZ)</Label>
+                  <Input
+                    id="ez-nr"
+                    {...register("grundstuecksnummer")}
+                    placeholder=""
+                    className="h-12 text-base bg-white"
+                  />
+                  <button 
+                    type="button"
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                    <span>Was ist die Einlagezahl?</span>
+                  </button>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Hidden fields for manual entry */}
+            {(activeTab === "gst" || activeTab === "ez") && (
+              <div className="hidden">
+                <Input {...register("grundbuchsgericht")} />
+                <Input {...register("bundesland")} />
+              </div>
+            )}
+
+            {/* Legal Notice */}
+            <div className="mt-6 pt-4 border-t border-border space-y-3">
+              <p className="text-xs text-muted-foreground flex items-start gap-2">
+                <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                <span>
+                  Bei Bestellung akzeptieren Sie unsere{" "}
+                  <a href="/agb" className="text-primary hover:underline">AGB</a>{" "}
+                  und{" "}
+                  <a href="/datenschutz" className="text-primary hover:underline">Datenschutzerklärung</a>.
+                </span>
+              </p>
+              
+              <p className="text-xs text-muted-foreground flex items-start gap-2">
+                <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                <span>Sofort-Download als PDF & Versand per Mail</span>
+              </p>
+            </div>
+
+            {/* CTA Button */}
+            <Button 
+              onClick={handleFormSubmit}
+              disabled={!selectedFromSearch && activeTab === "address"}
+              className="w-full h-14 text-base font-semibold mt-6 bg-primary hover:bg-primary/90" 
+              size="lg"
+            >
+              <FileText className="h-5 w-5 mr-2" />
+              Dokument anfordern | € 19,90
+            </Button>
           </div>
         </Tabs>
       </div>
+
+      {/* Optional: Additional Info Section */}
+      {selectedFromSearch && (
+        <div className="bg-white border border-border rounded-lg shadow-sm p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Ermittelte Grundbuchdaten</h3>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <span className="text-muted-foreground">Katastralgemeinde:</span>
+              <p className="font-medium">{watch("katastralgemeinde") || "–"}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">EZ/GST-Nr:</span>
+              <p className="font-medium">{watch("grundstuecksnummer") || "–"}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Bundesland:</span>
+              <p className="font-medium">{watch("bundesland") || "–"}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Bezirksgericht:</span>
+              <p className="font-medium">{watch("grundbuchsgericht") || "–"}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

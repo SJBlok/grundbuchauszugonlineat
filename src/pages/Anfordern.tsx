@@ -92,147 +92,25 @@ export default function Anfordern() {
 
   return (
     <Layout>
-      {/* Hero Banner */}
-      <div className="relative h-48 md:h-56 overflow-hidden">
-        <img
-          src={heroImage}
-          alt="Österreichische Landschaft"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-header/90 via-header/70 to-header/50" />
-        <div className="absolute inset-0 flex items-center">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 md:mb-3">
-                Offiziellen Grundbuchauszug anfordern
-              </h1>
-              <p className="text-white/90 text-sm md:text-base max-w-2xl">
-                Erhalten Sie Ihren aktuellen Grundbuchauszug aus dem österreichischen Grundbuch 
-                – digital, schnell und sicher per E-Mail.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Clean minimal background */}
+      <section className="min-h-[calc(100vh-200px)] bg-muted/30 py-8 md:py-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            {step === 1 && (
+              <PropertyDetailsStep
+                initialData={propertyData}
+                onSubmit={handlePropertySubmit}
+              />
+            )}
 
-      {/* Main Content with Sidebar Layout */}
-      <section className="py-4 md:py-10 bg-muted/30">
-        <div className="container mx-auto px-3 md:px-4">
-          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 max-w-6xl mx-auto">
-            {/* Step Navigation - Horizontal on mobile, Vertical sidebar on desktop */}
-            <div className="lg:w-64 shrink-0">
-              {/* Mobile: Horizontal step indicator */}
-              <div className="lg:hidden bg-card rounded-xl border shadow-sm p-3 mb-2">
-                <div className="flex items-center justify-center gap-2">
-                  {steps.map((s, index) => (
-                    <div key={s.num} className="flex items-center">
-                      <button
-                        onClick={() => {
-                          if (s.num < step) setStep(s.num);
-                        }}
-                        disabled={s.num > step}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
-                          s.num === step
-                            ? "bg-primary text-primary-foreground"
-                            : s.num < step
-                            ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                          s.num === step
-                            ? "bg-primary-foreground/20 text-primary-foreground"
-                            : s.num < step
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted-foreground/20 text-muted-foreground"
-                        }`}>
-                          {s.num < step ? "✓" : s.num}
-                        </span>
-                        <span className="text-sm font-medium">{s.label}</span>
-                      </button>
-                      {index < steps.length - 1 && (
-                        <div className={`w-6 h-0.5 mx-1 ${
-                          s.num < step ? "bg-primary" : "bg-border"
-                        }`} />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Desktop: Vertical sidebar */}
-              <div className="hidden lg:block bg-card rounded-lg border shadow-sm overflow-hidden sticky top-24">
-                {steps.map((s, index) => (
-                  <button
-                    key={s.num}
-                    onClick={() => {
-                      if (s.num < step) setStep(s.num);
-                    }}
-                    disabled={s.num > step}
-                    className={`w-full flex items-center justify-between px-4 py-4 text-left border-b last:border-b-0 transition-colors ${
-                      s.num === step
-                        ? "bg-primary/5 border-l-4 border-l-primary"
-                        : s.num < step
-                        ? "hover:bg-muted/50 cursor-pointer border-l-4 border-l-primary/30"
-                        : "text-muted-foreground border-l-4 border-l-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`flex items-center justify-center w-7 h-7 rounded-full text-sm font-semibold ${
-                          s.num === step
-                            ? "bg-primary text-primary-foreground"
-                            : s.num < step
-                            ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {s.num < step ? "✓" : s.num}
-                      </span>
-                      <span
-                        className={`font-medium ${
-                          s.num === step
-                            ? "text-foreground"
-                            : s.num < step
-                            ? "text-foreground"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {s.label}
-                      </span>
-                    </div>
-                    <ChevronRight
-                      className={`h-4 w-4 ${
-                        s.num === step
-                          ? "text-primary"
-                          : s.num < step
-                          ? "text-muted-foreground"
-                          : "text-muted-foreground/50"
-                      }`}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Content Area */}
-            <div className="flex-1 min-w-0">
-              {step === 1 && (
-                <PropertyDetailsStep
-                  initialData={propertyData}
-                  onSubmit={handlePropertySubmit}
-                />
-              )}
-
-              {step === 2 && (
-                <CheckoutStep
-                  propertyData={propertyData}
-                  initialApplicantData={applicantData}
-                  onSubmit={handlePaymentSubmit}
-                  onBack={() => setStep(1)}
-                />
-              )}
-            </div>
+            {step === 2 && (
+              <CheckoutStep
+                propertyData={propertyData}
+                initialApplicantData={applicantData}
+                onSubmit={handlePaymentSubmit}
+                onBack={() => setStep(1)}
+              />
+            )}
           </div>
         </div>
       </section>
