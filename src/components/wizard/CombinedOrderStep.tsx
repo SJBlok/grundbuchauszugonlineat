@@ -309,23 +309,23 @@ export function CombinedOrderStep({
         {/* Property Selection Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="border-b border-border/40 bg-muted/10">
-            <div className="px-6 lg:px-8">
-              <TabsList className="h-auto p-0 bg-transparent rounded-none w-full justify-start gap-8">
+            <div className="px-4 md:px-6 lg:px-8 overflow-x-auto">
+              <TabsList className="h-auto p-0 bg-transparent rounded-none w-full md:w-auto justify-start gap-2 md:gap-8 flex-nowrap min-w-max">
                 <TabsTrigger 
                   value="address" 
-                  className="relative px-0 py-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
+                  className="relative px-3 md:px-0 py-3 md:py-4 text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200 whitespace-nowrap"
                 >
                   Adresse
                 </TabsTrigger>
                 <TabsTrigger 
                   value="gst" 
-                  className="relative px-0 py-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
+                  className="relative px-3 md:px-0 py-3 md:py-4 text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200 whitespace-nowrap"
                 >
-                  Grundstücksnummer
+                  Grundstücksnr.
                 </TabsTrigger>
                 <TabsTrigger 
                   value="ez" 
-                  className="relative px-0 py-4 text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200"
+                  className="relative px-3 md:px-0 py-3 md:py-4 text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200 whitespace-nowrap"
                 >
                   Einlagezahl
                 </TabsTrigger>
