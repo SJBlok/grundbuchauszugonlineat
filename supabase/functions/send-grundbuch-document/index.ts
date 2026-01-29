@@ -440,8 +440,8 @@ serve(async (req: Request): Promise<Response> => {
               <img src="https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg" alt="Logo" width="28" height="28" style="display: block; border: 0;" />
             </td>
             <td style="vertical-align: middle;">
-              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px;">
-                Grundbuchauszug<span style="font-weight: 400; opacity: 0.85;">Online.at</span>
+              <span style="font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
+                GrundbuchauszugOnline
               </span>
             </td>
           </tr>
