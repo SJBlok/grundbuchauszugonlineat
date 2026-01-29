@@ -589,7 +589,7 @@ export function CombinedOrderStep({
                   <span className="font-semibold">Zahlung auf Rechnung</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  €19,90 netto zzgl. 20% MwSt. (€3,98) • Rechnung per E-Mail
+                  €19,90 netto zzgl. 20% MwSt. (€3,98) = €23,88 • Rechnung per E-Mail
                 </p>
               </div>
               <span className="text-2xl font-bold text-foreground shrink-0">€23,88</span>
