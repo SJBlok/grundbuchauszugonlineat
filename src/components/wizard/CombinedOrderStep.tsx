@@ -293,7 +293,7 @@ export function CombinedOrderStep({
               Grundbuchauszug anfordern
             </h1>
             <p className="text-muted-foreground mt-2">
-              Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch – digital zugestellt innerhalb von 24–48 Stunden.
+              Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch – digital zugestellt in der Regel innerhalb von 1 Stunde.
             </p>
           </div>
         </div>
@@ -591,7 +591,7 @@ export function CombinedOrderStep({
             <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/10">
               <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-xs font-medium text-primary">
-                Sofortige Zustellung per E-Mail nach Bestellung
+                Zustellung per E-Mail in der Regel innerhalb von 1 Stunde
               </p>
             </div>
           </div>
