@@ -23,14 +23,14 @@ const BRAND_COLORS = {
   success: '#15803d',
 };
 
-// Minimalist logo - text-based with subtle accent
+// Logo in banner style
 const getLogoHtml = () => `
-<table role="presentation" cellspacing="0" cellpadding="0" border="0">
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
   <tr>
-    <td style="vertical-align: middle;">
-      <div style="font-family: Georgia, 'Times New Roman', serif; font-size: 18px; font-weight: 600; color: ${BRAND_COLORS.text}; letter-spacing: -0.3px;">
-        <span style="color: ${BRAND_COLORS.primary};">●</span>&nbsp;&nbsp;Grundbuchauszug<span style="font-weight: 400; color: ${BRAND_COLORS.textMuted};">Online.at</span>
-      </div>
+    <td style="text-align: center;">
+      <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px;">
+        Grundbuchauszug<span style="font-weight: 400; opacity: 0.85;">Online.at</span>
+      </span>
     </td>
   </tr>
 </table>
@@ -59,8 +59,8 @@ export const getBaseStyles = () => `
     border: 1px solid ${BRAND_COLORS.border};
   }
   .header { 
-    padding: 32px 40px 28px 40px; 
-    border-bottom: 1px solid ${BRAND_COLORS.borderLight};
+    background-color: ${BRAND_COLORS.primary};
+    padding: 24px 40px; 
   }
   .ref-banner { 
     background-color: ${BRAND_COLORS.surface}; 
