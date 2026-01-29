@@ -149,7 +149,7 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
     <div className="space-y-3">
       <div>
         <p className="text-sm font-medium text-foreground mb-2">
-          Geben Sie die Adresse des Grundstücks ein
+          Geben Sie die Adresse des Grundstücks ein <span className="text-destructive">*</span>
         </p>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
