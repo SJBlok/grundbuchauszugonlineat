@@ -79,6 +79,7 @@ export default function Anfordern() {
               <ThankYouStep
                 orderNumber={orderData.orderNumber}
                 email={orderData.email}
+                propertyInfo={orderData.propertyInfo}
               />
             </div>
           </div>
