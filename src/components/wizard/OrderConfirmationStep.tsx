@@ -32,8 +32,8 @@ export function OrderConfirmationStep({
 
   const bankDetails = {
     empfaenger: "Application Assistant Ltd",
-    iban: "DE89 3704 0044 0532 0130 00",
-    bic: "COBADEFFXXX",
+    iban: "DE56 2022 0800 0058 7945 48",
+    bic: "SXPYDEHHXXX",
     verwendungszweck: orderNumber,
   };
 
