@@ -644,8 +644,8 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen – €23,88 inkl. MwSt.</span>
-                <span className="sm:hidden">Bestellen – €23,88</span>
+                <span className="hidden sm:inline">Kostenpflichtig bestellen – <span className="text-sm font-normal opacity-90">€23,88 inkl. MwSt.</span></span>
+                <span className="sm:hidden">Bestellen – <span className="text-xs font-normal opacity-90">€23,88</span></span>
               </span>
             )}
           </Button>
