@@ -89,8 +89,7 @@ function getEmailTemplate(
     .container { background-color: #ffffff; border-radius: 4px; border: 1px solid #e4e4e7; }
     .header { background-color: #1a5f4a; padding: 24px 40px; text-align: center; }
     .header-logo { display: inline-block; vertical-align: middle; margin-right: 12px; }
-    .header h1 { display: inline; margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px; vertical-align: middle; }
-    .header h1 span { font-weight: 400; opacity: 0.85; }
+    .header h1 { display: inline; margin: 0; font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; vertical-align: middle; }
     .ref-banner { background-color: #fafafa; padding: 16px 40px; border-bottom: 1px solid #f4f4f5; font-size: 13px; color: #71717a; }
     .ref-banner strong { color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; letter-spacing: 0.3px; }
     .content { padding: 40px; }
@@ -180,7 +179,7 @@ function getEmailTemplate(
     <div class="container">
       <div class="header">
         <img src="https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg" alt="Logo" width="28" height="28" class="header-logo" style="vertical-align: middle;" />
-        <h1>Grundbuchauszug<span>Online.at</span></h1>
+        <h1>GrundbuchauszugOnline</h1>
       </div>
       <div class="ref-banner">
         Vorgangs-Nr.: <strong>${orderReference}</strong>
@@ -246,7 +245,7 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
     <div class="container">
       <div class="header">
         <img src="https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg" alt="Logo" width="28" height="28" class="header-logo" style="vertical-align: middle;" />
-        <h1>Grundbuchauszug<span>Online.at</span></h1>
+        <h1>GrundbuchauszugOnline</h1>
       </div>
       <div class="ref-banner">
         Vorgangs-Nr.: <strong>${orderReference}</strong>
@@ -319,7 +318,7 @@ Wir sind ein unabhängiger Online-Dienstleister und keine staatliche Stelle.`,
     <div class="container">
       <div class="header">
         <img src="https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg" alt="Logo" width="28" height="28" class="header-logo" style="vertical-align: middle;" />
-        <h1>Grundbuchauszug<span>Online.at</span></h1>
+        <h1>GrundbuchauszugOnline</h1>
       </div>
       <div class="ref-banner">
         Vorgangs-Nr.: <strong>${orderReference}</strong> — <span style="font-weight: 600;">Letzte Erinnerung</span>
