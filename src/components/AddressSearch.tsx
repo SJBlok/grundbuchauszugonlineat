@@ -146,57 +146,62 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder="Adresse eingeben (z.B. Hauptstraße 1, Wien)"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-12 pr-12 h-14 md:h-12 text-base bg-background rounded-xl"
-        />
-        {isLoading && (
-          <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
-        )}
-        {!isLoading && query.length > 0 && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setResults([]);
-              setHasSearched(false);
-            }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted-foreground/20 transition-colors active:scale-95"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
-        )}
+    <div className="space-y-3">
+      <div>
+        <p className="text-sm font-medium text-foreground mb-2">
+          Geben Sie die Adresse des Grundstücks ein
+        </p>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
+          <Input
+            ref={inputRef}
+            type="text"
+            placeholder="z.B. Hauptstraße 1, 1010 Wien"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-9 pr-10"
+          />
+          {isLoading && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+          )}
+          {!isLoading && query.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setResults([]);
+                setHasSearched(false);
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded flex items-center justify-center hover:bg-muted transition-colors"
+            >
+              <X className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+          )}
+        </div>
       </div>
 
       {query.length > 0 && query.length < 3 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Noch {3 - query.length} Zeichen eingeben...
         </p>
       )}
 
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <p className="text-xs text-destructive">{error}</p>
       )}
 
       {hasSearched && !isLoading && results.length === 0 && !error && query.length >= 3 && (
-        <div className="text-center py-6 text-muted-foreground border rounded-lg bg-muted/30">
-          <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-          <p>Keine Ergebnisse gefunden.</p>
-          <p className="text-sm">Versuchen Sie eine andere Adresse oder geben Sie die Daten manuell ein.</p>
+        <div className="text-center py-4 text-muted-foreground border rounded bg-muted/30">
+          <MapPin className="h-6 w-6 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Keine Ergebnisse gefunden.</p>
+          <p className="text-xs mt-1">Versuchen Sie eine andere Adresse oder wählen Sie einen anderen Tab.</p>
         </div>
       )}
 
       {results.length > 0 && (
-        <div className="border-2 border-primary/20 rounded-xl overflow-hidden max-h-[60vh] md:max-h-80 overflow-y-auto bg-background shadow-lg">
-          <div className="bg-muted/50 px-4 py-3 border-b text-sm font-medium text-muted-foreground sticky top-0 z-10">
-            {results.length} Ergebnis{results.length !== 1 ? 'se' : ''} gefunden – Tippen zum Auswählen
+        <div className="border border-border rounded overflow-hidden max-h-64 overflow-y-auto bg-background shadow-sm">
+          <div className="bg-muted/50 px-3 py-2 border-b text-xs font-medium text-muted-foreground sticky top-0 z-10">
+            {results.length} Ergebnis{results.length !== 1 ? 'se' : ''} gefunden
           </div>
           <div className="divide-y divide-border">
             {results.map((result, index) => (
@@ -205,25 +210,24 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
                 onClick={() => handleSelectResult(result)}
                 type="button"
                 className={cn(
-                  "w-full text-left p-4 transition-all duration-150 cursor-pointer",
+                  "w-full text-left p-3 transition-all duration-150 cursor-pointer",
                   "hover:bg-primary/5 active:bg-primary/10",
                   "focus:outline-none focus:bg-primary/10",
                   "group"
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <div className="h-11 w-11 md:h-10 md:w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                    <Building className="h-5 w-5 text-primary" />
+                  <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <Building className="h-4 w-4 text-primary" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-foreground text-base group-hover:text-primary transition-colors">
+                    <p className="font-medium text-foreground text-sm group-hover:text-primary transition-colors">
                       {result.adresse}
                       {result.plz && result.ort && `, ${result.plz} ${result.ort}`}
                     </p>
-                    <div className="text-sm text-muted-foreground mt-1.5 space-y-0.5">
+                    <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
                       {result.kgName && <p>KG: {result.kgName} ({result.kgNummer})</p>}
                       {result.gst && <p>Grundstück: {result.gst}</p>}
-                      {result.ez && <p>Einlagezahl: {result.ez}</p>}
                       {result.bundesland && (
                         <p className="inline-flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
@@ -232,21 +236,12 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
                       )}
                     </div>
                   </div>
-                  <div className="shrink-0 hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
-                      Auswählen
-                    </div>
-                  </div>
                 </div>
               </button>
             ))}
           </div>
         </div>
       )}
-
-      <p className="text-xs text-muted-foreground text-center">
-        Adresssuche via OpenStreetMap
-      </p>
     </div>
   );
 }
