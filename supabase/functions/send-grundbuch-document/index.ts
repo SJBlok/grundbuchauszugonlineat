@@ -414,7 +414,7 @@ serve(async (req: Request): Promise<Response> => {
       ? "Anbei erhalten Sie Ihren angeforderten Grundbuchauszug als PDF-Dokument."
       : "WICHTIGER HINWEIS: Das Dokument konnte nicht automatisch abgerufen werden. Wir werden Ihnen den Grundbuchauszug schnellstmöglich manuell zusenden.";
 
-    // Build email payload
+    // Build email payload - minimalist professional design matching email-templates.ts
     const emailPayload: any = {
       From: "GrundbuchauszugOnline <info@grundbuchauszugonline.at>",
       To: order.email,
@@ -422,169 +422,132 @@ serve(async (req: Request): Promise<Response> => {
       HtmlBody: `
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  </head>
-  <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5; color: #1f2937;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f4f5;">
-      <tr>
-        <td style="padding: 40px 20px;">
-          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            
-            <!-- Header with Austrian flag stripe -->
-            <tr>
-              <td style="background: linear-gradient(to right, #ed1c24 0%, #ed1c24 33%, #ffffff 33%, #ffffff 66%, #ed1c24 66%, #ed1c24 100%); height: 6px;"></td>
-            </tr>
-            <tr>
-              <td style="background-color: #064e3b; padding: 32px 40px; text-align: center;">
-                <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">GRUNDBUCHSERVICE ÖSTERREICH</h1>
-                <p style="margin: 8px 0 0 0; font-size: 14px; color: #a7f3d0; letter-spacing: 1px; text-transform: uppercase;">Offizieller Auszugs-Service</p>
-              </td>
-            </tr>
-            
-            <!-- Main Content -->
-            <tr>
-              <td style="padding: 40px;">
-                <p style="margin: 0 0 24px 0; font-size: 16px; color: #374151;">
-                  <strong>Sehr geehrte(r) ${order.vorname} ${order.nachname},</strong>
-                </p>
-                
-                <p style="margin: 0 0 24px 0; font-size: 15px; color: #4b5563; line-height: 1.7;">
-                  Wir bestätigen den Eingang Ihrer Bestellung für einen offiziellen Grundbuchauszug. ${hasDocument ? 'Ihr Dokument wurde erfolgreich abgerufen und liegt dieser E-Mail als Anlage bei.' : ''}
-                </p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>GrundbuchauszugOnline.at</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5; color: #18181b; line-height: 1.65; -webkit-font-smoothing: antialiased;">
+  <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
+    <div style="background-color: #ffffff; border-radius: 4px; border: 1px solid #e4e4e7;">
+      
+      <!-- Header -->
+      <div style="background-color: #1a5f4a; padding: 24px 40px; text-align: center;">
+        <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 20px; font-weight: 600; color: #ffffff; letter-spacing: -0.3px;">
+          Grundbuchauszug<span style="font-weight: 400; opacity: 0.85;">Online.at</span>
+        </span>
+      </div>
+      
+      <!-- Reference Banner -->
+      <div style="background-color: #fafafa; padding: 16px 40px; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">
+        Vorgang <strong style="color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; letter-spacing: 0.3px;">${order.order_number}</strong>
+      </div>
+      
+      <!-- Main Content -->
+      <div style="padding: 40px;">
+        <p style="margin: 0 0 24px 0; font-size: 15px; font-weight: 500; color: #18181b;">
+          Sehr geehrte(r) ${order.vorname} ${order.nachname},
+        </p>
+        
+        <p style="margin: 0 0 20px 0; font-size: 15px; color: #52525b; line-height: 1.7;">
+          Wir bestätigen den Eingang Ihrer Bestellung für einen Grundbuchauszug.${hasDocument ? ' Ihr Dokument wurde erfolgreich abgerufen und liegt dieser E-Mail als Anlage bei.' : ''}
+        </p>
 
-                ${!hasDocument ? `
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 0 0 24px 0;">
-                  <tr>
-                    <td style="background-color: #fffbeb; border-left: 4px solid #b45309; padding: 16px 20px; border-radius: 0 6px 6px 0;">
-                      <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 600;">Hinweis zur Dokumentzustellung</p>
-                      <p style="margin: 8px 0 0 0; font-size: 14px; color: #78350f; line-height: 1.5;">
-                        Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
-                      </p>
-                    </td>
-                  </tr>
-                </table>
-                ` : ''}
-                
-                <!-- Order Details Box -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; margin: 0 0 24px 0;">
-                  <tr>
-                    <td style="padding: 24px;">
-                      <h2 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #064e3b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #064e3b; padding-bottom: 8px;">
-                        Bestellübersicht
-                      </h2>
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                        <tr>
-                          <td style="padding: 8px 0; font-size: 14px; color: #6b7280;">Auftragsnummer</td>
-                          <td style="padding: 8px 0; font-size: 14px; color: #111827; font-weight: 600; text-align: right;">${order.order_number}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; font-size: 14px; color: #6b7280;">Dokumenttyp</td>
-                          <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${order.product_name}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; font-size: 14px; color: #6b7280;">Katastralgemeinde</td>
-                          <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${order.katastralgemeinde}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; font-size: 14px; color: #6b7280;">Einlagezahl / Grundstücksnr.</td>
-                          <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${order.grundstuecksnummer}</td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" style="padding: 12px 0 0 0; border-top: 1px solid #e5e7eb;"></td>
-                        </tr>
-                        <tr>
-                          <td style="padding: 8px 0; font-size: 16px; color: #064e3b; font-weight: 700;">Rechnungsbetrag</td>
-                          <td style="padding: 8px 0; font-size: 20px; color: #064e3b; font-weight: 700; text-align: right;">€ ${order.product_price.toFixed(2)}</td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-                
-                <!-- Payment Details Box -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; margin: 0 0 24px 0;">
-                  <tr>
-                    <td style="padding: 24px;">
-                      <h2 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #92400e; text-transform: uppercase; letter-spacing: 0.5px;">
-                        💳 Zahlungsanweisung
-                      </h2>
-                      <p style="margin: 0 0 16px 0; font-size: 14px; color: #78350f; line-height: 1.5;">
-                        Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen auf folgendes Konto:
-                      </p>
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 6px; padding: 16px;">
-                        <tr>
-                          <td style="padding: 16px;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                              <tr>
-                                <td style="padding: 6px 0; font-size: 13px; color: #78350f;">Empfänger</td>
-                                <td style="padding: 6px 0; font-size: 14px; color: #1f2937; font-weight: 600; text-align: right;">Application Assistant Ltd</td>
-                              </tr>
-                              <tr>
-                                <td style="padding: 6px 0; font-size: 13px; color: #78350f;">IBAN</td>
-                                <td style="padding: 6px 0; font-size: 14px; color: #1f2937; font-weight: 600; font-family: 'Courier New', monospace; text-align: right;">DE56 2022 0800 0058 7945 48</td>
-                              </tr>
-                              <tr>
-                                <td style="padding: 6px 0; font-size: 13px; color: #78350f;">BIC</td>
-                                <td style="padding: 6px 0; font-size: 14px; color: #1f2937; font-weight: 600; font-family: 'Courier New', monospace; text-align: right;">SXPYDEHHXXX</td>
-                              </tr>
-                              <tr>
-                                <td style="padding: 6px 0; font-size: 13px; color: #78350f;">Verwendungszweck</td>
-                                <td style="padding: 6px 0; font-size: 14px; color: #1f2937; font-weight: 600; text-align: right;">${order.order_number}</td>
-                              </tr>
-                            </table>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-                
-                <p style="margin: 0 0 16px 0; font-size: 13px; color: #6b7280; line-height: 1.6;">
-                  📄 <strong>Hinweis:</strong> Eine detaillierte Rechnung wird Ihnen separat von unserem Buchhaltungssystem zugestellt.
-                </p>
-                
-                <p style="margin: 0 0 24px 0; font-size: 14px; color: #4b5563; line-height: 1.6;">
-                  Bei Rückfragen erreichen Sie unseren Kundenservice unter <a href="mailto:info@grundbuchauszugonline.at" style="color: #064e3b; font-weight: 600; text-decoration: none;">info@grundbuchauszugonline.at</a>
-                </p>
-                
-                <p style="margin: 0; font-size: 15px; color: #374151; line-height: 1.7;">
-                  Mit freundlichen Grüßen,<br><br>
-                  <strong style="color: #064e3b;">Ihr Grundbuchservice-Team</strong><br>
-                  <span style="font-size: 13px; color: #6b7280;">GrundbuchauszugOnline.at</span>
-                </p>
-              </td>
-            </tr>
-            
-            <!-- Footer -->
-            <tr>
-              <td style="background-color: #f3f4f6; padding: 24px 40px; border-top: 1px solid #e5e7eb;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                  <tr>
-                    <td style="text-align: center;">
-                      <p style="margin: 0 0 8px 0; font-size: 12px; color: #6b7280;">
-                        © ${new Date().getFullYear()} GrundbuchauszugOnline.at – Ihr Partner für Grundbuchauszüge in Österreich
-                      </p>
-                      <p style="margin: 0; font-size: 11px; color: #9ca3af;">
-                        Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht direkt auf diese Nachricht.
-                      </p>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            
-            <!-- Austrian flag stripe bottom -->
-            <tr>
-              <td style="background: linear-gradient(to right, #ed1c24 0%, #ed1c24 33%, #ffffff 33%, #ffffff 66%, #ed1c24 66%, #ed1c24 100%); height: 6px;"></td>
-            </tr>
-            
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
+        ${!hasDocument ? `
+        <div style="background-color: #fffbeb; border-left: 2px solid #b45309; padding: 16px 20px; margin: 24px 0;">
+          <p style="margin: 0; color: #b45309; font-size: 14px; line-height: 1.6;">
+            <strong>Hinweis:</strong> Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
+          </p>
+        </div>
+        ` : ''}
+        
+        <!-- Order Details Table -->
+        <table style="width: 100%; border-collapse: collapse; margin: 32px 0;">
+          <tr>
+            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 40%;">Produkt</td>
+            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.product_name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Katastralgemeinde</td>
+            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.katastralgemeinde}</td>
+          </tr>
+          <tr>
+            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Einlagezahl</td>
+            <td style="padding: 14px 0; font-size: 13px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; font-family: 'SF Mono', Monaco, Consolas, monospace;">${order.grundstuecksnummer}</td>
+          </tr>
+          <tr>
+            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Bezirksgericht</td>
+            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.grundbuchsgericht}</td>
+          </tr>
+          <tr>
+            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Bundesland</td>
+            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.bundesland}</td>
+          </tr>
+          <tr>
+            <td style="padding: 20px 0 0 0; font-size: 13px; font-weight: 500; color: #18181b; border-top: 1px solid #e4e4e7;">Betrag</td>
+            <td style="padding: 20px 0 0 0; font-size: 16px; font-weight: 600; color: #1a5f4a; border-top: 1px solid #e4e4e7;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+          </tr>
+        </table>
+        
+        <!-- Payment Details Box -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+          <tr>
+            <td style="background-color: #fafafa; padding: 24px; border: 1px solid #e4e4e7; border-radius: 4px;">
+              <p style="margin: 0 0 16px 0; font-size: 13px; font-weight: 500; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">
+                Zahlungsinformationen
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">Empfänger</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #18181b; text-align: right;">Application Assistant Ltd</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">IBAN</td>
+                  <td style="padding: 8px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">DE56 2022 0800 0058 7945 48</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">BIC</td>
+                  <td style="padding: 8px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">SXPYDEHHXXX</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">Verwendungszweck</td>
+                  <td style="padding: 8px 0; font-size: 14px; color: #18181b; font-weight: 500; text-align: right;">${order.order_number}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        
+        <div style="background-color: #fafafa; border-left: 2px solid #1a5f4a; padding: 16px 20px; margin: 24px 0;">
+          <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
+            Eine detaillierte Rechnung wird Ihnen separat von unserem Buchhaltungssystem zugestellt.
+          </p>
+        </div>
+        
+        <!-- Signature -->
+        <div style="margin-top: 36px; padding-top: 28px; border-top: 1px solid #f4f4f5;">
+          <p style="margin: 0; font-size: 14px; color: #52525b; line-height: 1.8;">Mit freundlichen Grüßen</p>
+          <p style="margin: 4px 0 0 0; font-size: 14px; font-weight: 500; color: #18181b;">Ihr Grundbuchservice-Team</p>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background-color: #fafafa; padding: 28px 40px; text-align: center; border-top: 1px solid #f4f4f5;">
+        <p style="margin: 0; font-size: 12px; color: #71717a; line-height: 1.8;">
+          <a href="mailto:info@grundbuchauszugonline.at" style="color: #71717a; text-decoration: none;">info@grundbuchauszugonline.at</a>
+        </p>
+        <p style="margin: 12px 0 0 0; font-size: 12px; color: #71717a; line-height: 1.8;">
+          <a href="https://grundbuchauszugonline.at/agb" style="color: #71717a; text-decoration: none;">AGB</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://grundbuchauszugonline.at/datenschutz" style="color: #71717a; text-decoration: none;">Datenschutz</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="https://grundbuchauszugonline.at/impressum" style="color: #71717a; text-decoration: none;">Impressum</a>
+        </p>
+        <p style="margin: 16px 0 0 0; font-size: 11px; color: #a1a1aa;">
+          © ${new Date().getFullYear()} GrundbuchauszugOnline.at · Unabhängiger Online-Dienstleister
+        </p>
+      </div>
+      
+    </div>
+  </div>
+</body>
 </html>
       `,
       TextBody: `
