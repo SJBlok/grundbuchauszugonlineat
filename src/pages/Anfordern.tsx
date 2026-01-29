@@ -92,8 +92,8 @@ export default function Anfordern() {
 
   return (
     <Layout>
-      {/* Clean minimal background */}
-      <section className="min-h-[calc(100vh-200px)] bg-muted/30 py-8 md:py-12">
+      {/* Premium background */}
+      <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             {step === 1 && (
