@@ -225,7 +225,7 @@
 @layer components {
   /* Premium card with multi-layer shadow */
   .card-premium {
-    @apply bg-card rounded-xl;
+    @apply bg-card rounded;
     box-shadow: var(--shadow-md);
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -237,7 +237,7 @@
 
   /* Elevated card */
   .card-elevated {
-    @apply bg-card rounded-2xl;
+    @apply bg-card rounded;
     background: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(210 20% 99%) 100%);
     box-shadow: 
       0 0 0 1px hsl(var(--border) / 0.5),
@@ -269,7 +269,7 @@
 
   /* Premium input styles */
   .input-premium {
-    @apply bg-white rounded-lg px-4 py-3.5;
+    @apply bg-white rounded px-4 py-3.5;
     border: 1.5px solid hsl(var(--border));
     transition: all 0.25s ease;
   }
@@ -322,20 +322,20 @@
 
   /* Trust badge */
   .trust-badge {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded text-sm font-medium;
     background: hsl(var(--primary) / 0.08);
     color: hsl(var(--primary));
   }
 
   /* Info card with accent border */
   .info-card {
-    @apply bg-info rounded-xl p-6;
-    border-left: 4px solid hsl(var(--primary));
+    @apply bg-info rounded p-6;
+    border-left: 3px solid hsl(var(--primary));
   }
 
   /* Feature icon container */
   .feature-icon {
-    @apply h-14 w-14 rounded-2xl flex items-center justify-center;
+    @apply h-14 w-14 rounded flex items-center justify-center;
     background: linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.06) 100%);
   }
 

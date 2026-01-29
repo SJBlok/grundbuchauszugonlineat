@@ -66,7 +66,7 @@ export function Header() {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className={`px-4 py-2.5 text-[15px] font-medium rounded-lg transition-all duration-200 hover:no-underline relative group ${
+                  className={`px-4 py-2.5 text-[15px] font-medium rounded transition-all duration-200 hover:no-underline relative group ${
                     location.pathname === item.href
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-foreground/75 hover:text-foreground hover:bg-muted/80"
@@ -74,7 +74,7 @@ export function Header() {
                 >
                   {item.label}
                   {location.pathname !== item.href && (
-                    <span className="absolute bottom-1.5 left-4 right-4 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                    <span className="absolute bottom-1.5 left-4 right-4 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   )}
                 </Link>
               ))}
@@ -100,7 +100,7 @@ export function Header() {
                   <Link
                     key={item.href}
                     to={item.href}
-                    className={`px-5 py-4 text-base font-medium rounded-xl transition-all duration-200 hover:no-underline animate-fade-in-up ${
+                    className={`px-5 py-4 text-base font-medium rounded transition-all duration-200 hover:no-underline animate-fade-in-up ${
                       location.pathname === item.href
                         ? "bg-primary text-primary-foreground"
                         : "text-foreground hover:bg-muted"

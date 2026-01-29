@@ -71,13 +71,13 @@ export function Footer() {
                   href="mailto:info@grundbuchauszugonline.at" 
                   className="flex items-center gap-3 text-[15px] text-header-foreground/60 hover:text-header-foreground transition-colors group"
                 >
-                  <div className="h-9 w-9 rounded-lg bg-header-foreground/5 flex items-center justify-center group-hover:bg-header-foreground/10 transition-colors">
+                  <div className="h-9 w-9 rounded bg-header-foreground/5 flex items-center justify-center group-hover:bg-header-foreground/10 transition-colors">
                     <Mail className="h-4 w-4" />
                   </div>
                   <span>info@grundbuchauszugonline.at</span>
                 </a>
                 <div className="flex items-center gap-3 text-[15px] text-header-foreground/60">
-                  <div className="h-9 w-9 rounded-lg bg-header-foreground/5 flex items-center justify-center">
+                  <div className="h-9 w-9 rounded bg-header-foreground/5 flex items-center justify-center">
                     <Building2 className="h-4 w-4" />
                   </div>
                   <span>Tophallen Bouw B.V.</span>

@@ -104,7 +104,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
   return (
     <div className="space-y-8 animate-fade-in" data-testid="property-details-step">
       {/* Main Product Card */}
-      <div className="bg-card rounded-2xl shadow-lg overflow-hidden">
+      <div className="bg-card rounded shadow-lg overflow-hidden">
         {/* Header */}
         <div className="px-8 py-10 lg:px-12 lg:py-12 border-b border-border/40 bg-gradient-to-b from-muted/20 to-transparent relative overflow-hidden">
           {/* Decorative GB watermark */}
@@ -156,8 +156,8 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
               <AddressSearch onSelectResult={handleAddressSelect} />
               
               {selectedFromSearch && (
-                <div className="flex items-start gap-4 bg-primary/5 border border-primary/15 rounded-xl p-6 animate-scale-in">
-                  <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <div className="flex items-start gap-4 bg-primary/5 border border-primary/15 rounded p-6 animate-scale-in">
+                  <div className="h-11 w-11 rounded bg-primary/10 flex items-center justify-center shrink-0">
                     <CheckCircle2 className="h-5 w-5 text-primary" />
                   </div>
                   <div className="min-w-0">
@@ -262,7 +262,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
             <Button 
               onClick={handleFormSubmit}
               disabled={!selectedFromSearch && activeTab === "address"}
-              className="w-full h-16 text-lg font-semibold mt-10 rounded-xl shadow-lg" 
+              className="w-full h-16 text-lg font-semibold mt-10 shadow-lg" 
               size="xl"
             >
               <FileText className="h-5 w-5 mr-2" />
@@ -275,19 +275,19 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
       {/* Trust indicators */}
       <div className="flex flex-wrap items-center justify-center gap-8 text-[15px] text-muted-foreground">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
             <Shield className="h-4 w-4 text-primary" />
           </div>
           <span>SSL-verschlüsselt</span>
         </div>
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
             <Clock className="h-4 w-4 text-primary" />
           </div>
           <span>Sofortige Zustellung</span>
         </div>
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
             <CheckCircle2 className="h-4 w-4 text-primary" />
           </div>
           <span>Amtlich beglaubigt</span>
@@ -296,7 +296,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
 
       {/* Property data summary */}
       {selectedFromSearch && (
-        <div className="bg-card rounded-2xl shadow-sm p-8 border border-border/30 animate-fade-in-up">
+        <div className="bg-card rounded shadow-sm p-8 border border-border/30 animate-fade-in-up">
           <h3 className="text-sm font-semibold text-foreground mb-5 uppercase tracking-wide">
             Ermittelte Grundbuchdaten
           </h3>

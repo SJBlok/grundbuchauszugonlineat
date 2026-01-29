@@ -104,11 +104,11 @@ export default {
         },
       },
       borderRadius: {
-        '2xl': '1rem',
-        'xl': '0.875rem',
-        'lg': '0.75rem',
-        'md': '0.5rem',
-        'sm': '0.375rem',
+        '2xl': '0.5rem',
+        'xl': '0.375rem',
+        'lg': '0.25rem',
+        'md': '0.1875rem',
+        'sm': '0.125rem',
       },
       boxShadow: {
         'ambient': '0 2px 8px rgba(0,0,0,0.03)',

@@ -83,7 +83,7 @@ export default function Index() {
         <div className="relative z-10 container mx-auto py-24 lg:py-32">
           <div className="max-w-2xl">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in">
               <BadgeCheck className="h-4 w-4" />
               <span>Österreichisches Grundbuch</span>
             </div>
@@ -108,7 +108,7 @@ export default function Index() {
                 "Keine Registrierung erforderlich",
               ].map((feature, index) => (
                 <div key={index} className="flex items-center gap-3 text-foreground/80">
-                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center shrink-0">
                     <CheckCircle className="h-3.5 w-3.5 text-primary" />
                   </div>
                   <span className="text-[15px]">{feature}</span>
@@ -216,7 +216,7 @@ export default function Index() {
             {useCases.map((useCase) => (
               <div 
                 key={useCase.title} 
-                className="bg-card rounded-2xl p-8 shadow-sm hover:shadow-hover hover:-translate-y-1 transition-all duration-350"
+                className="bg-card rounded p-8 shadow-sm hover:shadow-hover hover:-translate-y-1 transition-all duration-350"
               >
                 <div className="feature-icon mb-5">
                   <useCase.icon className="h-6 w-6 text-primary" />
@@ -249,9 +249,9 @@ export default function Index() {
             {processSteps.map((step, index) => (
               <div 
                 key={step.number} 
-                className="bg-card rounded-2xl p-7 lg:p-8 shadow-md text-center hover:shadow-hover hover:-translate-y-1 transition-all duration-350"
+                className="bg-card rounded p-7 lg:p-8 shadow-md text-center hover:shadow-hover hover:-translate-y-1 transition-all duration-350"
               >
-                <div className="h-14 w-14 lg:h-16 lg:w-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl lg:text-2xl mx-auto mb-5 font-serif shadow-sm">
+                <div className="h-14 w-14 lg:h-16 lg:w-16 rounded bg-primary text-primary-foreground flex items-center justify-center font-bold text-xl lg:text-2xl mx-auto mb-5 font-serif shadow-sm">
                   {step.number}
                 </div>
                 <h3 className="font-bold text-foreground mb-2 font-serif">
@@ -272,7 +272,7 @@ export default function Index() {
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div>
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 text-secondary text-sm font-medium mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded bg-secondary/10 text-secondary text-sm font-medium mb-6">
                 Wissenswertes
               </div>
               
@@ -306,8 +306,8 @@ export default function Index() {
             
             <div className="flex justify-center order-first lg:order-last">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-secondary/8 rounded-3xl rotate-3 scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-tr from-secondary/6 to-primary/6 rounded-3xl -rotate-2 scale-102" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-secondary/8 rounded rotate-3 scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-secondary/6 to-primary/6 rounded -rotate-2 scale-102" />
                 <img 
                   src={iconMap} 
                   alt="Katasterplan" 
@@ -352,13 +352,13 @@ export default function Index() {
                 description: "Das C-Blatt enthält alle Belastungen: Hypotheken, Dienstbarkeiten, Vor- und Wiederverkaufsrechte sowie Miet- und Pachtverträge. Diese gehen bei Eigentumsübertragung auf den neuen Eigentümer über."
               }
             ].map((sheet) => (
-              <div key={sheet.letter} className="bg-card rounded-2xl p-8 lg:p-10 shadow-md hover:shadow-hover hover:-translate-y-1 transition-all duration-350 relative overflow-hidden">
+              <div key={sheet.letter} className="bg-card rounded p-8 lg:p-10 shadow-md hover:shadow-hover hover:-translate-y-1 transition-all duration-350 relative overflow-hidden">
                 {/* Large decorative letter */}
                 <div className="absolute top-4 right-4 text-7xl font-bold text-muted/20 font-serif leading-none">
                   {sheet.letter}
                 </div>
                 
-                <div className={`h-12 w-12 rounded-xl ${sheet.color === 'primary' ? 'bg-primary' : sheet.color === 'secondary' ? 'bg-secondary' : 'bg-muted-foreground'} text-white flex items-center justify-center font-bold text-xl mb-5 font-serif shadow-sm`}>
+                <div className={`h-12 w-12 rounded ${sheet.color === 'primary' ? 'bg-primary' : sheet.color === 'secondary' ? 'bg-secondary' : 'bg-muted-foreground'} text-white flex items-center justify-center font-bold text-xl mb-5 font-serif shadow-sm`}>
                   {sheet.letter}
                 </div>
                 <h3 className={`text-xl font-bold mb-2 font-serif ${sheet.color === 'primary' ? 'text-primary' : sheet.color === 'secondary' ? 'text-secondary' : 'text-muted-foreground'}`}>
@@ -403,19 +403,19 @@ export default function Index() {
             
             <div className="flex flex-wrap items-center justify-center gap-8 mt-12 text-sm text-muted-foreground">
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
                   <Clock className="h-4 w-4 text-primary" />
                 </div>
                 <span>Sofortige Zustellung</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
                   <Shield className="h-4 w-4 text-primary" />
                 </div>
                 <span>SSL-verschlüsselt</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
                   <BadgeCheck className="h-4 w-4 text-primary" />
                 </div>
                 <span>Amtlich beglaubigt</span>
