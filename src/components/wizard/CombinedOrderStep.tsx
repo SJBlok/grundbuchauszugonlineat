@@ -309,8 +309,8 @@ export function CombinedOrderStep({
         {/* Property Selection Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="border-b border-border/40 bg-muted/10">
-            <div className="px-4 md:px-6 lg:px-8 overflow-x-auto">
-              <TabsList className="h-auto p-0 bg-transparent rounded-none w-full md:w-auto justify-start gap-2 md:gap-8 flex-nowrap min-w-max">
+            <div className="px-4 md:px-6 lg:px-8">
+              <TabsList className="h-auto p-0 bg-transparent rounded-none w-full justify-start gap-2 md:gap-8">
                 <TabsTrigger 
                   value="address" 
                   className="relative px-3 md:px-0 py-3 md:py-4 text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200 whitespace-nowrap"
@@ -592,7 +592,7 @@ export function CombinedOrderStep({
                   €19,90 netto zzgl. 20% MwSt. (€3,98) = €23,88 • Rechnung per E-Mail
                 </p>
               </div>
-              <span className="text-lg md:text-xl font-bold text-foreground shrink-0">€23,88</span>
+              <span className="text-base md:text-lg font-bold text-foreground shrink-0">€23,88</span>
             </div>
             <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/10">
               <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
