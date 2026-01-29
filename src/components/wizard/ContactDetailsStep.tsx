@@ -86,7 +86,7 @@ export function ContactDetailsStep({
               </div>
             </div>
             <div className="text-right shrink-0">
-              <p className="font-bold text-foreground">€19,90</p>
+              <p className="font-bold text-foreground">€23,88</p>
             </div>
           </div>
         </div>
