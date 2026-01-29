@@ -382,7 +382,7 @@ async function sendReminderEmail(
       "X-Postmark-Server-Token": postmarkApiKey,
     },
     body: JSON.stringify({
-      From: "GrundbuchauszugOnline.at <info@grundbuchauszugonline.at>",
+      From: "GrundbuchauszugOnline <info@grundbuchauszugonline.at>",
       To: session.email,
       Subject: template.subject,
       HtmlBody: template.htmlBody,

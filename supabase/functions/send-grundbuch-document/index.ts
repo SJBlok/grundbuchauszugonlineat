@@ -416,7 +416,7 @@ serve(async (req: Request): Promise<Response> => {
 
     // Build email payload
     const emailPayload: any = {
-      From: "Grundbuchservice Österreich <info@grundbuchauszugonline.at>",
+      From: "GrundbuchauszugOnline <info@grundbuchauszugonline.at>",
       To: order.email,
       Subject: `Bestätigung Ihrer Grundbuchanfrage – ${order.order_number}`,
       HtmlBody: `
@@ -668,7 +668,7 @@ GrundbuchauszugOnline.at
           "X-Postmark-Server-Token": postmarkApiKey,
         },
         body: JSON.stringify({
-          From: "info@grundbuchauszugonline.at",
+          From: "GrundbuchauszugOnline <info@grundbuchauszugonline.at>",
           To: "info@grundbuchauszugonline.at",
           Subject: `[NEUE BESTELLUNG] ${order.order_number} - ${order.vorname} ${order.nachname}`,
           HtmlBody: `
