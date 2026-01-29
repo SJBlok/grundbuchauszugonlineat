@@ -197,15 +197,41 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
         </table>
         
         <div style="background-color: ${BRAND_COLORS.surface}; border-left: 3px solid ${BRAND_COLORS.primary}; padding: 20px; margin: 24px 0;">
-          <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.text};">Was passiert als nächstes?</p>
-          <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.6;">
-            Unser Team wird Ihre Bestellung manuell bearbeiten und die korrekte Liegenschaft ermitteln. Dies kann etwas länger dauern als unsere übliche Bearbeitungszeit. Wir senden Ihnen eine E-Mail, sobald Ihr Dokument bereit ist.
-          </p>
+          <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.text};">Wie geht es weiter?</p>
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
+                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">1.</span>Der automatische Abruf der Dokumente ist fehlgeschlagen
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
+                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">2.</span>Ihre Bestellung wird manuell bearbeitet
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
+                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">3.</span>Unser Team ermittelt die korrekte Liegenschaft
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
+                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">4.</span>Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
+                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">5.</span>Bei Fragen wird sich unser Support-Team mit Ihnen in Verbindung setzen
+              </td>
+            </tr>
+          </table>
         </div>
         
-        <p style="font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.6;">
-          Falls Sie die genaue Einlagezahl (EZ) oder Grundstücksnummer für diese Liegenschaft kennen, antworten Sie bitte auf diese E-Mail mit diesen Informationen – das beschleunigt die Bearbeitung.
-        </p>
+        <div style="background-color: ${BRAND_COLORS.warningBg}; border: 1px solid #fde68a; border-radius: 4px; padding: 16px; margin: 24px 0;">
+          <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.warning}; line-height: 1.5;">
+            <strong>Hinweis:</strong> Falls Sie die Einlagezahl (EZ) oder Grundstücksnummer bereits kennen, antworten Sie bitte auf diese E-Mail mit dieser Information, um den Vorgang zu beschleunigen.
+          </p>
+        </div>
         
         ${getPaymentDetailsBox(order.order_number)}
         
