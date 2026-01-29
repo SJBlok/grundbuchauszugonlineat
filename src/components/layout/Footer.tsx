@@ -24,8 +24,8 @@ export function Footer() {
       
       {/* Trust bar */}
       <div className="border-b border-header-foreground/10">
-        <div className="container mx-auto py-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 text-sm text-header-foreground/70">
+        <div className="container mx-auto py-4 md:py-6">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-header-foreground/70">
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" />
               <span>SSL-verschlüsselt</span>
@@ -42,11 +42,11 @@ export function Footer() {
         </div>
       </div>
       
-      <div className="py-16 lg:py-20">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
+      <div className="py-10 md:py-16 lg:py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 lg:gap-16">
             {/* Brand column */}
-            <div className="lg:col-span-2">
+            <div className="sm:col-span-2 lg:col-span-2">
               <div className="flex items-center gap-3.5 mb-6">
                 {/* Austrian flag colors */}
                 <div className="flex items-center gap-0.5">
@@ -129,8 +129,8 @@ export function Footer() {
           </div>
 
           {/* Bottom bar */}
-          <div className="mt-16 pt-8 border-t border-header-foreground/10">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="mt-10 md:mt-16 pt-6 md:pt-8 border-t border-header-foreground/10 safe-area-inset-bottom">
+            <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:justify-between gap-4">
               <p className="text-sm text-header-foreground/40">
                 © {new Date().getFullYear()} Tophallen Bouw B.V. Alle Rechte vorbehalten.
               </p>
