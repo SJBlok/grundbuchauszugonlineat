@@ -116,7 +116,7 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
               size="lg"
               className="group w-full sm:w-auto"
             >
-              Jetzt anfordern – € 23,88
+              Jetzt Grundbuchauszug anfordern
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
