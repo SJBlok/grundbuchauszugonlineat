@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import grundbuchPage1 from '@/assets/grundbuch-example-original.jpg';
+import grundbuchPage1 from '@/assets/grundbuch-example-fictitious.jpg';
 import grundbuchPage2 from '@/assets/grundbuch-example-page2.jpg';
 
 export default function GrundbuchPreview() {
@@ -20,7 +20,7 @@ export default function GrundbuchPreview() {
             Beispiel Grundbuchauszug
           </h1>
           <p className="text-muted-foreground mt-2">
-            So sieht ein echter Grundbuchauszug aus. Personenbezogene Daten wurden unkenntlich gemacht.
+            So sieht ein Grundbuchauszug aus. Die gezeigten Daten sind fiktiv.
           </p>
         </div>
 
@@ -36,41 +36,6 @@ export default function GrundbuchPreview() {
                 src={grundbuchPage1} 
                 alt="Grundbuchauszug Seite 1" 
                 className="w-full h-auto"
-              />
-              
-              {/* Blur overlays for sensitive data */}
-              
-              {/* Property address "Winkl 41" in A1 table */}
-              <div 
-                className="absolute bg-white/90 backdrop-blur-lg rounded"
-                style={{
-                  top: '21.5%',
-                  left: '75%',
-                  width: '18%',
-                  height: '2%',
-                }}
-              />
-              
-              {/* Owner name in B section */}
-              <div 
-                className="absolute bg-white/90 backdrop-blur-lg rounded"
-                style={{
-                  top: '56%',
-                  left: '5%',
-                  width: '85%',
-                  height: '2.8%',
-                }}
-              />
-              
-              {/* Full address line in B section "ADR: Badische Straße 76, 42389 Wuppertal, Deutschland" */}
-              <div 
-                className="absolute bg-white/90 backdrop-blur-lg rounded"
-                style={{
-                  top: '58.8%',
-                  left: '5%',
-                  width: '65%',
-                  height: '2.2%',
-                }}
               />
             </div>
           </div>
