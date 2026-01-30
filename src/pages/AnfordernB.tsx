@@ -121,6 +121,7 @@ export default function AnfordernB() {
                 propertyInfo={orderData.propertyInfo}
                 totalPrice="€23,88"
                 onConfirm={handleConfirmation}
+                onBack={() => setStep(1)}
               />
             </div>
           </div>
