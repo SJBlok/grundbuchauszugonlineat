@@ -39,25 +39,37 @@ export default function GrundbuchPreview() {
               />
               
               {/* Blur overlays for sensitive data */}
-              {/* Owner name in B section */}
+              
+              {/* Property address "Winkl 41" in A1 table */}
               <div 
-                className="absolute bg-white/80 backdrop-blur-md rounded"
+                className="absolute bg-white/90 backdrop-blur-lg rounded"
                 style={{
-                  top: '56.5%',
-                  left: '8%',
-                  width: '70%',
-                  height: '2.5%',
+                  top: '21.5%',
+                  left: '75%',
+                  width: '18%',
+                  height: '2%',
                 }}
               />
               
-              {/* Address in B section */}
+              {/* Owner name in B section */}
               <div 
-                className="absolute bg-white/80 backdrop-blur-md rounded"
+                className="absolute bg-white/90 backdrop-blur-lg rounded"
                 style={{
-                  top: '59%',
-                  left: '8%',
-                  width: '55%',
-                  height: '2%',
+                  top: '56%',
+                  left: '5%',
+                  width: '85%',
+                  height: '2.8%',
+                }}
+              />
+              
+              {/* Full address line in B section "ADR: Badische Straße 76, 42389 Wuppertal, Deutschland" */}
+              <div 
+                className="absolute bg-white/90 backdrop-blur-lg rounded"
+                style={{
+                  top: '58.8%',
+                  left: '5%',
+                  width: '65%',
+                  height: '2.2%',
                 }}
               />
             </div>
