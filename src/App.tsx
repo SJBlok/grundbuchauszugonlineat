@@ -11,6 +11,7 @@ import FAQ from "./pages/FAQ";
 import Kontakt from "./pages/Kontakt";
 import Lexikon from "./pages/Lexikon";
 import Anfordern from "./pages/Anfordern";
+import AnfordernB from "./pages/AnfordernB";
 import Datenschutz from "./pages/Datenschutz";
 import AGB from "./pages/AGB";
 import Widerruf from "./pages/Widerruf";
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/kontakt" element={<Kontakt />} />
           <Route path="/lexikon" element={<Lexikon />} />
           <Route path="/anfordern" element={<Anfordern />} />
+          <Route path="/anfordern-b" element={<AnfordernB />} />
           <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/agb" element={<AGB />} />
           <Route path="/widerruf" element={<Widerruf />} />
