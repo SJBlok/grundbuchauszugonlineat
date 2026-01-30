@@ -18,6 +18,7 @@ interface OrderConfirmationStepProps {
   propertyInfo: string;
   totalPrice: string;
   onConfirm: () => void;
+  onBack?: () => void;
 }
 
 export function OrderConfirmationStep({
@@ -26,6 +27,7 @@ export function OrderConfirmationStep({
   propertyInfo,
   totalPrice,
   onConfirm,
+  onBack,
 }: OrderConfirmationStepProps) {
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -181,7 +183,7 @@ export function OrderConfirmationStep({
           </div>
         </div>
 
-        {/* Confirm Button */}
+        {/* Action Buttons */}
         <div className="space-y-3">
           <Button
             onClick={handleConfirmClick}
@@ -190,6 +192,16 @@ export function OrderConfirmationStep({
             <Check className="h-5 w-5 mr-2" />
             Anfrage abschließen
           </Button>
+          {onBack && (
+            <Button
+              variant="outline"
+              onClick={onBack}
+              className="w-full h-11"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Zurück
+            </Button>
+          )}
           <p className="text-xs text-muted-foreground text-center">
             Klicken Sie auf „Anfrage abschließen", nachdem Sie die Zahlung durchgeführt haben.
           </p>
