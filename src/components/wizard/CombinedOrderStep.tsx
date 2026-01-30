@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -102,6 +103,7 @@ export function CombinedOrderStep({
   const { toast } = useToast();
   const sessionIdRef = useRef<string>(getSessionId());
   const lastTrackedEmailRef = useRef<string>("");
+  const isMobile = useIsMobile();
 
   const {
     register,
@@ -287,7 +289,7 @@ export function CombinedOrderStep({
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 animate-fade-in" data-testid="combined-order-step">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 animate-fade-in pb-24 md:pb-0" data-testid="combined-order-step">
       {/* Product Header Card */}
       <div className="bg-card rounded shadow-lg overflow-hidden">
         <div className="px-6 py-8 lg:px-8 lg:py-10 border-b border-border/40 bg-gradient-to-b from-muted/20 to-transparent relative overflow-hidden">
@@ -628,23 +630,21 @@ export function CombinedOrderStep({
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit Button - Hidden on mobile (shown in sticky bar) */}
           <Button
             type="submit"
-            className="w-full h-14 md:h-14 text-sm md:text-base font-semibold shadow-lg touch-target-lg"
+            className="hidden md:flex w-full h-14 text-base font-semibold shadow-lg touch-target-lg"
             disabled={isSubmitting || !allConfirmed || !hasPropertyData}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="hidden sm:inline">Wird verarbeitet...</span>
-                <span className="sm:hidden">Verarbeiten...</span>
+                <span>Wird verarbeitet...</span>
               </span>
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen – <span className="text-sm font-normal opacity-90">€23,88 inkl. MwSt.</span></span>
-                <span className="sm:hidden">Bestellen – <span className="text-xs font-normal opacity-90">€23,88</span></span>
+                <span>Kostenpflichtig bestellen – <span className="text-sm font-normal opacity-90">€23,88 inkl. MwSt.</span></span>
               </span>
             )}
           </Button>
@@ -695,6 +695,29 @@ export function CombinedOrderStep({
               Ihr Grundbuchauszug wird angefordert. Bitte warten Sie einen Moment...
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Sticky Mobile Button */}
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 safe-area-inset-bottom z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+          <Button
+            type="submit"
+            className="w-full h-14 text-sm font-semibold shadow-lg"
+            disabled={isSubmitting || !allConfirmed || !hasPropertyData}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Verarbeiten...</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Check className="h-5 w-5 shrink-0" />
+                <span>Bestellen – €23,88</span>
+              </span>
+            )}
+          </Button>
         </div>
       )}
     </form>
