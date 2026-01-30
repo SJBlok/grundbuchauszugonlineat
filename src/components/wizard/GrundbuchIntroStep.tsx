@@ -109,19 +109,14 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
             ))}
           </div>
 
-          {/* Price & CTA */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
-            <div className="text-center sm:text-left">
-              <p className="text-sm text-muted-foreground">Aktueller Grundbuchauszug</p>
-              <p className="text-3xl font-bold text-foreground">€ 23,88</p>
-              <p className="text-xs text-muted-foreground">inkl. 20% MwSt.</p>
-            </div>
+          {/* CTA */}
+          <div className="mt-8 flex justify-center">
             <Button 
               onClick={onContinue}
               size="lg"
               className="group w-full sm:w-auto"
             >
-              Jetzt Grundbuchauszug anfordern
+              Jetzt anfordern – € 23,88
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
