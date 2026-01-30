@@ -2,6 +2,13 @@ import { Button } from "@/components/ui/button";
 import { 
   CheckCircle, 
   ArrowRight,
+  FileText,
+  Home,
+  Scale,
+  Landmark,
+  Clock,
+  Mail,
+  Download,
 } from "lucide-react";
 
 interface GrundbuchIntroStepProps {
@@ -14,26 +21,41 @@ const benefits = [
   "Download als PDF & Versand per E-Mail",
 ];
 
+const useCases = [
+  { icon: Home, text: "Immobilienkauf oder -verkauf" },
+  { icon: Scale, text: "Erbschaftsangelegenheiten" },
+  { icon: Landmark, text: "Kreditaufnahme & Hypotheken" },
+  { icon: FileText, text: "Bauvorhaben & Genehmigungen" },
+];
+
+const processSteps = [
+  { number: 1, title: "Daten eingeben", description: "Adresse oder Grundstücksnummer" },
+  { number: 2, title: "Bestellen", description: "Sicher per Überweisung" },
+  { number: 3, title: "Erhalten", description: "Per E-Mail als PDF" },
+];
+
 export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in space-y-6">
       {/* Main Card */}
       <div className="bg-card rounded shadow-lg overflow-hidden">
         {/* Header */}
         <div className="px-6 py-8 lg:px-10 lg:py-10 border-b border-border/40 bg-gradient-to-b from-muted/20 to-transparent">
+          <p className="text-xs font-medium text-primary uppercase tracking-wider mb-2">Offizieller Dokumentenservice</p>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight font-serif leading-tight">
             Grundbuchauszug <span className="text-primary">Online</span>
           </h1>
           <p className="text-muted-foreground mt-3 text-lg">
-            Ohne Anmeldung einen Grundbuchauszug einer Liegenschaft oder Wohnung online anfordern.
+            Ohne Anmeldung einen Grundbuchauszug einer Liegenschaft oder Wohnung online anfordern. 
+            Aktuell und vollständig aus dem österreichischen Grundbuch.
           </p>
         </div>
 
         {/* Content Grid */}
         <div className="grid lg:grid-cols-2 gap-0">
           {/* Left: Benefits & CTA */}
-          <div className="p-6 lg:p-10 flex flex-col justify-between">
-            <div className="space-y-6">
+          <div className="p-6 lg:p-10 flex flex-col">
+            <div className="space-y-6 flex-1">
               {/* Section: Grundbuchauszug */}
               <div>
                 <h2 className="text-xl font-semibold text-foreground mb-4">Grundbuchauszug</h2>
@@ -47,6 +69,18 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
                 </ul>
               </div>
 
+              {/* Delivery Info */}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/30 rounded p-4">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span>In der Regel binnen 1 Stunde</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-primary" />
+                  <span>Per E-Mail</span>
+                </div>
+              </div>
+
               {/* Price Box */}
               <div className="bg-primary text-primary-foreground rounded p-5">
                 <div className="flex items-center justify-between">
@@ -55,12 +89,21 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
                     <p className="text-2xl font-bold">€ 23,88</p>
                     <p className="text-primary-foreground/70 text-xs mt-0.5">inkl. 20% MwSt.</p>
                   </div>
+                  <Button 
+                    onClick={onContinue}
+                    size="lg"
+                    variant="secondary"
+                    className="hidden sm:flex group"
+                  >
+                    Jetzt anfordern
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* CTA Button */}
-            <div className="mt-8">
+            {/* CTA Button - Mobile */}
+            <div className="mt-6 sm:hidden">
               <Button 
                 onClick={onContinue}
                 size="lg"
@@ -154,17 +197,109 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
                 {/* Document Footer */}
                 <div className="px-4 py-2 bg-zinc-50 border-t border-zinc-200 flex justify-between text-[8px] text-zinc-400">
                   <span>Grundbuch</span>
-                  <span>29.01.2026 10:53:16</span>
+                  <span>30.01.2026 10:53:16</span>
                 </div>
               </div>
 
               {/* Caption */}
               <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-full bg-muted flex items-center justify-center text-[8px]">i</span>
+                <span className="inline-block w-4 h-4 rounded-full bg-muted/80 flex items-center justify-center text-[9px]">i</span>
                 Beispielhafte Illustration eines fiktiven Grundbuchauszugs
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Additional Info Sections */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Document Structure */}
+        <div className="bg-card rounded shadow-lg p-6 lg:p-8">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Aufbau des Grundbuchauszugs
+          </h3>
+          <div className="space-y-4">
+            <div className="border-l-4 border-primary pl-4">
+              <p className="font-medium text-foreground">A-Blatt (Gutsbestandsblatt)</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Alle Grundstücke der Einlage mit Adresse, Grundstücksnummer, Fläche und Benützungsart. 
+                Enthält auch verbundene Rechte und öffentlich-rechtliche Beschränkungen.
+              </p>
+            </div>
+            <div className="border-l-4 border-secondary pl-4">
+              <p className="font-medium text-foreground">B-Blatt (Eigentumsblatt)</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Auskunft über die Eigentumsverhältnisse: Wer ist Eigentümer, welche Eigentumsanteile bestehen, 
+                wann und durch welche Urkunde wurde das Eigentumsrecht erworben.
+              </p>
+            </div>
+            <div className="border-l-4 border-muted-foreground pl-4">
+              <p className="font-medium text-foreground">C-Blatt (Lastenblatt)</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Alle Belastungen der Liegenschaft: Hypotheken, Pfandrechte, Dienstbarkeiten, 
+                Vor- und Wiederverkaufsrechte sowie Miet- und Pachtverträge.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* When do you need it */}
+        <div className="bg-card rounded shadow-lg p-6 lg:p-8">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Wann benötigt man einen Grundbuchauszug?
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {useCases.map((useCase) => (
+              <div 
+                key={useCase.text}
+                className="flex items-center gap-3 p-3 bg-muted/30 rounded"
+              >
+                <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
+                  <useCase.icon className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-sm text-foreground">{useCase.text}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-sm text-muted-foreground mt-4">
+            Ein Grundbuchauszug gibt Ihnen rechtssichere Auskunft über Eigentumsverhältnisse, 
+            Belastungen und Beschränkungen einer Immobilie in Österreich.
+          </p>
+        </div>
+      </div>
+
+      {/* Order Process */}
+      <div className="bg-card rounded shadow-lg p-6 lg:p-8">
+        <h3 className="text-lg font-semibold text-foreground mb-6 text-center">
+          Bestellablauf – So einfach geht's
+        </h3>
+        <div className="grid grid-cols-3 gap-4 md:gap-8">
+          {processSteps.map((step, index) => (
+            <div key={step.number} className="text-center relative">
+              {/* Connector line */}
+              {index < processSteps.length - 1 && (
+                <div className="hidden md:block absolute top-6 left-[60%] w-[80%] h-0.5 bg-border" />
+              )}
+              <div className="h-12 w-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto text-lg font-bold relative z-10">
+                {step.number}
+              </div>
+              <p className="font-medium text-foreground mt-3">{step.title}</p>
+              <p className="text-sm text-muted-foreground mt-1">{step.description}</p>
+            </div>
+          ))}
+        </div>
+        
+        {/* Final CTA */}
+        <div className="mt-8 text-center">
+          <Button 
+            onClick={onContinue}
+            size="lg"
+            className="group"
+          >
+            Jetzt Grundbuchauszug anfordern
+            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
         </div>
       </div>
     </div>
