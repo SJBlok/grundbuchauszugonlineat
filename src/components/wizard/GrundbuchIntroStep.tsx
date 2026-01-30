@@ -4,16 +4,18 @@ import {
   ArrowRight,
   Clock,
   Mail,
+  Download,
 } from "lucide-react";
 
 interface GrundbuchIntroStepProps {
   onContinue: () => void;
 }
 
-const benefits = [
-  "Aktuelle und vollständige Abfrage aus dem Grundbuch",
-  "Keine Registrierung erforderlich",
-  "Download als PDF & Versand per E-Mail",
+const usps = [
+  { icon: CheckCircle, text: "Aktuelle und vollständige Abfrage aus dem Grundbuch" },
+  { icon: Clock, text: "In der Regel binnen 1 Stunde per E-Mail" },
+  { icon: Download, text: "Download als PDF & Versand per E-Mail" },
+  { icon: Mail, text: "Keine Registrierung erforderlich" },
 ];
 
 export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
@@ -33,67 +35,44 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
           </p>
         </div>
 
-        {/* Content Grid */}
+        {/* Content Grid - Document Structure & Example */}
         <div className="grid lg:grid-cols-2 gap-0">
-          {/* Left: Benefits & CTA */}
+          {/* Left: Document Structure Info */}
           <div className="p-6 lg:p-10 flex flex-col">
-            <div className="space-y-6 flex-1">
-              {/* Section: Grundbuchauszug */}
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-4">Grundbuchauszug</h2>
-                <ul className="space-y-3">
-                  {benefits.map((benefit) => (
-                    <li key={benefit} className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Delivery Info */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/30 rounded p-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <span>In der Regel binnen 1 Stunde</span>
+            <h3 className="text-lg font-semibold text-foreground mb-5">
+              Aufbau des Grundbuchauszugs
+            </h3>
+            <div className="space-y-4 flex-1">
+              <div className="bg-muted/30 border border-border/50 rounded p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="h-6 w-6 bg-primary/10 text-primary rounded text-xs font-bold flex items-center justify-center">A</span>
+                  <p className="font-medium text-foreground text-sm">Gutsbestandsblatt</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-primary" />
-                  <span>Per E-Mail</span>
-                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Alle Grundstücke mit Adresse, Grundstücksnummer, Fläche und Benützungsart. 
+                  Enthält auch verbundene Rechte und öffentlich-rechtliche Beschränkungen.
+                </p>
               </div>
-
-              {/* Price Box */}
-              <div className="bg-primary text-primary-foreground rounded p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-primary-foreground/80 text-sm">Aktueller Grundbuchauszug</p>
-                    <p className="text-2xl font-bold">€ 23,88</p>
-                    <p className="text-primary-foreground/70 text-xs mt-0.5">inkl. 20% MwSt.</p>
-                  </div>
-                  <Button 
-                    onClick={onContinue}
-                    size="lg"
-                    variant="secondary"
-                    className="hidden sm:flex group"
-                  >
-                    Jetzt anfordern
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+              <div className="bg-muted/30 border border-border/50 rounded p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="h-6 w-6 bg-secondary/20 text-secondary rounded text-xs font-bold flex items-center justify-center">B</span>
+                  <p className="font-medium text-foreground text-sm">Eigentumsblatt</p>
                 </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Wer ist Eigentümer, welche Eigentumsanteile bestehen, wann und durch welche Urkunde 
+                  wurde das Eigentumsrecht erworben.
+                </p>
               </div>
-            </div>
-
-            {/* CTA Button - Mobile */}
-            <div className="mt-6 sm:hidden">
-              <Button 
-                onClick={onContinue}
-                size="lg"
-                className="w-full group"
-              >
-                Grundbuchauszug anfordern
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <div className="bg-muted/30 border border-border/50 rounded p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="h-6 w-6 bg-muted text-muted-foreground rounded text-xs font-bold flex items-center justify-center">C</span>
+                  <p className="font-medium text-foreground text-sm">Lastenblatt</p>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Alle Belastungen: Hypotheken, Pfandrechte, Dienstbarkeiten, 
+                  Vor- und Wiederverkaufsrechte sowie Miet- und Pachtverträge.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -192,50 +171,28 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
           </div>
         </div>
 
-        {/* Document Structure Section - Inside main card */}
+        {/* USPs Section - Bottom */}
         <div className="border-t border-border/40 p-6 lg:p-10 bg-muted/10">
-          <h3 className="text-lg font-semibold text-foreground mb-5">
-            Aufbau des Grundbuchauszugs
-          </h3>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="bg-card border border-border/50 rounded p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="h-6 w-6 bg-primary/10 text-primary rounded text-xs font-bold flex items-center justify-center">A</span>
-                <p className="font-medium text-foreground text-sm">Gutsbestandsblatt</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {usps.map((usp) => (
+              <div key={usp.text} className="flex items-start gap-3">
+                <usp.icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm text-muted-foreground">{usp.text}</span>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Alle Grundstücke mit Adresse, Grundstücksnummer, Fläche und Benützungsart. 
-                Enthält auch verbundene Rechte und öffentlich-rechtliche Beschränkungen.
-              </p>
-            </div>
-            <div className="bg-card border border-border/50 rounded p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="h-6 w-6 bg-secondary/20 text-secondary rounded text-xs font-bold flex items-center justify-center">B</span>
-                <p className="font-medium text-foreground text-sm">Eigentumsblatt</p>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Wer ist Eigentümer, welche Eigentumsanteile bestehen, wann und durch welche Urkunde 
-                wurde das Eigentumsrecht erworben.
-              </p>
-            </div>
-            <div className="bg-card border border-border/50 rounded p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="h-6 w-6 bg-muted text-muted-foreground rounded text-xs font-bold flex items-center justify-center">C</span>
-                <p className="font-medium text-foreground text-sm">Lastenblatt</p>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Alle Belastungen: Hypotheken, Pfandrechte, Dienstbarkeiten, 
-                Vor- und Wiederverkaufsrechte sowie Miet- und Pachtverträge.
-              </p>
-            </div>
+            ))}
           </div>
 
-          {/* Bottom CTA */}
-          <div className="mt-8 text-center">
+          {/* Price & CTA */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+            <div className="text-center sm:text-left">
+              <p className="text-sm text-muted-foreground">Aktueller Grundbuchauszug</p>
+              <p className="text-3xl font-bold text-foreground">€ 23,88</p>
+              <p className="text-xs text-muted-foreground">inkl. 20% MwSt.</p>
+            </div>
             <Button 
               onClick={onContinue}
               size="lg"
-              className="group"
+              className="group w-full sm:w-auto"
             >
               Jetzt Grundbuchauszug anfordern
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
