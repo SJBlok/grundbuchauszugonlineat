@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CombinedOrderStep } from "@/components/wizard/CombinedOrderStep";
-import { OrderConfirmationStep } from "@/components/wizard/OrderConfirmationStep";
 import { GrundbuchIntroStep } from "@/components/wizard/GrundbuchIntroStep";
 
 export interface PropertyData {
@@ -43,17 +42,12 @@ export default function AnfordernB() {
     plz: "",
     ort: "",
   });
-  const [applicantData, setApplicantData] = useState<ApplicantData>({
+  const [applicantData] = useState<ApplicantData>({
     vorname: "",
     nachname: "",
     email: "",
     wohnsitzland: "Österreich",
     firma: "",
-  });
-  const [orderData, setOrderData] = useState<OrderData>({
-    orderNumber: "",
-    email: "",
-    propertyInfo: "",
   });
 
   // Scroll to top when step changes
@@ -66,19 +60,14 @@ export default function AnfordernB() {
   };
 
   const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string) => {
-    setOrderData({ orderNumber, email, propertyInfo });
-    setApplicantData(prev => ({ ...prev, email }));
-    setStep(2);
-  };
-
-  const handleConfirmation = () => {
-    // Navigate to thank you page with order data
+    // Navigate to confirmation page with order data
     const params = new URLSearchParams({
-      order: orderData.orderNumber,
-      email: orderData.email,
-      property: orderData.propertyInfo,
+      order: orderNumber,
+      email: email,
+      property: propertyInfo,
+      variant: "b",
     });
-    navigate(`/bedankt?${params.toString()}`);
+    navigate(`/bevestiging?${params.toString()}`);
   };
 
   // Intro step (step 0)
@@ -89,28 +78,6 @@ export default function AnfordernB() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <GrundbuchIntroStep onContinue={handleIntroComplete} />
-            </div>
-          </div>
-        </section>
-      </Layout>
-    );
-  }
-
-  // Order confirmation step (step 2)
-  if (step === 2) {
-    return (
-      <Layout>
-        <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-8 md:py-14 lg:py-16 pb-16 md:pb-24 lg:pb-32">
-          <div className="container mx-auto px-4">
-            <div className="max-w-lg mx-auto">
-              <OrderConfirmationStep
-                orderNumber={orderData.orderNumber}
-                email={orderData.email}
-                propertyInfo={orderData.propertyInfo}
-                totalPrice="€23,88"
-                onConfirm={handleConfirmation}
-                onBack={() => setStep(1)}
-              />
             </div>
           </div>
         </section>
