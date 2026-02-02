@@ -11,26 +11,28 @@ export default function Bedankt() {
   const email = searchParams.get("email") || "";
   const propertyInfo = searchParams.get("property") || "";
 
-  // Redirect to home if no order data
-  useEffect(() => {
-    if (!orderNumber || !email) {
-      navigate("/");
-    }
-  }, [orderNumber, email, navigate]);
-
-  if (!orderNumber || !email) {
-    return null;
-  }
+  // Check if we have demo mode (no params but user is directly viewing)
+  const isDemoMode = !orderNumber && !email;
+  
+  // Use demo data for preview purposes
+  const displayOrderNumber = orderNumber || "GB-DEMO-12345";
+  const displayEmail = email || "demo@beispiel.at";
+  const displayPropertyInfo = propertyInfo || "EZ 123, KG Innere Stadt";
 
   return (
     <Layout>
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
+            {isDemoMode && (
+              <div className="mb-4 p-3 bg-warning/20 border border-warning rounded text-warning-foreground text-sm text-center">
+                Demo-Vorschau – Diese Seite wird normalerweise nach einer Bestellung angezeigt.
+              </div>
+            )}
             <ThankYouStep
-              orderNumber={orderNumber}
-              email={email}
-              propertyInfo={propertyInfo}
+              orderNumber={displayOrderNumber}
+              email={displayEmail}
+              propertyInfo={displayPropertyInfo}
             />
           </div>
         </div>
