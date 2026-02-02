@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CombinedOrderStep } from "@/components/wizard/CombinedOrderStep";
 import { OrderConfirmationStep } from "@/components/wizard/OrderConfirmationStep";
-import { ThankYouStep } from "@/components/wizard/ThankYouStep";
 import { GrundbuchIntroStep } from "@/components/wizard/GrundbuchIntroStep";
 
 export interface PropertyData {
@@ -31,6 +31,7 @@ export interface OrderData {
 }
 
 export default function AnfordernB() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0); // Start at 0 for intro step
   const [propertyData] = useState<PropertyData>({
     katastralgemeinde: "",
@@ -71,7 +72,13 @@ export default function AnfordernB() {
   };
 
   const handleConfirmation = () => {
-    setStep(3);
+    // Navigate to thank you page with order data
+    const params = new URLSearchParams({
+      order: orderData.orderNumber,
+      email: orderData.email,
+      property: orderData.propertyInfo,
+    });
+    navigate(`/bedankt?${params.toString()}`);
   };
 
   // Intro step (step 0)
@@ -82,25 +89,6 @@ export default function AnfordernB() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <GrundbuchIntroStep onContinue={handleIntroComplete} />
-            </div>
-          </div>
-        </section>
-      </Layout>
-    );
-  }
-
-  // Thank you step (step 3)
-  if (step === 3) {
-    return (
-      <Layout>
-        <section className="py-12 md:py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              <ThankYouStep
-                orderNumber={orderData.orderNumber}
-                email={orderData.email}
-                propertyInfo={orderData.propertyInfo}
-              />
             </div>
           </div>
         </section>
