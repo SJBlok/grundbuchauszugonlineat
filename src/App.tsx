@@ -13,6 +13,7 @@ import Lexikon from "./pages/Lexikon";
 import Anfordern from "./pages/Anfordern";
 import AnfordernB from "./pages/AnfordernB";
 import Bedankt from "./pages/Bedankt";
+import Bevestiging from "./pages/Bevestiging";
 import Datenschutz from "./pages/Datenschutz";
 import AGB from "./pages/AGB";
 import Widerruf from "./pages/Widerruf";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/anfordern" element={<Anfordern />} />
           <Route path="/anfordern-b" element={<AnfordernB />} />
           <Route path="/bedankt" element={<Bedankt />} />
+          <Route path="/bevestiging" element={<Bevestiging />} />
           <Route path="/datenschutz" element={<Datenschutz />} />
           <Route path="/agb" element={<AGB />} />
           <Route path="/widerruf" element={<Widerruf />} />
