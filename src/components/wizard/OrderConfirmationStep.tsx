@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, FileText, CreditCard, Copy, Clock, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,12 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
+
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 interface OrderConfirmationStepProps {
   orderNumber: string;
@@ -31,6 +37,22 @@ export function OrderConfirmationStep({
 }: OrderConfirmationStepProps) {
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+  // Track purchase conversions when page loads
+  useEffect(() => {
+    if (window.gtag) {
+      // Original conversion tracking
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-10868807904/yBP-CILkyugbEOCx074o',
+        'transaction_id': orderNumber
+      });
+      // New conversion tracking (AW-17892973244)
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-17892973244/F7FXCK6a7-sbELy1hNRC',
+        'transaction_id': orderNumber
+      });
+    }
+  }, [orderNumber]);
 
   const bankDetails = {
     empfaenger: "Application Assistant Ltd",
