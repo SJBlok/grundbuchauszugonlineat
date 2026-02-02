@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CombinedOrderStep } from "@/components/wizard/CombinedOrderStep";
 import { OrderConfirmationStep } from "@/components/wizard/OrderConfirmationStep";
-import { ThankYouStep } from "@/components/wizard/ThankYouStep";
 
 export interface PropertyData {
   katastralgemeinde: string;
@@ -30,6 +30,7 @@ export interface OrderData {
 }
 
 export default function Anfordern() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [propertyData] = useState<PropertyData>({
     katastralgemeinde: "",
@@ -66,27 +67,14 @@ export default function Anfordern() {
   };
 
   const handleConfirmation = () => {
-    setStep(3);
+    // Navigate to thank you page with order data
+    const params = new URLSearchParams({
+      order: orderData.orderNumber,
+      email: orderData.email,
+      property: orderData.propertyInfo,
+    });
+    navigate(`/bedankt?${params.toString()}`);
   };
-
-  // Thank you step
-  if (step === 3) {
-    return (
-      <Layout>
-        <section className="py-12 md:py-16">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto">
-              <ThankYouStep
-                orderNumber={orderData.orderNumber}
-                email={orderData.email}
-                propertyInfo={orderData.propertyInfo}
-              />
-            </div>
-          </div>
-        </section>
-      </Layout>
-    );
-  }
 
   // Order confirmation step
   if (step === 2) {
