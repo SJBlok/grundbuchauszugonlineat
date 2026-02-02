@@ -56,7 +56,7 @@ export default function Anfordern() {
       property: propertyInfo,
       variant: "a",
     });
-    navigate(`/bevestiging?${params.toString()}`);
+    navigate(`/bestaetigung?${params.toString()}`);
   };
 
   return (
