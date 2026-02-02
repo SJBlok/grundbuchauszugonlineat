@@ -67,7 +67,7 @@ export default function AnfordernB() {
       property: propertyInfo,
       variant: "b",
     });
-    navigate(`/bevestiging?${params.toString()}`);
+    navigate(`/bestaetigung?${params.toString()}`);
   };
 
   // Intro step (step 0)
