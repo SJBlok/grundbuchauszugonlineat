@@ -2,13 +2,6 @@ import { CheckCircle, Copy, FileText, Mail, Home, Plus, Info } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { useEffect } from "react";
-
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-  }
-}
 
 interface ThankYouStepProps {
   orderNumber: string;
@@ -17,22 +10,6 @@ interface ThankYouStepProps {
 }
 
 export function ThankYouStep({ orderNumber, email, propertyInfo }: ThankYouStepProps) {
-  // Track purchase conversions
-  useEffect(() => {
-    if (window.gtag) {
-      // Original conversion tracking
-      window.gtag('event', 'conversion', {
-        'send_to': 'AW-10868807904/yBP-CILkyugbEOCx074o',
-        'transaction_id': orderNumber
-      });
-      // New conversion tracking (AW-17892973244)
-      window.gtag('event', 'conversion', {
-        'send_to': 'AW-17892973244/F7FXCK6a7-sbELy1hNRC',
-        'transaction_id': orderNumber
-      });
-    }
-  }, [orderNumber]);
-
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} kopiert!`);
