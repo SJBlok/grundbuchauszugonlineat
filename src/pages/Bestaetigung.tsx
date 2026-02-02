@@ -1,8 +1,13 @@
+import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { OrderConfirmationStep } from "@/components/wizard/OrderConfirmationStep";
 
 export default function Bestaetigung() {
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
