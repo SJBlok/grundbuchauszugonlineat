@@ -182,10 +182,6 @@ export function OrderConfirmationStep({
                 </button>
               </div>
             </div>
-
-            <p className="text-xs text-muted-foreground">
-              Nach Zahlungseingang erhalten Sie Ihren Grundbuchauszug per E-Mail.
-            </p>
           </div>
         </div>
 
