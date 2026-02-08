@@ -175,26 +175,21 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
         
         <p>Vielen Dank für Ihre Bestellung. <strong>Ihre Bestellung wird manuell bearbeitet.</strong> Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt.</p>
         
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; background-color: ${BRAND_COLORS.surface}; border-radius: 4px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0;">
           <tr>
-            <td style="padding: 20px;">
+            <td style="padding: 16px 0; border-top: 1px solid ${BRAND_COLORS.borderLight}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
-                  <td style="padding-bottom: 16px; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
-                    <p style="margin: 0; font-size: 15px; color: ${BRAND_COLORS.text}; line-height: 1.6;">
-                      ${addressDisplay}
-                    </p>
-                  </td>
+                  <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted};">Objekt</td>
+                  <td style="font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right;">${addressDisplay}</td>
                 </tr>
                 <tr>
-                  <td style="padding-top: 16px;">
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                      <tr>
-                        <td style="font-size: 15px; color: ${BRAND_COLORS.text};">${order.product_name}</td>
-                        <td style="font-size: 15px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
-                      </tr>
-                    </table>
-                  </td>
+                  <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted}; padding-top: 8px;">Produkt</td>
+                  <td style="font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right; padding-top: 8px;">${order.product_name}</td>
+                </tr>
+                <tr>
+                  <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted}; padding-top: 8px;">Betrag</td>
+                  <td style="font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right; padding-top: 8px;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
                 </tr>
               </table>
             </td>
