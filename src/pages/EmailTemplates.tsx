@@ -173,7 +173,7 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
       <div class="content">
         <p class="greeting">Sehr geehrte/r ${order.vorname} ${order.nachname},</p>
         
-        <p>Vielen Dank für Ihre Bestellung. Der automatische Abruf aus der Grundbuchdatenbank war anhand der angegebenen Daten leider nicht möglich:</p>
+        <p>Vielen Dank für Ihre Bestellung. <strong>Ihre Bestellung wird manuell bearbeitet.</strong> Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt.</p>
         
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; background-color: ${BRAND_COLORS.surface}; border-radius: 4px;">
           <tr>
