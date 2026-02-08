@@ -107,59 +107,90 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
     };
   }, [query, selectedResult]);
 
-  // If address is selected, show clean confirmation with all property details
+  // If address is selected, show compact confirmation with property details
   if (selectedResult) {
-    const fullAddress = [
-      selectedResult.adresse,
-      [selectedResult.plz, selectedResult.ort].filter(Boolean).join(" "),
-      selectedResult.bundesland
-    ].filter(Boolean).join(", ");
-
-    // Build property info items
-    const propertyItems = [
-      selectedResult.kgName && { label: "KG", value: selectedResult.kgName + (selectedResult.kgNummer ? ` (${selectedResult.kgNummer})` : "") },
-      !selectedResult.kgName && selectedResult.kgNummer && { label: "KG-Nr.", value: selectedResult.kgNummer },
-      selectedResult.gst && { label: "GST-Nr.", value: selectedResult.gst },
-      selectedResult.ez && { label: "EZ", value: selectedResult.ez },
-    ].filter(Boolean) as { label: string; value: string }[];
+    const addressDisplay = [selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ");
     
     return (
-      <div className="bg-primary/5 border border-primary/20 rounded-lg overflow-hidden">
-        {/* Header with address */}
-        <div className="px-4 py-3 border-b border-primary/10">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 min-w-0">
-              <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                <CheckCircle2 className="h-4 w-4 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-primary uppercase tracking-wide mb-0.5">Adresse</p>
-                <p className="text-sm font-semibold text-foreground leading-snug">{fullAddress}</p>
-              </div>
+      <div className="space-y-4">
+        {/* Compact address input with edit button */}
+        <div>
+          <p className="text-sm font-medium text-foreground mb-2">
+            Adresse des Grundstücks <span className="text-destructive">*</span>
+          </p>
+          <div className="flex gap-2">
+            <div className="relative flex-1 min-w-0">
+              <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Input
+                type="text"
+                value={addressDisplay}
+                readOnly
+                className="pl-9 bg-muted/30 border-primary/30 cursor-default truncate"
+              />
             </div>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={handleEditSelection}
-              className="h-8 px-2 text-muted-foreground hover:text-foreground shrink-0"
+              className="h-11 px-3 shrink-0"
             >
-              <Edit2 className="h-3.5 w-3.5" />
+              <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+              Ändern
             </Button>
           </div>
         </div>
 
-        {/* Property details row */}
-        {propertyItems.length > 0 && (
-          <div className="px-4 py-2.5 flex flex-wrap gap-x-5 gap-y-1">
-            {propertyItems.map((item, i) => (
-              <div key={i} className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">{item.label}:</span>
-                <span className="text-xs font-medium text-foreground">{item.value}</span>
-              </div>
-            ))}
+        {/* Property Details Card */}
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-7 w-7 bg-primary/10 rounded flex items-center justify-center">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wide">Grundstücksdaten</p>
           </div>
-        )}
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {selectedResult.kgName && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Katastralgemeinde</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.kgName}</p>
+              </div>
+            )}
+            {selectedResult.kgNummer && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">KG-Nummer</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.kgNummer}</p>
+              </div>
+            )}
+            {selectedResult.gst && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Grundstücksnummer</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.gst}</p>
+              </div>
+            )}
+            {selectedResult.ez && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Einlagezahl</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.ez}</p>
+              </div>
+            )}
+            {selectedResult.bundesland && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Bundesland</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.bundesland}</p>
+              </div>
+            )}
+            {(selectedResult.plz || selectedResult.ort) && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Ort</p>
+                <p className="text-sm font-medium text-foreground">
+                  {[selectedResult.plz, selectedResult.ort].filter(Boolean).join(" ")}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
