@@ -26,18 +26,18 @@ const BRAND_COLORS = {
 // Logo URL from Supabase Storage
 const LOGO_URL = "https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg";
 
-// Logo in banner style with actual logo image
+// Logo in banner style with actual logo image - mobile optimized
 const getLogoHtml = () => `
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
   <tr>
     <td style="text-align: center;">
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display: inline-table;">
         <tr>
-          <td style="vertical-align: middle; padding-right: 12px;">
-            <img src="${LOGO_URL}" alt="Logo" width="28" height="28" style="display: block; border: 0;" />
+          <td style="vertical-align: middle; padding-right: 8px;">
+            <img src="${LOGO_URL}" alt="Logo" width="24" height="24" style="display: block; border: 0;" />
           </td>
           <td style="vertical-align: middle;">
-            <span style="font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
+            <span style="font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
               GrundbuchauszugOnline
             </span>
           </td>
