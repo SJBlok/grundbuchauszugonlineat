@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
-interface AddressSearchResult {
+export interface AddressSearchResult {
   kgNummer: string;
   kgName: string;
   ez: string;
@@ -18,9 +18,10 @@ interface AddressSearchResult {
 
 interface AddressSearchProps {
   onSelectResult: (result: AddressSearchResult) => void;
+  selectedResult?: AddressSearchResult | null;
 }
 
-export function AddressSearch({ onSelectResult }: AddressSearchProps) {
+export function AddressSearch({ onSelectResult, selectedResult: externalSelectedResult }: AddressSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<AddressSearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -107,12 +108,16 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
     };
   }, [query, selectedResult]);
 
-  // If address is selected, show compact inline confirmation with edit option
-  if (selectedResult) {
-    const addressDisplay = [selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ");
+  // Use external selected result if provided, otherwise use internal state
+  const displayResult = externalSelectedResult || selectedResult;
+
+  // If address is selected, show compact inline confirmation with property details
+  if (displayResult) {
+    const addressDisplay = [displayResult.adresse, displayResult.plz, displayResult.ort].filter(Boolean).join(", ");
     
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
+        {/* Compact address display with edit button */}
         <div>
           <p className="text-sm font-medium text-foreground mb-2">
             Adresse des Grundstücks <span className="text-destructive">*</span>
@@ -137,6 +142,25 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
               <Edit2 className="h-3.5 w-3.5 mr-1.5" />
               Ändern
             </Button>
+          </div>
+        </div>
+
+        {/* Property details block */}
+        <div className="bg-primary/5 border border-primary/20 rounded p-4">
+          <div className="flex items-start gap-3">
+            <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-primary uppercase tracking-wide mb-1">Ausgewähltes Grundstück</p>
+              <p className="font-semibold text-foreground text-sm">
+                KG {displayResult.kgName || displayResult.kgNummer}, {displayResult.gst ? `GST ${displayResult.gst}` : displayResult.ez ? `EZ ${displayResult.ez}` : ''}
+              </p>
+              <p className="text-muted-foreground text-sm mt-0.5">{addressDisplay}</p>
+              {displayResult.bundesland && (
+                <p className="text-muted-foreground text-xs mt-1">{displayResult.bundesland}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
