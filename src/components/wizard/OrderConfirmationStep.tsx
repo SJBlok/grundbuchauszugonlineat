@@ -108,7 +108,7 @@ export function OrderConfirmationStep({
           </div>
           <div className="p-4 space-y-4">
             <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">Überweisen Sie den Betrag</span>, um Ihren Grundbuchauszug zu erhalten.
+              Bitte <span className="font-semibold text-foreground">überweisen Sie den Betrag</span>, um Ihre Bestellung abzuschließen.
             </p>
             
             <div className="bg-muted/30 rounded p-4 space-y-3">
