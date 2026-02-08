@@ -201,37 +201,6 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
           </tr>
         </table>
         
-        <div style="background-color: ${BRAND_COLORS.surface}; border-left: 3px solid ${BRAND_COLORS.primary}; padding: 20px; margin: 24px 0;">
-          <p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.text};">Wie geht es weiter?</p>
-          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-            <tr>
-              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
-                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">1.</span>Der automatische Abruf der Dokumente ist fehlgeschlagen
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
-                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">2.</span>Ihre Bestellung wird manuell bearbeitet
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
-                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">3.</span>Unser Team ermittelt die korrekte Liegenschaft
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
-                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">4.</span>Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt
-              </td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.5;">
-                <span style="color: ${BRAND_COLORS.textMuted}; margin-right: 8px;">5.</span>Bei Fragen wird sich unser Support-Team mit Ihnen in Verbindung setzen
-              </td>
-            </tr>
-          </table>
-        </div>
-        
         ${getPaymentDetailsBox(order.order_number)}
         
         ${getSignature()}
