@@ -588,9 +588,9 @@ export function CombinedOrderStep({
                 id="confirmTerms"
                 checked={confirmTerms}
                 onCheckedChange={(checked) => setConfirmTerms(checked === true)}
-                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer"
+                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer"
               />
-              <Label htmlFor="confirmTerms" className="font-normal text-sm leading-relaxed cursor-pointer">
+              <Label htmlFor="confirmTerms" className="font-normal text-xs leading-relaxed cursor-pointer">
                 Ich habe die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
               </Label>
             </div>
@@ -600,9 +600,9 @@ export function CombinedOrderStep({
                 id="confirmNoRefund"
                 checked={confirmNoRefund}
                 onCheckedChange={(checked) => setConfirmNoRefund(checked === true)}
-                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer"
+                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer"
               />
-              <Label htmlFor="confirmNoRefund" className="font-normal text-sm leading-relaxed cursor-pointer">
+              <Label htmlFor="confirmNoRefund" className="font-normal text-xs leading-relaxed cursor-pointer">
                 Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
               </Label>
             </div>
