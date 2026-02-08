@@ -107,12 +107,13 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
     };
   }, [query, selectedResult]);
 
-  // If address is selected, show compact inline confirmation with edit option
+  // If address is selected, show compact confirmation with property details
   if (selectedResult) {
     const addressDisplay = [selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ");
     
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
+        {/* Compact address input with edit button */}
         <div>
           <p className="text-sm font-medium text-foreground mb-2">
             Adresse des Grundstücks <span className="text-destructive">*</span>
@@ -137,6 +138,57 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
               <Edit2 className="h-3.5 w-3.5 mr-1.5" />
               Ändern
             </Button>
+          </div>
+        </div>
+
+        {/* Property Details Card */}
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-7 w-7 bg-primary/10 rounded flex items-center justify-center">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wide">Grundstücksdaten</p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {selectedResult.kgName && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Katastralgemeinde</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.kgName}</p>
+              </div>
+            )}
+            {selectedResult.kgNummer && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">KG-Nummer</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.kgNummer}</p>
+              </div>
+            )}
+            {selectedResult.gst && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Grundstücksnummer</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.gst}</p>
+              </div>
+            )}
+            {selectedResult.ez && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Einlagezahl</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.ez}</p>
+              </div>
+            )}
+            {selectedResult.bundesland && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Bundesland</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.bundesland}</p>
+              </div>
+            )}
+            {(selectedResult.plz || selectedResult.ort) && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Ort</p>
+                <p className="text-sm font-medium text-foreground">
+                  {[selectedResult.plz, selectedResult.ort].filter(Boolean).join(" ")}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
