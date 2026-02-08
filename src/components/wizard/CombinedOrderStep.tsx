@@ -336,7 +336,7 @@ export function CombinedOrderStep({
 
           <div className="p-6 lg:p-8">
             <TabsContent value="address" className="mt-0 space-y-5">
-              <AddressSearch onSelectResult={handleAddressSelect} selectedResult={selectedAddressData} />
+              <AddressSearch onSelectResult={handleAddressSelect} />
             </TabsContent>
 
             <TabsContent value="gst" className="mt-0 space-y-5">
@@ -410,8 +410,8 @@ export function CombinedOrderStep({
         </Tabs>
       </div>
 
-      {/* Property Summary - only show for manual entry tabs (gst/ez), not address tab */}
-      {hasPropertyData && activeTab !== "address" && (
+      {/* Property Summary (if selected) */}
+      {hasPropertyData && (
         <div className="bg-primary/5 border border-primary/20 rounded p-4 animate-fade-in">
           <div className="flex items-start gap-3">
             <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
