@@ -90,7 +90,7 @@ export function OrderConfirmationStep({
             Anfrage eingegangen
           </h1>
           <p className="text-muted-foreground mt-2">
-            Ihre Anfrage wird nach Zahlungseingang innerhalb von 1 Stunde bearbeitet.
+            Dokument per E-Mail innerhalb einer Stunde. Bitte Zahlung abschließen.
           </p>
         </div>
 
