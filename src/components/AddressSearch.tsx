@@ -106,39 +106,34 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
     };
   }, [query, selectedResult]);
 
-  // If address is selected, show confirmation card
+  // If address is selected, show compact inline confirmation with edit option
   if (selectedResult) {
     const addressDisplay = [selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ");
     
     return (
-      <div className="space-y-4">
-        <div className="border-2 border-success/40 bg-success/5 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-success/20 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="h-5 w-5 text-success" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground">Adresse ausgewählt</p>
-              <p className="text-sm text-muted-foreground mt-1">{addressDisplay}</p>
-              {selectedResult.bundesland && (
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {selectedResult.bundesland}
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleEditSelection}
-                className="h-8 px-3"
-              >
-                <Edit2 className="h-3.5 w-3.5 mr-1.5" />
-                Ändern
-              </Button>
-            </div>
+      <div className="space-y-3">
+        <div>
+          <p className="text-sm font-medium text-foreground mb-2">
+            Adresse des Grundstücks <span className="text-destructive">*</span>
+          </p>
+          <div className="relative">
+            <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+            <Input
+              type="text"
+              value={addressDisplay}
+              readOnly
+              className="pl-9 pr-20 bg-muted/30 border-primary/30 cursor-default"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleEditSelection}
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs"
+            >
+              <Edit2 className="h-3 w-3 mr-1" />
+              Ändern
+            </Button>
           </div>
         </div>
       </div>

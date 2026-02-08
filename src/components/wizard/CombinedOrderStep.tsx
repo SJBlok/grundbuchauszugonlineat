@@ -21,7 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 import { 
-  CheckCircle2, FileText, Info, Clock, Shield, HelpCircle, 
+  FileText, Info, Clock, Shield, HelpCircle, 
   Mail, Building2, MapPin, Loader2, Check, BadgeCheck 
 } from "lucide-react";
 import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
@@ -337,20 +337,6 @@ export function CombinedOrderStep({
           <div className="p-6 lg:p-8">
             <TabsContent value="address" className="mt-0 space-y-5">
               <AddressSearch onSelectResult={handleAddressSelect} />
-              
-              {selectedFromSearch && (
-                <div className="flex items-start gap-3 bg-primary/5 border border-primary/15 rounded p-4 animate-scale-in">
-                  <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-foreground text-sm">Adresse gefunden</p>
-                    {selectedAddress && (
-                      <p className="text-sm text-muted-foreground mt-0.5">{selectedAddress}</p>
-                    )}
-                  </div>
-                </div>
-              )}
             </TabsContent>
 
             <TabsContent value="gst" className="mt-0 space-y-5">
