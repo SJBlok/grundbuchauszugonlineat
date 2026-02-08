@@ -187,16 +187,12 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
                   <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted}; padding-top: 8px;">Produkt</td>
                   <td style="font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right; padding-top: 8px;">${order.product_name}</td>
                 </tr>
-                <tr>
-                  <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted}; padding-top: 8px;">Betrag</td>
-                  <td style="font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right; padding-top: 8px;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
-                </tr>
               </table>
             </td>
           </tr>
         </table>
         
-        ${getPaymentDetailsBox(order.order_number)}
+        ${getPaymentDetailsBox(order.order_number, `€ ${order.product_price.toFixed(2).replace('.', ',')}`)}
         
         ${getSignature()}
       </div>
