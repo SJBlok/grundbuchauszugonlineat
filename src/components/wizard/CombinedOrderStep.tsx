@@ -565,25 +565,20 @@ export function CombinedOrderStep({
         </div>
 
         <div className="p-4 lg:p-6 space-y-4">
-          {/* Payment Info */}
-          <div className="bg-info border border-primary/15 rounded p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm text-foreground">
-                  <span className="font-semibold">Zahlung auf Rechnung</span>
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  €19,90 netto zzgl. 20% MwSt. (€3,98) = €23,88 • Rechnung per E-Mail
-                </p>
-              </div>
-              <span className="text-base md:text-lg font-bold text-foreground shrink-0">€23,88</span>
-            </div>
-            <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-primary/10">
-              <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
-              <p className="text-xs font-medium text-primary">
-                Zustellung per E-Mail in der Regel innerhalb von 1 Stunde
+          {/* Payment Info - Clean minimal style */}
+          <div className="flex items-center justify-between py-3 border-b border-border">
+            <div>
+              <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                €19,90 netto + €3,98 MwSt.
               </p>
             </div>
+            <span className="text-xl font-bold text-foreground">€23,88</span>
+          </div>
+          
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Clock className="h-3.5 w-3.5 text-primary" />
+            <span>Zustellung per E-Mail in der Regel innerhalb von 1 Stunde</span>
           </div>
 
           {/* Legal Confirmations */}
