@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, MapPin, Loader2, Building, X, Edit2 } from "lucide-react";
+import { Search, MapPin, Loader2, Building, X, CheckCircle2, Edit2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
-export interface AddressSearchResult {
+interface AddressSearchResult {
   kgNummer: string;
   kgName: string;
   ez: string;
@@ -107,69 +107,35 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
     };
   }, [query, selectedResult]);
 
-  // If address is selected, show property summary block
+  // If address is selected, show compact inline confirmation with edit option
   if (selectedResult) {
     const addressDisplay = [selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ");
-    const kgDisplay = selectedResult.kgName || selectedResult.kgNummer;
-    const propertyNumber = selectedResult.gst || selectedResult.ez;
     
     return (
       <div className="space-y-3">
-        {/* Property Summary Block */}
-        <div className="bg-primary/5 border border-primary/20 rounded-lg overflow-hidden">
-          <div className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-                <MapPin className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">
-                  Ausgewähltes Grundstück
-                </p>
-                
-                {/* Address */}
-                <p className="font-semibold text-foreground">
-                  {addressDisplay}
-                </p>
-                
-                {/* Property Details */}
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                  {kgDisplay && (
-                    <span className="flex items-center gap-1">
-                      <span className="text-foreground/70 font-medium">KG:</span> {kgDisplay}
-                      {selectedResult.kgNummer && selectedResult.kgName && (
-                        <span className="text-muted-foreground/70">({selectedResult.kgNummer})</span>
-                      )}
-                    </span>
-                  )}
-                  {propertyNumber && (
-                    <span className="flex items-center gap-1">
-                      <span className="text-foreground/70 font-medium">{selectedResult.gst ? 'GST:' : 'EZ:'}</span> {propertyNumber}
-                    </span>
-                  )}
-                </div>
-                
-                {/* Bundesland */}
-                {selectedResult.bundesland && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {selectedResult.bundesland}
-                  </p>
-                )}
-              </div>
+        <div>
+          <p className="text-sm font-medium text-foreground mb-2">
+            Adresse des Grundstücks <span className="text-destructive">*</span>
+          </p>
+          <div className="flex gap-2">
+            <div className="relative flex-1 min-w-0">
+              <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Input
+                type="text"
+                value={addressDisplay}
+                readOnly
+                className="pl-9 bg-muted/30 border-primary/30 cursor-default truncate"
+              />
             </div>
-          </div>
-          
-          {/* Edit Button Row */}
-          <div className="border-t border-primary/10 bg-primary/[0.02] px-4 py-2.5">
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={handleEditSelection}
-              className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground"
+              className="h-11 px-3 shrink-0"
             >
-              <Edit2 className="h-3 w-3 mr-1.5" />
-              Andere Adresse suchen
+              <Edit2 className="h-3.5 w-3.5 mr-1.5" />
+              Ändern
             </Button>
           </div>
         </div>
