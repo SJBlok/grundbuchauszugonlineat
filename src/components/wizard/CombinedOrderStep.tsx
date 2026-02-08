@@ -100,30 +100,9 @@ export function CombinedOrderStep({
   const [confirmTerms, setConfirmTerms] = useState(false);
   const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasReachedBottom, setHasReachedBottom] = useState(false);
   const { toast } = useToast();
   const sessionIdRef = useRef<string>(getSessionId());
   const lastTrackedEmailRef = useRef<string>("");
-  const bottomMarkerRef = useRef<HTMLDivElement>(null);
-
-  // Track when user reaches bottom of page
-  useEffect(() => {
-    const marker = bottomMarkerRef.current;
-    if (!marker) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasReachedBottom(true);
-          observer.disconnect(); // Only need to trigger once
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(marker);
-    return () => observer.disconnect();
-  }, []);
   
 
   const {
@@ -629,10 +608,10 @@ export function CombinedOrderStep({
             </div>
           </div>
 
-          {/* Submit Button - Hidden on mobile (shown in sticky bar) */}
+          {/* Submit Button */}
           <Button
             type="submit"
-            className="hidden md:flex w-full h-14 text-base font-semibold shadow-lg touch-target-lg"
+            className="w-full h-14 text-base font-semibold shadow-lg"
             disabled={isSubmitting || !allConfirmed || !hasPropertyData}
           >
             {isSubmitting ? (
@@ -643,7 +622,8 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span>Kostenpflichtig bestellen – <span className="text-sm font-normal opacity-90">€23,88 inkl. MwSt.</span></span>
+                <span className="hidden sm:inline">Kostenpflichtig bestellen – €23,88 inkl. MwSt.</span>
+                <span className="sm:hidden">Bestellen – €23,88</span>
               </span>
             )}
           </Button>
@@ -678,34 +658,6 @@ export function CombinedOrderStep({
         </div>
       </div>
 
-      {/* Bottom marker for intersection observer */}
-      <div ref={bottomMarkerRef} className="h-1" />
-
-      {/* Mobile Sticky Button - only shows after reaching bottom */}
-      {hasReachedBottom && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border md:hidden z-40 safe-area-pb animate-fade-in">
-          <Button
-            type="submit"
-            className="w-full h-14 text-base font-semibold shadow-lg"
-            disabled={isSubmitting || !allConfirmed || !hasPropertyData}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Wird verarbeitet...</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Check className="h-5 w-5 shrink-0" />
-                <span>Bestellen – €23,88</span>
-              </span>
-            )}
-          </Button>
-        </div>
-      )}
-
-      {/* Bottom spacing for mobile sticky button */}
-      {hasReachedBottom && <div className="h-24 md:hidden" />}
 
       {/* Loading Overlay */}
       {isSubmitting && (
