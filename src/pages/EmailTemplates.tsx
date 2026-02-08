@@ -232,12 +232,6 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
           </table>
         </div>
         
-        <div style="background-color: ${BRAND_COLORS.warningBg}; border: 1px solid #fde68a; border-radius: 4px; padding: 16px; margin: 24px 0;">
-          <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.warning}; line-height: 1.5;">
-            <strong>Hinweis:</strong> Falls Sie die Einlagezahl (EZ) oder Grundstücksnummer bereits kennen, antworten Sie bitte auf diese E-Mail mit dieser Information, um den Vorgang zu beschleunigen.
-          </p>
-        </div>
-        
         ${getPaymentDetailsBox(order.order_number)}
         
         ${getSignature()}
