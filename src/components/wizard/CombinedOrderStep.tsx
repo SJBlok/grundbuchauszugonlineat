@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 import { 
   FileText, Info, Clock, Shield, HelpCircle, 
-  Mail, Building2, MapPin, Loader2, Check, BadgeCheck, Edit2 
+  Mail, Building2, MapPin, Loader2, Check, BadgeCheck 
 } from "lucide-react";
 import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
 
@@ -204,17 +204,6 @@ export function CombinedOrderStep({
     setSelectedFromSearch(true);
   };
 
-  const handleResetProperty = () => {
-    setSelectedFromSearch(false);
-    setSelectedAddress("");
-    setSelectedAddressData(null);
-    setValue("katastralgemeinde", "", { shouldValidate: false });
-    setValue("grundstuecksnummer", "", { shouldValidate: false });
-    setValue("grundbuchsgericht", "", { shouldValidate: false });
-    setValue("bundesland", "", { shouldValidate: false });
-    setActiveTab("address");
-  };
-
   const allConfirmed = confirmTerms && confirmNoRefund;
   const hasPropertyData = selectedFromSearch || (katastralgemeinde && grundstuecksnummer);
 
@@ -346,115 +335,105 @@ export function CombinedOrderStep({
           </div>
 
           <div className="p-6 lg:p-8">
-            {/* Property Summary - shown when property is selected */}
-            {hasPropertyData ? (
-              <div className="flex items-start gap-3 bg-primary/5 border border-primary/20 rounded p-4">
-                <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
-                  <MapPin className="h-4 w-4 text-primary" />
+            <TabsContent value="address" className="mt-0 space-y-5">
+              <AddressSearch onSelectResult={handleAddressSelect} />
+            </TabsContent>
+
+            <TabsContent value="gst" className="mt-0 space-y-5">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="kg-gst" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
+                  <KatastralgemeindeCombobox
+                    value={katastralgemeinde}
+                    onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
+                    bundesland={bundesland}
+                    placeholder="Gemeinde eingeben..."
+                  />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-primary uppercase tracking-wide mb-1">Ausgewähltes Grundstück</p>
-                  <p className="font-semibold text-foreground text-sm">
-                    KG {katastralgemeinde}, EZ/GST {grundstuecksnummer}
-                  </p>
-                  {selectedAddress && (
-                    <p className="text-muted-foreground text-sm mt-0.5">{selectedAddress}</p>
-                  )}
-                  {bundesland && (
-                    <p className="text-muted-foreground text-xs mt-1">
-                      {bundesland} {grundbuchsgericht ? `• ${grundbuchsgericht}` : ''}
-                    </p>
-                  )}
+                
+                <div className="space-y-2">
+                  <Label htmlFor="gst-nr" className="text-sm font-medium text-foreground">Grundstücksnummer (GST-NR)</Label>
+                  <Input
+                    id="gst-nr"
+                    {...register("grundstuecksnummer")}
+                    placeholder="z.B. 123/4"
+                  />
+                  <button 
+                    type="button"
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
+                  >
+                    <HelpCircle className="h-3 w-3" />
+                    <span>Was ist die Grundstücksnummer?</span>
+                  </button>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleResetProperty}
-                  className="shrink-0"
-                >
-                  <Edit2 className="h-3.5 w-3.5 mr-1.5" />
-                  Ändern
-                </Button>
               </div>
-            ) : (
-              <>
-                <TabsContent value="address" className="mt-0 space-y-5">
-                  <AddressSearch onSelectResult={handleAddressSelect} />
-                </TabsContent>
+            </TabsContent>
 
-                <TabsContent value="gst" className="mt-0 space-y-5">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="kg-gst" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
-                      <KatastralgemeindeCombobox
-                        value={katastralgemeinde}
-                        onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
-                        bundesland={bundesland}
-                        placeholder="Gemeinde eingeben..."
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="gst-nr" className="text-sm font-medium text-foreground">Grundstücksnummer (GST-NR)</Label>
-                      <Input
-                        id="gst-nr"
-                        {...register("grundstuecksnummer")}
-                        placeholder="z.B. 123/4"
-                      />
-                      <button 
-                        type="button"
-                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
-                      >
-                        <HelpCircle className="h-3 w-3" />
-                        <span>Was ist die Grundstücksnummer?</span>
-                      </button>
-                    </div>
-                  </div>
-                </TabsContent>
+            <TabsContent value="ez" className="mt-0 space-y-5">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="kg-ez" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
+                  <KatastralgemeindeCombobox
+                    value={katastralgemeinde}
+                    onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
+                    bundesland={bundesland}
+                    placeholder="Gemeinde eingeben..."
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="ez-nr" className="text-sm font-medium text-foreground">Einlagezahl (EZ)</Label>
+                  <Input
+                    id="ez-nr"
+                    {...register("grundstuecksnummer")}
+                    placeholder="z.B. 567"
+                  />
+                  <button 
+                    type="button"
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
+                  >
+                    <HelpCircle className="h-3 w-3" />
+                    <span>Was ist die Einlagezahl?</span>
+                  </button>
+                </div>
+              </div>
+            </TabsContent>
 
-                <TabsContent value="ez" className="mt-0 space-y-5">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="kg-ez" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
-                      <KatastralgemeindeCombobox
-                        value={katastralgemeinde}
-                        onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
-                        bundesland={bundesland}
-                        placeholder="Gemeinde eingeben..."
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="ez-nr" className="text-sm font-medium text-foreground">Einlagezahl (EZ)</Label>
-                      <Input
-                        id="ez-nr"
-                        {...register("grundstuecksnummer")}
-                        placeholder="z.B. 567"
-                      />
-                      <button 
-                        type="button"
-                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
-                      >
-                        <HelpCircle className="h-3 w-3" />
-                        <span>Was ist die Einlagezahl?</span>
-                      </button>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                {/* Hidden fields for manual entry */}
-                {(activeTab === "gst" || activeTab === "ez") && (
-                  <div className="hidden">
-                    <Input {...register("grundbuchsgericht")} />
-                    <Input {...register("bundesland")} />
-                  </div>
-                )}
-              </>
+            {/* Hidden fields for manual entry */}
+            {(activeTab === "gst" || activeTab === "ez") && (
+              <div className="hidden">
+                <Input {...register("grundbuchsgericht")} />
+                <Input {...register("bundesland")} />
+              </div>
             )}
           </div>
         </Tabs>
       </div>
+
+      {/* Property Summary (if selected) */}
+      {hasPropertyData && (
+        <div className="bg-primary/5 border border-primary/20 rounded p-4 animate-fade-in">
+          <div className="flex items-start gap-3">
+            <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
+              <MapPin className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-primary uppercase tracking-wide mb-1">Ausgewähltes Grundstück</p>
+              <p className="font-semibold text-foreground text-sm">
+                KG {katastralgemeinde}, EZ/GST {grundstuecksnummer}
+              </p>
+              {selectedAddress && (
+                <p className="text-muted-foreground text-sm mt-0.5">{selectedAddress}</p>
+              )}
+              {bundesland && (
+                <p className="text-muted-foreground text-xs mt-1">
+                  {bundesland} {grundbuchsgericht ? `• ${grundbuchsgericht}` : ''}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Contact Details Card */}
       <div className="bg-card border border-border rounded overflow-hidden">
