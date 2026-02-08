@@ -50,6 +50,7 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
 
   const handleEditSelection = () => {
     setSelectedResult(null);
+    setQuery("");
     setResults([]);
     setHasSearched(false);
     inputRef.current?.focus();
@@ -116,22 +117,24 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
           <p className="text-sm font-medium text-foreground mb-2">
             Adresse des Grundstücks <span className="text-destructive">*</span>
           </p>
-          <div className="relative">
-            <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
-            <Input
-              type="text"
-              value={addressDisplay}
-              readOnly
-              className="pl-9 pr-20 bg-muted/30 border-primary/30 cursor-default"
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1 min-w-0">
+              <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Input
+                type="text"
+                value={addressDisplay}
+                readOnly
+                className="pl-9 bg-muted/30 border-primary/30 cursor-default truncate"
+              />
+            </div>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={handleEditSelection}
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2 text-xs"
+              className="h-11 px-3 shrink-0"
             >
-              <Edit2 className="h-3 w-3 mr-1" />
+              <Edit2 className="h-3.5 w-3.5 mr-1.5" />
               Ändern
             </Button>
           </div>
