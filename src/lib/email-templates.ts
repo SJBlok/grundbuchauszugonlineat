@@ -48,7 +48,7 @@ const getLogoHtml = () => `
 </table>
 `;
 
-// Universal email wrapper styles - minimalist
+// Universal email wrapper styles - minimalist with responsive support
 export const getBaseStyles = () => `
   body { 
     margin: 0; 
@@ -101,6 +101,49 @@ export const getBaseStyles = () => `
     font-weight: 500;
     color: ${BRAND_COLORS.text};
     margin-bottom: 24px !important;
+  }
+  /* Responsive table styles */
+  .data-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+  }
+  .data-table td { 
+    padding: 12px 0; 
+    font-size: 14px; 
+    border-bottom: 1px solid ${BRAND_COLORS.borderLight}; 
+    vertical-align: top;
+  }
+  .data-table .label-cell { 
+    color: ${BRAND_COLORS.textMuted}; 
+    font-size: 13px;
+    width: 120px;
+  }
+  .data-table .value-cell { 
+    color: ${BRAND_COLORS.text}; 
+  }
+  /* Stacked layout for mobile */
+  .stack-mobile {
+    display: block;
+  }
+  .stack-mobile .label-cell,
+  .stack-mobile .value-cell {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+  }
+  .stack-mobile .label-cell {
+    padding-top: 12px;
+    padding-bottom: 4px;
+    font-size: 12px;
+  }
+  .stack-mobile .value-cell {
+    padding-bottom: 12px;
+    border-bottom: 1px solid ${BRAND_COLORS.borderLight};
+  }
+  .stack-mobile tr:last-child .value-cell {
+    border-bottom: none;
+    padding-bottom: 0;
   }
   .order-table { 
     width: 100%; 
@@ -212,6 +255,44 @@ export const getBaseStyles = () => `
     color: ${BRAND_COLORS.textSecondary};
     line-height: 1.8;
   }
+  /* Mobile responsive styles */
+  @media only screen and (max-width: 480px) {
+    .wrapper {
+      padding: 16px 12px !important;
+    }
+    .header {
+      padding: 20px 16px !important;
+    }
+    .ref-banner {
+      padding: 12px 16px !important;
+    }
+    .content {
+      padding: 24px 16px !important;
+    }
+    .footer {
+      padding: 20px 16px !important;
+    }
+    /* Stack table cells on mobile */
+    .responsive-table td {
+      display: block !important;
+      width: 100% !important;
+      padding: 0 !important;
+      border: none !important;
+    }
+    .responsive-table .label-cell {
+      padding-top: 12px !important;
+      padding-bottom: 4px !important;
+      font-size: 12px !important;
+      color: ${BRAND_COLORS.textMuted} !important;
+    }
+    .responsive-table .value-cell {
+      padding-bottom: 12px !important;
+      border-bottom: 1px solid ${BRAND_COLORS.borderLight} !important;
+    }
+    .responsive-table tr:last-child .value-cell {
+      border-bottom: none !important;
+    }
+  }
 `;
 
 // Email header with logo
@@ -312,7 +393,7 @@ export const getEmailFooter = () => {
 `;
 };
 
-// Payment details box - clean two-column layout
+// Payment details box - responsive two-column layout
 export const getPaymentDetailsBox = (orderNumber: string, amount?: string) => `
 <p style="margin: 0 0 16px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.6;">
   Um die Bestellung vollständig abzuschließen, schließen Sie bitte die Zahlung ab.
@@ -323,28 +404,28 @@ export const getPaymentDetailsBox = (orderNumber: string, amount?: string) => `
       <p style="margin: 0 0 20px 0; font-size: 12px; font-weight: 600; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.8px;">
         Zahlungsinformationen
       </p>
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse: collapse;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" class="responsive-table" style="border-collapse: collapse;">
         ${amount ? `
         <tr>
-          <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">Betrag</td>
-          <td style="padding: 12px 0; font-size: 15px; font-weight: 600; color: ${BRAND_COLORS.primary}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top;">${amount}</td>
+          <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">Betrag</td>
+          <td class="value-cell" style="padding: 12px 0; font-size: 15px; font-weight: 600; color: ${BRAND_COLORS.primary}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top;">${amount}</td>
         </tr>
         ` : ''}
         <tr>
-          <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">Empfänger</td>
-          <td style="padding: 12px 0; font-size: 14px; color: ${BRAND_COLORS.text}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top;">Application Assistant Ltd</td>
+          <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">Empfänger</td>
+          <td class="value-cell" style="padding: 12px 0; font-size: 14px; color: ${BRAND_COLORS.text}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top;">Application Assistant Ltd</td>
         </tr>
         <tr>
-          <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">IBAN</td>
-          <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top; word-break: break-all;">DE56 2022 0800 0058 7945 48</td>
+          <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">IBAN</td>
+          <td class="value-cell" style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top; word-break: break-all;">DE56 2022 0800 0058 7945 48</td>
         </tr>
         <tr>
-          <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">BIC</td>
-          <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top;">SXPYDEHHXXX</td>
+          <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 140px; vertical-align: top;">BIC</td>
+          <td class="value-cell" style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top;">SXPYDEHHXXX</td>
         </tr>
         <tr>
-          <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; width: 140px; vertical-align: top;">Verwendungszweck</td>
-          <td style="padding: 12px 0; font-size: 14px; color: ${BRAND_COLORS.text}; font-weight: 500; vertical-align: top;">${orderNumber}</td>
+          <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; width: 140px; vertical-align: top;">Verwendungszweck</td>
+          <td class="value-cell" style="padding: 12px 0; font-size: 14px; color: ${BRAND_COLORS.text}; font-weight: 500; vertical-align: top;">${orderNumber}</td>
         </tr>
       </table>
     </td>
