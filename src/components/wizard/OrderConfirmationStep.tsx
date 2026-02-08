@@ -96,24 +96,9 @@ export function OrderConfirmationStep({
 
 
         {/* Order Summary - Minimal */}
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Bestellnummer</span>
-            <span className="font-mono font-medium">{orderNumber}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Grundstück</span>
-            <span className="text-right max-w-[180px]">{propertyInfo}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">E-Mail</span>
-            <span>{email}</span>
-          </div>
-          <div className="flex justify-between pt-2 border-t border-border">
-            <span className="font-medium">Betrag</span>
-            <span className="font-semibold">{totalPrice}</span>
-          </div>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          <span className="font-mono">{orderNumber}</span> · {propertyInfo} · {email}
+        </p>
 
         {/* Payment Instructions Card */}
         <div className="bg-card border border-border rounded overflow-hidden">
