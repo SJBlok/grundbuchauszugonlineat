@@ -175,16 +175,16 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
         
         <p>Vielen Dank für Ihre Bestellung. <strong>Ihre Bestellung wird manuell bearbeitet.</strong> Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt.</p>
         
-        <div style="margin: 24px 0; padding: 16px 0; border-top: 1px solid ${BRAND_COLORS.borderLight}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
-          <div style="padding-bottom: 12px;">
-            <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">Objekt</p>
-            <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.text}; line-height: 1.5;">${addressDisplay}</p>
-          </div>
-          <div>
-            <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">Produkt</p>
-            <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.text};">${order.product_name}</p>
-          </div>
-        </div>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-top: 1px solid ${BRAND_COLORS.borderLight}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 80px; vertical-align: top;">Objekt</td>
+            <td style="padding: 12px 0; font-size: 14px; color: ${BRAND_COLORS.text}; border-top: 1px solid ${BRAND_COLORS.borderLight}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; line-height: 1.5; vertical-align: top;">${addressDisplay}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; width: 80px; vertical-align: top;">Produkt</td>
+            <td style="padding: 12px 0; font-size: 14px; color: ${BRAND_COLORS.text}; border-bottom: 1px solid ${BRAND_COLORS.borderLight}; vertical-align: top;">${order.product_name}</td>
+          </tr>
+        </table>
         
         ${getPaymentDetailsBox(order.order_number, `€ ${order.product_price.toFixed(2).replace('.', ',')}`)}
         
