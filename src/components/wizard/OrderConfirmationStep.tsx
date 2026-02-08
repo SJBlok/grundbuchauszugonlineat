@@ -94,10 +94,6 @@ export function OrderConfirmationStep({
           </p>
         </div>
 
-        {/* Important Notice - Minimal */}
-        <p className="text-sm text-muted-foreground">
-          Überweisen Sie den Betrag, um Ihren Grundbuchauszug zu erhalten.
-        </p>
 
         {/* Order Summary - Minimal */}
         <div className="space-y-2 text-sm">
@@ -127,7 +123,7 @@ export function OrderConfirmationStep({
           </div>
           <div className="p-4 space-y-4">
             <p className="text-sm text-muted-foreground">
-              Bitte überweisen Sie den Betrag auf folgendes Konto:
+              Überweisen Sie den Betrag, um Ihren Grundbuchauszug zu erhalten.
             </p>
             
             <div className="bg-muted/30 rounded p-4 space-y-3">
