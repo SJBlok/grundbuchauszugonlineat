@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Clock, AlertTriangle, XCircle, CheckCircle, Bell, FileText } from "lucide-react";
+import { Mail, Clock, AlertTriangle, XCircle, CheckCircle, Bell, FileText, BarChart3 } from "lucide-react";
 import {
   getBaseStyles,
   getEmailHeader,
@@ -16,6 +16,7 @@ import {
   wrapEmailContent,
   BRAND_COLORS,
 } from "@/lib/email-templates";
+import { getDailyReportTemplate } from "@/lib/daily-report-template";
 
 // Mock session data for abandoned cart reminders
 const mockSession = {
@@ -408,7 +409,7 @@ function getInternalNotificationTemplate(hasDocument: boolean) {
   };
 }
 
-type TemplateCategory = "abandoned" | "order";
+type TemplateCategory = "abandoned" | "order" | "reports";
 
 const EmailTemplates = () => {
   const [activeCategory, setActiveCategory] = useState<TemplateCategory>("abandoned");
@@ -427,12 +428,26 @@ const EmailTemplates = () => {
     { id: "internal-error", ...getInternalNotificationTemplate(false), label: "Intern – Aktion" },
   ];
 
-  const currentTemplates = activeCategory === "abandoned" ? abandonedTemplates : orderTemplates;
+  const reportTemplates = [
+    { id: "daily-report", ...getDailyReportTemplate(), label: "Daily Report" },
+  ];
+
+  const getTemplates = () => {
+    switch (activeCategory) {
+      case "abandoned": return abandonedTemplates;
+      case "order": return orderTemplates;
+      case "reports": return reportTemplates;
+    }
+  };
+
+  const currentTemplates = getTemplates();
   const currentTemplate = currentTemplates.find(t => t.id === activeTemplate) || currentTemplates[0];
 
   const handleCategoryChange = (category: TemplateCategory) => {
     setActiveCategory(category);
-    setActiveTemplate(category === "abandoned" ? "1" : "order-success");
+    if (category === "abandoned") setActiveTemplate("1");
+    else if (category === "order") setActiveTemplate("order-success");
+    else setActiveTemplate("daily-report");
   };
 
   return (
@@ -471,6 +486,17 @@ const EmailTemplates = () => {
           >
             <FileText className="h-4 w-4 inline-block mr-2" />
             Bestellungen
+          </button>
+          <button
+            onClick={() => handleCategoryChange("reports")}
+            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+              activeCategory === "reports"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "bg-muted hover:bg-muted/80 text-muted-foreground"
+            }`}
+          >
+            <BarChart3 className="h-4 w-4 inline-block mr-2" />
+            Rapporten
           </button>
         </div>
 

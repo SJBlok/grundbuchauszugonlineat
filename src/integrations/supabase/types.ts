@@ -98,6 +98,39 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_order_reports: {
+        Row: {
+          created_at: string
+          email_sent: boolean
+          id: string
+          orders_count: number
+          orders_data: Json
+          report_date: string
+          sent_at: string | null
+          total_revenue: number
+        }
+        Insert: {
+          created_at?: string
+          email_sent?: boolean
+          id?: string
+          orders_count?: number
+          orders_data?: Json
+          report_date: string
+          sent_at?: string | null
+          total_revenue?: number
+        }
+        Update: {
+          created_at?: string
+          email_sent?: boolean
+          id?: string
+          orders_count?: number
+          orders_data?: Json
+          report_date?: string
+          sent_at?: string | null
+          total_revenue?: number
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           adresse: string | null
