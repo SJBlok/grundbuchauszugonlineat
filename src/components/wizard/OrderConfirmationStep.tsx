@@ -133,16 +133,16 @@ export function OrderConfirmationStep({
             <div className="bg-muted/30 rounded p-4 space-y-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-muted-foreground">Betrag</p>
-                  <p className="text-sm font-semibold text-foreground">{totalPrice}</p>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div>
                   <p className="text-xs text-muted-foreground">Empfänger</p>
                   <p className="text-sm font-medium text-foreground">{bankDetails.empfaenger}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(bankDetails.empfaenger, 'Empfänger')}
+                  className="p-2 hover:bg-muted rounded transition-colors"
+                >
+                  <Copy className="h-4 w-4 text-muted-foreground" />
+                </button>
               </div>
               
               <div className="flex justify-between items-center">
@@ -164,9 +164,16 @@ export function OrderConfirmationStep({
                   <p className="text-xs text-muted-foreground">BIC</p>
                   <p className="text-sm font-mono font-medium text-foreground">{bankDetails.bic}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(bankDetails.bic, 'BIC')}
+                  className="p-2 hover:bg-muted rounded transition-colors"
+                >
+                  <Copy className="h-4 w-4 text-muted-foreground" />
+                </button>
               </div>
               
-              <div className="flex justify-between items-center border-t border-border pt-3">
+              <div className="flex justify-between items-center">
                 <div>
                   <p className="text-xs text-muted-foreground">Verwendungszweck</p>
                   <p className="text-sm font-mono font-semibold text-primary">{bankDetails.verwendungszweck}</p>
@@ -174,6 +181,20 @@ export function OrderConfirmationStep({
                 <button
                   type="button"
                   onClick={() => copyToClipboard(bankDetails.verwendungszweck, 'Verwendungszweck')}
+                  className="p-2 hover:bg-muted rounded transition-colors"
+                >
+                  <Copy className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </div>
+              
+              <div className="flex justify-between items-center border-t border-border pt-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">Betrag</p>
+                  <p className="text-sm font-semibold text-foreground">{totalPrice}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(totalPrice, 'Betrag')}
                   className="p-2 hover:bg-muted rounded transition-colors"
                 >
                   <Copy className="h-4 w-4 text-muted-foreground" />
