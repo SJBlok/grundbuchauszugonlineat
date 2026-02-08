@@ -141,24 +141,22 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
           </div>
         </div>
 
-        {/* Property Details - Clean inline display */}
-        <div className="border-l-2 border-primary/30 pl-3 py-1">
-          <p className="text-xs text-muted-foreground mb-1">Gefundenes Grundstück</p>
-          <div className="text-sm text-foreground space-y-0.5">
-            <p className="font-medium">
-              {[selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ")}
+        {/* Property Details - Highlighted */}
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+          <p className="text-xs text-primary font-medium mb-1">Gefundenes Grundstück</p>
+          <p className="text-sm font-medium text-foreground">
+            {[selectedResult.adresse, selectedResult.plz, selectedResult.ort].filter(Boolean).join(", ")}
+          </p>
+          {(selectedResult.kgName || selectedResult.gst || selectedResult.ez) && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {[
+                selectedResult.kgName && `KG ${selectedResult.kgName}`,
+                selectedResult.kgNummer && `(${selectedResult.kgNummer})`,
+                selectedResult.gst && `GST ${selectedResult.gst}`,
+                selectedResult.ez && `EZ ${selectedResult.ez}`,
+              ].filter(Boolean).join(" · ")}
             </p>
-            {(selectedResult.kgName || selectedResult.gst || selectedResult.ez) && (
-              <p className="text-muted-foreground text-xs">
-                {[
-                  selectedResult.kgName && `KG ${selectedResult.kgName}`,
-                  selectedResult.kgNummer && `(${selectedResult.kgNummer})`,
-                  selectedResult.gst && `GST ${selectedResult.gst}`,
-                  selectedResult.ez && `EZ ${selectedResult.ez}`,
-                ].filter(Boolean).join(" · ")}
-              </p>
-            )}
-          </div>
+          )}
         </div>
       </div>
     );
