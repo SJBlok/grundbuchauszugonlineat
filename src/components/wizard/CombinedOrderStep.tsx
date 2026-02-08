@@ -410,8 +410,8 @@ export function CombinedOrderStep({
         </Tabs>
       </div>
 
-      {/* Property Summary (if selected) */}
-      {hasPropertyData && (
+      {/* Property Summary - only show for manual entry (GST/EZ tabs), not for address search */}
+      {hasPropertyData && !selectedFromSearch && (
         <div className="bg-primary/5 border border-primary/20 rounded p-4 animate-fade-in">
           <div className="flex items-start gap-3">
             <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
@@ -422,9 +422,6 @@ export function CombinedOrderStep({
               <p className="font-semibold text-foreground text-sm">
                 KG {katastralgemeinde}, EZ/GST {grundstuecksnummer}
               </p>
-              {selectedAddress && (
-                <p className="text-muted-foreground text-sm mt-0.5">{selectedAddress}</p>
-              )}
               {bundesland && (
                 <p className="text-muted-foreground text-xs mt-1">
                   {bundesland} {grundbuchsgericht ? `• ${grundbuchsgericht}` : ''}
