@@ -151,6 +151,26 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {selectedResult.adresse && (
+              <div className="space-y-0.5 sm:col-span-2">
+                <p className="text-xs text-muted-foreground">Adresse</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.adresse}</p>
+              </div>
+            )}
+            {(selectedResult.plz || selectedResult.ort) && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">PLZ / Ort</p>
+                <p className="text-sm font-medium text-foreground">
+                  {[selectedResult.plz, selectedResult.ort].filter(Boolean).join(" ")}
+                </p>
+              </div>
+            )}
+            {selectedResult.bundesland && (
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">Bundesland</p>
+                <p className="text-sm font-medium text-foreground">{selectedResult.bundesland}</p>
+              </div>
+            )}
             {selectedResult.kgName && (
               <div className="space-y-0.5">
                 <p className="text-xs text-muted-foreground">Katastralgemeinde</p>
@@ -173,20 +193,6 @@ export function AddressSearch({ onSelectResult }: AddressSearchProps) {
               <div className="space-y-0.5">
                 <p className="text-xs text-muted-foreground">Einlagezahl</p>
                 <p className="text-sm font-medium text-foreground">{selectedResult.ez}</p>
-              </div>
-            )}
-            {selectedResult.bundesland && (
-              <div className="space-y-0.5">
-                <p className="text-xs text-muted-foreground">Bundesland</p>
-                <p className="text-sm font-medium text-foreground">{selectedResult.bundesland}</p>
-              </div>
-            )}
-            {(selectedResult.plz || selectedResult.ort) && (
-              <div className="space-y-0.5">
-                <p className="text-xs text-muted-foreground">Ort</p>
-                <p className="text-sm font-medium text-foreground">
-                  {[selectedResult.plz, selectedResult.ort].filter(Boolean).join(" ")}
-                </p>
               </div>
             )}
           </div>
