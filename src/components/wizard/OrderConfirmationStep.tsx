@@ -133,6 +133,13 @@ export function OrderConfirmationStep({
             <div className="bg-muted/30 rounded p-4 space-y-3">
               <div className="flex justify-between items-center">
                 <div>
+                  <p className="text-xs text-muted-foreground">Betrag</p>
+                  <p className="text-sm font-semibold text-foreground">{totalPrice}</p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div>
                   <p className="text-xs text-muted-foreground">Empfänger</p>
                   <p className="text-sm font-medium text-foreground">{bankDetails.empfaenger}</p>
                 </div>
