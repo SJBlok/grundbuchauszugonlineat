@@ -657,6 +657,30 @@ export function CombinedOrderStep({
         </div>
       </div>
 
+      {/* Mobile Sticky Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur border-t border-border md:hidden z-40 safe-area-pb">
+        <Button
+          type="submit"
+          className="w-full h-14 text-base font-semibold shadow-lg"
+          disabled={isSubmitting || !allConfirmed || !hasPropertyData}
+        >
+          {isSubmitting ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Wird verarbeitet...</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Check className="h-5 w-5 shrink-0" />
+              <span>Bestellen – €23,88</span>
+            </span>
+          )}
+        </Button>
+      </div>
+
+      {/* Bottom spacing for mobile sticky button */}
+      <div className="h-24 md:hidden" />
+
       {/* Loading Overlay */}
       {isSubmitting && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
