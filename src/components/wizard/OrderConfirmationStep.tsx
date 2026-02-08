@@ -94,53 +94,28 @@ export function OrderConfirmationStep({
           </p>
         </div>
 
-        {/* Important Notice */}
-        <div className="bg-primary/5 border border-primary/20 rounded p-4">
-          <div className="flex items-start gap-3">
-            <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
-              <Clock className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                Schließen Sie Ihre Anfrage ab
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Überweisen Sie den unten angegebenen Betrag, um Ihren Grundbuchauszug zu erhalten.
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Important Notice - Minimal */}
+        <p className="text-sm text-muted-foreground">
+          Überweisen Sie den Betrag, um Ihren Grundbuchauszug zu erhalten.
+        </p>
 
-        {/* Order Summary Card */}
-        <div className="bg-card border border-border rounded overflow-hidden">
-          <div className="bg-muted/50 px-4 py-3 border-b border-border flex items-center gap-2.5">
-            <FileText className="h-4 w-4 text-primary" />
-            <h2 className="text-sm font-semibold text-foreground">Bestellübersicht</h2>
+        {/* Order Summary - Minimal */}
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Bestellnummer</span>
+            <span className="font-mono font-medium">{orderNumber}</span>
           </div>
-          <div className="p-4 space-y-3">
-            <div className="flex justify-between items-start">
-              <span className="text-sm text-muted-foreground">Bestellnummer</span>
-              <span className="text-sm font-mono font-semibold text-foreground">{orderNumber}</span>
-            </div>
-            <div className="flex justify-between items-start">
-              <span className="text-sm text-muted-foreground">Produkt</span>
-              <span className="text-sm text-foreground">Aktueller Grundbuchauszug</span>
-            </div>
-            <div className="flex justify-between items-start">
-              <span className="text-sm text-muted-foreground">Grundstück</span>
-              <span className="text-sm text-foreground text-right max-w-[200px]">{propertyInfo}</span>
-            </div>
-            <div className="flex justify-between items-start">
-              <span className="text-sm text-muted-foreground">Zustellung an</span>
-              <span className="text-sm text-foreground">{email}</span>
-            </div>
-            <div className="border-t border-border pt-3 mt-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-foreground">Gesamtbetrag</span>
-                <span className="text-lg font-bold text-foreground">{totalPrice}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">inkl. 20% MwSt.</p>
-            </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Grundstück</span>
+            <span className="text-right max-w-[180px]">{propertyInfo}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">E-Mail</span>
+            <span>{email}</span>
+          </div>
+          <div className="flex justify-between pt-2 border-t border-border">
+            <span className="font-medium">Betrag</span>
+            <span className="font-semibold">{totalPrice}</span>
           </div>
         </div>
 
