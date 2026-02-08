@@ -175,22 +175,16 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
         
         <p>Vielen Dank für Ihre Bestellung. <strong>Ihre Bestellung wird manuell bearbeitet.</strong> Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt.</p>
         
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 24px 0;">
-          <tr>
-            <td style="padding: 16px 0; border-top: 1px solid ${BRAND_COLORS.borderLight}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                <tr>
-                  <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted};">Objekt</td>
-                  <td style="font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right;">${addressDisplay}</td>
-                </tr>
-                <tr>
-                  <td style="font-size: 14px; color: ${BRAND_COLORS.textMuted}; padding-top: 8px;">Produkt</td>
-                  <td style="font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right; padding-top: 8px;">${order.product_name}</td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
+        <div style="margin: 24px 0; padding: 16px 0; border-top: 1px solid ${BRAND_COLORS.borderLight}; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
+          <div style="padding-bottom: 12px;">
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">Objekt</p>
+            <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.text}; line-height: 1.5;">${addressDisplay}</p>
+          </div>
+          <div>
+            <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">Produkt</p>
+            <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.text};">${order.product_name}</p>
+          </div>
+        </div>
         
         ${getPaymentDetailsBox(order.order_number, `€ ${order.product_price.toFixed(2).replace('.', ',')}`)}
         

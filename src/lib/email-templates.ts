@@ -312,41 +312,39 @@ export const getEmailFooter = () => {
 `;
 };
 
-// Payment details box - minimalist
+// Payment details box - minimalist, mobile-friendly stacked layout
 export const getPaymentDetailsBox = (orderNumber: string, amount?: string) => `
 <p style="margin: 0 0 16px 0; font-size: 14px; color: ${BRAND_COLORS.textSecondary}; line-height: 1.6;">
   Um die Bestellung vollständig abzuschließen, schließen Sie bitte die Zahlung ab.
 </p>
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 0 0 32px 0;">
   <tr>
-    <td style="background-color: ${BRAND_COLORS.surface}; padding: 24px; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px;">
+    <td style="background-color: ${BRAND_COLORS.surface}; padding: 20px; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px;">
       <p style="margin: 0 0 16px 0; font-size: 13px; font-weight: 500; color: ${BRAND_COLORS.text}; text-transform: uppercase; letter-spacing: 0.5px;">
         Zahlungsinformationen
       </p>
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-        ${amount ? `
-        <tr>
-          <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">Betrag</td>
-          <td style="padding: 8px 0; font-size: 14px; font-weight: 600; color: ${BRAND_COLORS.primary}; text-align: right;">${amount}</td>
-        </tr>
-        ` : ''}
-        <tr>
-          <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">Empfänger</td>
-          <td style="padding: 8px 0; font-size: 14px; color: ${BRAND_COLORS.text}; text-align: right;">Application Assistant Ltd</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">IBAN</td>
-          <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">DE56 2022 0800 0058 7945 48</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">BIC</td>
-          <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">SXPYDEHHXXX</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; font-size: 13px; color: ${BRAND_COLORS.textMuted};">Verwendungszweck</td>
-          <td style="padding: 8px 0; font-size: 14px; color: ${BRAND_COLORS.text}; font-weight: 500; text-align: right;">${orderNumber}</td>
-        </tr>
-      </table>
+      ${amount ? `
+      <div style="padding: 10px 0; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">Betrag</p>
+        <p style="margin: 0; font-size: 16px; font-weight: 600; color: ${BRAND_COLORS.primary};">${amount}</p>
+      </div>
+      ` : ''}
+      <div style="padding: 10px 0; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">Empfänger</p>
+        <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.text};">Application Assistant Ltd</p>
+      </div>
+      <div style="padding: 10px 0; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">IBAN</p>
+        <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace; word-break: break-all;">DE56 2022 0800 0058 7945 48</p>
+      </div>
+      <div style="padding: 10px 0; border-bottom: 1px solid ${BRAND_COLORS.borderLight};">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">BIC</p>
+        <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.text}; font-family: 'SF Mono', Monaco, Consolas, monospace;">SXPYDEHHXXX</p>
+      </div>
+      <div style="padding: 10px 0;">
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND_COLORS.textMuted};">Verwendungszweck</p>
+        <p style="margin: 0; font-size: 14px; color: ${BRAND_COLORS.text}; font-weight: 500;">${orderNumber}</p>
+      </div>
     </td>
   </tr>
 </table>
