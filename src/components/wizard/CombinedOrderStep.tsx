@@ -576,9 +576,9 @@ export function CombinedOrderStep({
             <span className="text-xl font-bold text-foreground">€23,88</span>
           </div>
           
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Clock className="h-3.5 w-3.5 text-primary" />
-            <span>Zustellung per E-Mail in der Regel innerhalb von 1 Stunde</span>
+          <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+            <Clock className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm font-medium text-primary">Zustellung per E-Mail in der Regel innerhalb von 1 Stunde</span>
           </div>
 
           {/* Legal Confirmations */}
