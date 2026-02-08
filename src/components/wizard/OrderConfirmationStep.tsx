@@ -95,10 +95,6 @@ export function OrderConfirmationStep({
         </div>
 
 
-        {/* Order Summary - Minimal */}
-        <p className="text-sm text-muted-foreground">
-          <span className="font-mono">{orderNumber}</span> · {propertyInfo} · {email}
-        </p>
 
         {/* Payment Instructions Card */}
         <div className="bg-card border border-border rounded overflow-hidden">
