@@ -206,13 +206,16 @@ async function createMoneybirdInvoice(
 // Send invoice via Moneybird
 async function sendMoneybirdInvoice(
   apiKey: string,
-  invoiceId: string
+  invoiceId: string,
+  emailAddress: string
 ): Promise<void> {
   const baseUrl = `https://moneybird.com/api/v2/${MONEYBIRD_ORG_ID}`;
   const headers = {
     "Authorization": `Bearer ${apiKey}`,
     "Content-Type": "application/json",
   };
+
+  console.log(`Sending Moneybird invoice ${invoiceId} to email: ${emailAddress}`);
 
   const sendResponse = await fetch(
     `${baseUrl}/sales_invoices/${invoiceId}/send_invoice.json`,
@@ -222,6 +225,8 @@ async function sendMoneybirdInvoice(
       body: JSON.stringify({
         sales_invoice_sending: {
           delivery_method: "Email",
+          email_address: emailAddress,
+          email_message: `Sehr geehrte Damen und Herren,\n\nanbei erhalten Sie Ihre Rechnung.\n\nMit freundlichen Grüßen,\nIhr GrundbuchauszugOnline.at Team`,
         },
       }),
     }
@@ -233,7 +238,7 @@ async function sendMoneybirdInvoice(
     throw new Error(`Failed to send Moneybird invoice: ${sendResponse.status}`);
   }
 
-  console.log(`Sent Moneybird invoice: ${invoiceId}`);
+  console.log(`Sent Moneybird invoice: ${invoiceId} to ${emailAddress}`);
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -333,7 +338,7 @@ serve(async (req: Request): Promise<Response> => {
         console.log("Creating Moneybird invoice...");
         const contact = await findOrCreateMoneybirdContact(moneybirdApiKey, order);
         const invoice = await createMoneybirdInvoice(moneybirdApiKey, contact.id, order);
-        await sendMoneybirdInvoice(moneybirdApiKey, invoice.id);
+        await sendMoneybirdInvoice(moneybirdApiKey, invoice.id, order.email);
         console.log(`Moneybird invoice ${invoice.id} created and sent successfully`);
       } catch (moneybirdError: any) {
         console.error("Moneybird error (non-blocking):", moneybirdError.message);
