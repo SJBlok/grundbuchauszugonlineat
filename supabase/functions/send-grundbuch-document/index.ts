@@ -415,6 +415,7 @@ serve(async (req: Request): Promise<Response> => {
       : "WICHTIGER HINWEIS: Das Dokument konnte nicht automatisch abgerufen werden. Wir werden Ihnen den Grundbuchauszug schnellstmöglich manuell zusenden.";
 
     // Build email payload - minimalist professional design matching email-templates.ts
+    // Updated with responsive layout for mobile/desktop
     const emailPayload: any = {
       From: "GrundbuchauszugOnline <info@grundbuchauszugonline.at>",
       To: order.email,
@@ -427,20 +428,60 @@ serve(async (req: Request): Promise<Response> => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>GrundbuchauszugOnline.at</title>
+  <style>
+    /* Mobile responsive styles */
+    @media only screen and (max-width: 480px) {
+      .wrapper {
+        padding: 16px 12px !important;
+      }
+      .header {
+        padding: 20px 16px !important;
+      }
+      .ref-banner {
+        padding: 12px 16px !important;
+      }
+      .content {
+        padding: 24px 16px !important;
+      }
+      .footer {
+        padding: 20px 16px !important;
+      }
+      /* Stack table cells on mobile */
+      .responsive-table td {
+        display: block !important;
+        width: 100% !important;
+        padding: 0 !important;
+        border: none !important;
+      }
+      .responsive-table .label-cell {
+        padding-top: 12px !important;
+        padding-bottom: 4px !important;
+        font-size: 12px !important;
+        color: #71717a !important;
+      }
+      .responsive-table .value-cell {
+        padding-bottom: 12px !important;
+        border-bottom: 1px solid #f4f4f5 !important;
+      }
+      .responsive-table tr:last-child .value-cell {
+        border-bottom: none !important;
+      }
+    }
+  </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5; color: #18181b; line-height: 1.65; -webkit-font-smoothing: antialiased;">
-  <div style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
+  <div class="wrapper" style="max-width: 580px; margin: 0 auto; padding: 40px 20px;">
     <div style="background-color: #ffffff; border-radius: 4px; border: 1px solid #e4e4e7;">
       
       <!-- Header with Logo -->
-      <div style="background-color: #1a5f4a; padding: 24px 40px; text-align: center;">
+      <div class="header" style="background-color: #1a5f4a; padding: 24px 40px; text-align: center;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display: inline-table; margin: 0 auto;">
           <tr>
-            <td style="vertical-align: middle; padding-right: 12px;">
-              <img src="https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg" alt="Logo" width="28" height="28" style="display: block; border: 0;" />
+            <td style="vertical-align: middle; padding-right: 8px;">
+              <img src="https://sclblrqylmzqvbjuegkq.supabase.co/storage/v1/object/public/email-assets/logo.svg" alt="Logo" width="24" height="24" style="display: block; border: 0;" />
             </td>
             <td style="vertical-align: middle;">
-              <span style="font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
+              <span style="font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
                 GrundbuchauszugOnline
               </span>
             </td>
@@ -449,12 +490,12 @@ serve(async (req: Request): Promise<Response> => {
       </div>
       
       <!-- Reference Banner -->
-      <div style="background-color: #fafafa; padding: 16px 40px; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">
+      <div class="ref-banner" style="background-color: #fafafa; padding: 16px 40px; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">
         Vorgang <strong style="color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 12px; letter-spacing: 0.3px;">${order.order_number}</strong>
       </div>
       
       <!-- Main Content -->
-      <div style="padding: 40px;">
+      <div class="content" style="padding: 40px;">
         <p style="margin: 0 0 24px 0; font-size: 15px; font-weight: 500; color: #18181b;">
           Sehr geehrte(r) ${order.vorname} ${order.nachname},
         </p>
@@ -471,63 +512,70 @@ serve(async (req: Request): Promise<Response> => {
         </div>
         ` : ''}
         
-        <!-- Order Details Table -->
-        <table style="width: 100%; border-collapse: collapse; margin: 32px 0;">
+        <!-- Order Details Table - Responsive -->
+        <table class="responsive-table" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0; border-collapse: collapse;">
           <tr>
-            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 40%;">Produkt</td>
-            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.product_name}</td>
+            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Produkt</td>
+            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.product_name}</td>
           </tr>
           ${order.adresse ? `
           <tr>
-            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Adresse</td>
-            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.adresse}${order.plz && order.ort ? `, ${order.plz} ${order.ort}` : ''}</td>
+            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Adresse</td>
+            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.adresse}${order.plz && order.ort ? `, ${order.plz} ${order.ort}` : ''}</td>
           </tr>
           ` : ''}
           <tr>
-            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Katastralgemeinde</td>
-            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.katastralgemeinde}</td>
+            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Katastralgemeinde</td>
+            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.katastralgemeinde}</td>
           </tr>
           <tr>
-            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Einlagezahl</td>
-            <td style="padding: 14px 0; font-size: 13px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; font-family: 'SF Mono', Monaco, Consolas, monospace;">${order.grundstuecksnummer}</td>
+            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Einlagezahl</td>
+            <td class="value-cell" style="padding: 14px 0; font-size: 13px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; font-family: 'SF Mono', Monaco, Consolas, monospace; vertical-align: top;">${order.grundstuecksnummer}</td>
           </tr>
           <tr>
-            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Bezirksgericht</td>
-            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.grundbuchsgericht}</td>
+            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Bezirksgericht</td>
+            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.grundbuchsgericht}</td>
           </tr>
           <tr>
-            <td style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5;">Bundesland</td>
-            <td style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5;">${order.bundesland}</td>
+            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Bundesland</td>
+            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.bundesland}</td>
           </tr>
           <tr>
-            <td style="padding: 20px 0 0 0; font-size: 13px; font-weight: 500; color: #18181b; border-top: 1px solid #e4e4e7;">Betrag</td>
-            <td style="padding: 20px 0 0 0; font-size: 16px; font-weight: 600; color: #1a5f4a; border-top: 1px solid #e4e4e7;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+            <td class="label-cell" style="padding: 20px 0 0 0; font-size: 13px; font-weight: 500; color: #18181b; border-top: 1px solid #e4e4e7; width: 140px; vertical-align: top;">Betrag</td>
+            <td class="value-cell" style="padding: 20px 0 0 0; font-size: 16px; font-weight: 600; color: #1a5f4a; border-top: 1px solid #e4e4e7; vertical-align: top;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
           </tr>
         </table>
         
-        <!-- Payment Details Box -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0;">
+        <!-- Payment Details Box - Responsive -->
+        <p style="margin: 0 0 16px 0; font-size: 14px; color: #52525b; line-height: 1.6;">
+          Um die Bestellung vollständig abzuschließen, schließen Sie bitte die Zahlung ab.
+        </p>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 0 0 32px 0;">
           <tr>
-            <td style="background-color: #fafafa; padding: 24px; border: 1px solid #e4e4e7; border-radius: 4px;">
-              <p style="margin: 0 0 16px 0; font-size: 13px; font-weight: 500; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">
+            <td style="background-color: #fafafa; padding: 20px 24px; border: 1px solid #e4e4e7; border-radius: 4px;">
+              <p style="margin: 0 0 20px 0; font-size: 12px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.8px;">
                 Zahlungsinformationen
               </p>
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <table class="responsive-table" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse: collapse;">
                 <tr>
-                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">Empfänger</td>
-                  <td style="padding: 8px 0; font-size: 14px; color: #18181b; text-align: right;">Application Assistant Ltd</td>
+                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Betrag</td>
+                  <td class="value-cell" style="padding: 12px 0; font-size: 15px; font-weight: 600; color: #1a5f4a; border-bottom: 1px solid #f4f4f5; vertical-align: top;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">IBAN</td>
-                  <td style="padding: 8px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">DE56 2022 0800 0058 7945 48</td>
+                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Empfänger</td>
+                  <td class="value-cell" style="padding: 12px 0; font-size: 14px; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">Application Assistant Ltd</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">BIC</td>
-                  <td style="padding: 8px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; text-align: right;">SXPYDEHHXXX</td>
+                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">IBAN</td>
+                  <td class="value-cell" style="padding: 12px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid #f4f4f5; vertical-align: top; word-break: break-all;">DE56 2022 0800 0058 7945 48</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; font-size: 13px; color: #71717a;">Verwendungszweck</td>
-                  <td style="padding: 8px 0; font-size: 14px; color: #18181b; font-weight: 500; text-align: right;">${order.order_number}</td>
+                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">BIC</td>
+                  <td class="value-cell" style="padding: 12px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid #f4f4f5; vertical-align: top;">SXPYDEHHXXX</td>
+                </tr>
+                <tr>
+                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; width: 140px; vertical-align: top;">Verwendungszweck</td>
+                  <td class="value-cell" style="padding: 12px 0; font-size: 14px; color: #18181b; font-weight: 500; vertical-align: top;">${order.order_number}</td>
                 </tr>
               </table>
             </td>
@@ -548,7 +596,7 @@ serve(async (req: Request): Promise<Response> => {
       </div>
       
       <!-- Footer -->
-      <div style="background-color: #fafafa; padding: 28px 40px; text-align: center; border-top: 1px solid #f4f4f5;">
+      <div class="footer" style="background-color: #fafafa; padding: 28px 40px; text-align: center; border-top: 1px solid #f4f4f5;">
         <p style="margin: 0; font-size: 12px; color: #71717a; line-height: 1.8;">
           <a href="mailto:info@grundbuchauszugonline.at" style="color: #71717a; text-decoration: none;">info@grundbuchauszugonline.at</a>
         </p>
