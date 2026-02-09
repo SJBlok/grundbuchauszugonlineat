@@ -140,12 +140,15 @@ async function createMoneybirdInvoice(
     "Content-Type": "application/json",
   };
 
+  // Price is inclusive of VAT (€29.95 total)
+  // Use prices_are_incl_tax: true so Moneybird calculates the net amount correctly
   const invoiceData = {
     sales_invoice: {
       contact_id: contactId,
       workflow_id: MONEYBIRD_WORKFLOW_ID,
       document_style_id: MONEYBIRD_DOC_STYLE_ID,
       reference: order.order_number,
+      prices_are_incl_tax: true,
       details_attributes: [
         {
           description: `${order.product_name}\nKG: ${order.katastralgemeinde}\nEZ/GST: ${order.grundstuecksnummer}`,
