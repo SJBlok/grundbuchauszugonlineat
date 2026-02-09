@@ -56,7 +56,7 @@ export default function Bestaetigung() {
               orderNumber={displayOrderNumber}
               email={displayEmail}
               propertyInfo={displayPropertyInfo}
-              totalPrice="€29,95"
+              totalPrice="€29,88"
               onConfirm={handleConfirm}
               onBack={handleBack}
             />
