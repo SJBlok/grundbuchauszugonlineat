@@ -247,7 +247,7 @@ export function CombinedOrderStep({
             wohnsitzland: formData.wohnsitzland,
             firma: formData.firma || null,
             product_name: "Aktueller Grundbuchauszug",
-            product_price: 29.88,
+            product_price: 29.90,
           },
         }
       );
@@ -570,10 +570,10 @@ export function CombinedOrderStep({
             <div>
               <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                €24,90 netto + €4,98 MwSt.
+                €24,92 netto + €4,98 MwSt.
               </p>
             </div>
-            <span className="text-xl font-bold text-foreground">€29,88</span>
+            <span className="text-xl font-bold text-foreground">€29,90</span>
           </div>
           
           <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
@@ -622,8 +622,8 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen – €29,88 inkl. MwSt.</span>
-                <span className="sm:hidden">Bestellen – €29,88</span>
+                <span className="hidden sm:inline">Kostenpflichtig bestellen – €29,90 inkl. MwSt.</span>
+                <span className="sm:hidden">Bestellen – €29,90</span>
               </span>
             )}
           </Button>
