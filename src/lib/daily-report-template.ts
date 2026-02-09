@@ -26,7 +26,7 @@ const mockOrders = [
     nachname: "Mustermann",
     katastralgemeinde: "Wien, Innere Stadt",
     grundstuecksnummer: "1234/5",
-    product_price: 29.88,
+    product_price: 29.90,
     status: "pending",
   },
   {
@@ -35,7 +35,7 @@ const mockOrders = [
     nachname: "Schmidt",
     katastralgemeinde: "Graz, St. Leonhard",
     grundstuecksnummer: "567/8",
-    product_price: 29.88,
+    product_price: 29.90,
     status: "completed",
   },
   {
@@ -44,7 +44,7 @@ const mockOrders = [
     nachname: "Huber",
     katastralgemeinde: "Salzburg, Altstadt",
     grundstuecksnummer: "890/1",
-    product_price: 29.88,
+    product_price: 29.90,
     status: "pending",
   },
 ];
