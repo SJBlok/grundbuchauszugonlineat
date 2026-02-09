@@ -111,7 +111,7 @@ serve(async (req: Request): Promise<Response> => {
           ort: body.ort ?? null,
           vorname: body.vorname,
           nachname: body.nachname,
-          email: body.email,
+          email: body.email.toLowerCase().trim(),
           wohnsitzland: body.wohnsitzland ?? "Österreich",
           firma: body.firma ?? null,
           product_name: body.product_name ?? "Aktueller Grundbuchauszug",

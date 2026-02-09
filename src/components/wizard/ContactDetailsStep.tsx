@@ -17,7 +17,7 @@ import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 const applicantSchema = z.object({
   vorname: z.string().min(1, "Vorname ist erforderlich").max(50),
   nachname: z.string().min(1, "Nachname ist erforderlich").max(50),
-  email: z.string().email("Ungültige E-Mail-Adresse").max(100),
+  email: z.string().email("Ungültige E-Mail-Adresse").max(100).transform(v => v.toLowerCase()),
   wohnsitzland: z.string().min(1, "Wohnsitzland ist erforderlich"),
   firma: z.string().max(100).optional(),
 });
