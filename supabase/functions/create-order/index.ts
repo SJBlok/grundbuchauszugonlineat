@@ -115,7 +115,7 @@ serve(async (req: Request): Promise<Response> => {
           wohnsitzland: body.wohnsitzland ?? "Österreich",
           firma: body.firma ?? null,
           product_name: body.product_name ?? "Aktueller Grundbuchauszug",
-          product_price: body.product_price ?? 19.9,
+          product_price: body.product_price ?? 29.95,
           // required by schema; overwritten by trigger
           order_number: "PENDING",
         },
