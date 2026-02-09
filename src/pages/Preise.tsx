@@ -46,7 +46,7 @@ export default function Preise() {
                       <h3 className="text-xl font-semibold text-foreground">
                         Aktueller Grundbuchauszug
                       </h3>
-                      <span className="text-3xl font-bold text-primary">23,88 €</span>
+                      <span className="text-3xl font-bold text-primary">29,95 €</span>
                     </div>
                     <ul className="space-y-2">
                       {productFeatures.map((feature) => (
