@@ -6,7 +6,6 @@ import {
   Mail,
   Download,
 } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import grundbuchExample from '@/assets/grundbuch-example-fictitious.jpg';
 
 interface GrundbuchIntroStepProps {
@@ -21,8 +20,6 @@ const usps = [
 ];
 
 export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
-  const isMobile = useIsMobile();
-
   return (
     <div className="animate-fade-in pb-24 md:pb-0">
       {/* Main Card */}
@@ -126,18 +123,16 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
         </div>
       </div>
 
-      {/* Sticky Mobile Button */}
-      {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 safe-area-inset-bottom z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
-          <Button 
-            onClick={onContinue}
-            className="w-full h-14 text-sm font-semibold shadow-lg group"
-          >
-            Jetzt Grundbuchauszug anfordern
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
-        </div>
-      )}
+      {/* Sticky Mobile Button - always rendered, hidden via CSS on desktop */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 safe-area-inset-bottom z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        <Button 
+          onClick={onContinue}
+          className="w-full h-14 text-sm font-semibold shadow-lg group"
+        >
+          Jetzt Grundbuchauszug anfordern
+          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+        </Button>
+      </div>
     </div>
   );
 }
