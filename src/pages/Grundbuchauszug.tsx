@@ -67,7 +67,7 @@ export default function Grundbuchauszug() {
                   <p className="text-primary-foreground/80">Vollständiger Auszug aus dem Hauptbuch</p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-3xl font-bold">23,88 €</span>
+                  <span className="text-3xl font-bold">29,95 €</span>
                   <Button asChild variant="secondary" size="lg">
                     <Link to="/anfordern" className="hover:no-underline">Jetzt bestellen</Link>
                   </Button>

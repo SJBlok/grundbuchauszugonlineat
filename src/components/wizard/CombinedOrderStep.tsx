@@ -573,7 +573,7 @@ export function CombinedOrderStep({
                 €19,90 netto + €3,98 MwSt.
               </p>
             </div>
-            <span className="text-xl font-bold text-foreground">€23,88</span>
+            <span className="text-xl font-bold text-foreground">€29,95</span>
           </div>
           
           <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
@@ -622,8 +622,8 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen – €23,88 inkl. MwSt.</span>
-                <span className="sm:hidden">Bestellen – €23,88</span>
+                <span className="hidden sm:inline">Kostenpflichtig bestellen – €29,95 inkl. MwSt.</span>
+                <span className="sm:hidden">Bestellen – €29,95</span>
               </span>
             )}
           </Button>

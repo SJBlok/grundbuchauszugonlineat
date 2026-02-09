@@ -266,7 +266,7 @@ export function PropertyDetailsStep({ initialData, onSubmit }: PropertyDetailsSt
               size="xl"
             >
               <FileText className="h-5 w-5 mr-2" />
-              Dokument anfordern | € 23,88
+              Dokument anfordern | € 29,95
             </Button>
           </div>
         </Tabs>
