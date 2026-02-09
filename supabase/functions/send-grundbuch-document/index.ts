@@ -93,23 +93,49 @@ async function findOrCreateMoneybirdContact(
   if (searchResponse.ok) {
     const contacts = await searchResponse.json();
     if (contacts.length > 0) {
-      console.log(`Found existing Moneybird contact: ${contacts[0].id}`);
-      return contacts[0];
+      const existingContact = contacts[0];
+      console.log(`Found existing Moneybird contact: ${existingContact.id}`);
+      
+      // Update the contact to ensure email and send_invoices_to_email are set correctly
+      const updateResponse = await fetch(
+        `${baseUrl}/contacts/${existingContact.id}.json`,
+        {
+          method: "PATCH",
+          headers,
+          body: JSON.stringify({
+            contact: {
+              email: order.email,
+              send_invoices_to_email: order.email,
+            },
+          }),
+        }
+      );
+      
+      if (updateResponse.ok) {
+        console.log(`Updated Moneybird contact ${existingContact.id} with email: ${order.email}`);
+      } else {
+        console.warn(`Failed to update contact email, continuing anyway`);
+      }
+      
+      return existingContact;
     }
   }
 
-  // Create new contact
+  // Create new contact with email and send_invoices_to_email
   const contactData = {
     contact: {
       company_name: order.firma || "",
       firstname: order.vorname,
       lastname: order.nachname,
       email: order.email,
+      send_invoices_to_email: order.email,
       country: order.wohnsitzland === "Österreich" ? "AT" : 
                order.wohnsitzland === "Deutschland" ? "DE" :
                order.wohnsitzland === "Schweiz" ? "CH" : "AT",
     },
   };
+
+  console.log(`Creating new Moneybird contact with email: ${order.email}`);
 
   const createResponse = await fetch(`${baseUrl}/contacts.json`, {
     method: "POST",
