@@ -124,7 +124,16 @@ export function GrundbuchIntroStep({ onContinue }: GrundbuchIntroStepProps) {
       </div>
 
       {/* Sticky Mobile Button - always rendered, hidden via CSS on desktop */}
-      <div className="block md:hidden fixed inset-x-0 bottom-0 bg-background border-t border-border p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+      <div 
+        className="block md:hidden bg-background border-t border-border p-4 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
         <Button 
           onClick={onContinue}
           className="w-full h-14 text-sm font-semibold shadow-lg group"
