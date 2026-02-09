@@ -247,7 +247,7 @@ export function CombinedOrderStep({
             wohnsitzland: formData.wohnsitzland,
             firma: formData.firma || null,
             product_name: "Aktueller Grundbuchauszug",
-            product_price: 19.9,
+            product_price: 29.95,
           },
         }
       );
