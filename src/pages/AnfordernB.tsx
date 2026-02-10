@@ -66,7 +66,7 @@ export default function AnfordernB() {
       email: email,
       property: propertyInfo,
       variant: "b",
-      price: totalPrice || "23.80",
+      price: totalPrice || "28.90",
     });
     navigate(`/bestaetigung?${params.toString()}`);
   };
