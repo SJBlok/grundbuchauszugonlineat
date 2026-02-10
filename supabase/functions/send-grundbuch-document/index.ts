@@ -535,19 +535,10 @@ serve(async (req: Request): Promise<Response> => {
         </p>
         
         <p style="margin: 0 0 20px 0; font-size: 15px; color: #52525b; line-height: 1.7;">
-          Wir bestätigen den Eingang Ihrer Bestellung für einen Grundbuchauszug.${hasDocument ? ' Ihr Dokument wurde erfolgreich abgerufen und liegt dieser E-Mail als Anlage bei.' : ''}
+          ${hasDocument 
+            ? 'Wir bestätigen den Eingang Ihrer Bestellung für einen Grundbuchauszug. Ihr Dokument wurde erfolgreich abgerufen und liegt dieser E-Mail als Anlage bei.'
+            : 'Vielen Dank für Ihre Bestellung. <strong>Ihre Bestellung wird manuell bearbeitet.</strong> Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt.'}
         </p>
-
-        ${!hasDocument ? `
-        <div style="background-color: #fffbeb; border-left: 2px solid #b45309; padding: 16px 20px; margin: 24px 0;">
-           <p style="margin: 0; color: #b45309; font-size: 14px; line-height: 1.6;">
-             <strong>Hinweis:</strong> Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
-           </p>
-         </div>
-            <strong>Hinweis:</strong> Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
-          </p>
-        </div>
-        ` : ''}
         
         <!-- Order Details Table - Responsive -->
         <table class="responsive-table" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0; border-collapse: collapse;">
