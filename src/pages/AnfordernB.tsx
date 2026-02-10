@@ -59,13 +59,14 @@ export default function AnfordernB() {
     setStep(1);
   };
 
-  const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string) => {
+  const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string) => {
     // Navigate to confirmation page with order data
     const params = new URLSearchParams({
       order: orderNumber,
       email: email,
       property: propertyInfo,
       variant: "b",
+      price: totalPrice || "29.90",
     });
     navigate(`/bestaetigung?${params.toString()}`);
   };

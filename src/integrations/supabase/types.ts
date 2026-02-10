@@ -137,6 +137,7 @@ export type Database = {
           bundesland: string
           created_at: string
           email: string
+          fast_delivery: boolean
           firma: string | null
           grundbuchsgericht: string
           grundstuecksnummer: string
@@ -160,6 +161,7 @@ export type Database = {
           bundesland: string
           created_at?: string
           email: string
+          fast_delivery?: boolean
           firma?: string | null
           grundbuchsgericht: string
           grundstuecksnummer: string
@@ -183,6 +185,7 @@ export type Database = {
           bundesland?: string
           created_at?: string
           email?: string
+          fast_delivery?: boolean
           firma?: string | null
           grundbuchsgericht?: string
           grundstuecksnummer?: string

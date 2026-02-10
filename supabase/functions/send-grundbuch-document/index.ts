@@ -540,7 +540,10 @@ serve(async (req: Request): Promise<Response> => {
 
         ${!hasDocument ? `
         <div style="background-color: #fffbeb; border-left: 2px solid #b45309; padding: 16px 20px; margin: 24px 0;">
-          <p style="margin: 0; color: #b45309; font-size: 14px; line-height: 1.6;">
+           <p style="margin: 0; color: #b45309; font-size: 14px; line-height: 1.6;">
+             <strong>Hinweis:</strong> Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
+           </p>
+         </div>
             <strong>Hinweis:</strong> Der automatische Abruf war nicht möglich. Wir senden Ihnen das Dokument innerhalb von 24 Stunden zu oder kontaktieren Sie zur Überprüfung Ihrer Angaben.
           </p>
         </div>
@@ -731,7 +734,7 @@ GrundbuchauszugOnline.at
         body: JSON.stringify({
           From: "GrundbuchauszugOnline <info@grundbuchauszugonline.at>",
           To: "info@grundbuchauszugonline.at",
-          Subject: `[NEUE BESTELLUNG] ${order.order_number} - ${order.vorname} ${order.nachname}`,
+          Subject: `${order.fast_delivery ? '[F] ' : ''}[NEUE BESTELLUNG] ${order.order_number} - ${order.vorname} ${order.nachname}`,
           HtmlBody: `
             <html>
               <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto;">
