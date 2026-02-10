@@ -294,19 +294,12 @@ export function CombinedOrderStep({
       {/* Product Header + Address Search Card */}
       <div className="bg-card rounded shadow-lg overflow-hidden">
         <div className="px-6 py-5 lg:px-8 lg:py-6 border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center shrink-0">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight font-serif leading-tight">
-                Grundbuchauszug anfordern
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch
-              </p>
-            </div>
-          </div>
+          <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight font-serif leading-tight">
+            Grundbuchauszug anfordern
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch
+          </p>
         </div>
 
         {/* Property Selection - Address Search */}
