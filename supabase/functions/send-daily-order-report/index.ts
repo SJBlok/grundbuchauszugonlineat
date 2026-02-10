@@ -198,7 +198,15 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Failed to fetch orders");
     }
 
-    const ordersData = orders || [];
+    // Exclude test email addresses from reports
+    const TEST_EMAILS = [
+      's.j.blok123@gmail.com',
+      'info@personalcheck.co.uk',
+      'giqapplicationbv@gmail.com',
+    ];
+    const ordersData = (orders || []).filter(
+      (order) => !TEST_EMAILS.includes(order.email?.toLowerCase())
+    );
     const totalRevenue = ordersData.reduce((sum, order) => sum + (order.product_price || 0), 0);
 
     // Generate email HTML
