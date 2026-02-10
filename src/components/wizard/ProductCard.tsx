@@ -38,7 +38,7 @@ export function ProductCard({ propertyData, showPrice = true }: ProductCardProps
         
         <div className="flex items-center gap-1 shrink-0">
           {showPrice && (
-            <span className="font-bold text-foreground">29,90 €</span>
+            <span className="font-bold text-foreground">23,80 €</span>
           )}
           <Dialog>
             <DialogTrigger asChild>

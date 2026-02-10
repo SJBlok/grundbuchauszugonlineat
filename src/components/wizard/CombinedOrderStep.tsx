@@ -155,7 +155,7 @@ export function CombinedOrderStep({
           plz: selectedAddressData?.plz || "",
           ort: selectedAddressData?.ort || "",
           productName: "Aktueller Grundbuchauszug",
-          productPrice: 19.90,
+          productPrice: 23.80,
           step: 1,
         },
       });
@@ -248,7 +248,7 @@ export function CombinedOrderStep({
             wohnsitzland: formData.wohnsitzland,
             firma: formData.firma || null,
             product_name: "Aktueller Grundbuchauszug",
-            product_price: fastDelivery ? 39.85 : 29.90,
+            product_price: fastDelivery ? 33.75 : 23.80,
             fast_delivery: fastDelivery,
           },
         }
@@ -277,7 +277,7 @@ export function CombinedOrderStep({
         selectedAddress || ''
       ].filter(Boolean).join(', ');
       
-      onSubmit(orderResult.order_number, formData.email, propertyInfo, fastDelivery ? "39.85" : "29.90");
+      onSubmit(orderResult.order_number, formData.email, propertyInfo, fastDelivery ? "33.75" : "23.80");
     } catch (error) {
       console.error("Order submission error:", error);
       toast({
@@ -563,64 +563,43 @@ export function CombinedOrderStep({
       <div className="bg-card border border-border rounded overflow-hidden">
         <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
           <div className="w-0.5 h-4 bg-primary" />
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Lieferoption wählen</h2>
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Lieferoption</h2>
         </div>
 
         <div className="p-4 lg:p-6 space-y-3">
-          {/* Standard Delivery */}
-          <button
-            type="button"
-            onClick={() => setFastDelivery(false)}
-            className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-              !fastDelivery
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-muted-foreground/30"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                  !fastDelivery ? "border-primary" : "border-muted-foreground/40"
-                }`}>
-                  {!fastDelivery && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">Standard-Zustellung</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 24 Stunden per E-Mail</p>
-                </div>
-              </div>
-              <span className="text-sm font-bold text-foreground">€29,90</span>
-            </div>
-          </button>
+          <div className="flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-2">
+            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-sm text-muted-foreground">Standard: Zustellung innerhalb von 24 Stunden per E-Mail</span>
+          </div>
 
-          {/* Fast Delivery */}
-          <button
-            type="button"
-            onClick={() => setFastDelivery(true)}
-            className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+          {/* Express Delivery Upsell Checkbox */}
+          <div
+            className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
               fastDelivery
                 ? "border-primary bg-primary/5"
                 : "border-border hover:border-muted-foreground/30"
             }`}
+            onClick={() => setFastDelivery(!fastDelivery)}
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
-                  fastDelivery ? "border-primary" : "border-muted-foreground/40"
-                }`}>
-                  {fastDelivery && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="fastDelivery"
+                checked={fastDelivery}
+                onCheckedChange={(checked) => setFastDelivery(checked === true)}
+                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer"
+              />
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="fastDelivery" className="text-sm font-semibold text-foreground cursor-pointer flex items-center gap-2">
                     Express-Zustellung
                     <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">Schnell</span>
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 1 Stunde per E-Mail</p>
+                  </Label>
+                  <span className="text-sm font-bold text-foreground">+ €9,95</span>
                 </div>
+                <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 1 Stunde per E-Mail</p>
               </div>
-              <span className="text-sm font-bold text-foreground">€39,85</span>
             </div>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -637,10 +616,10 @@ export function CombinedOrderStep({
             <div>
               <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {fastDelivery ? "€33,21 netto + €6,64 MwSt." : "€24,92 netto + €4,98 MwSt."}
+                {fastDelivery ? "€28,13 netto + €5,62 MwSt." : "€19,83 netto + €3,97 MwSt."}
               </p>
             </div>
-            <span className="text-xl font-bold text-foreground">{fastDelivery ? "€39,85" : "€29,90"}</span>
+            <span className="text-xl font-bold text-foreground">{fastDelivery ? "€33,75" : "€23,80"}</span>
           </div>
           
           <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
@@ -693,8 +672,8 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen – {fastDelivery ? "€39,85" : "€29,90"} inkl. MwSt.</span>
-                <span className="sm:hidden">Bestellen – {fastDelivery ? "€39,85" : "€29,90"}</span>
+                <span className="hidden sm:inline">Kostenpflichtig bestellen – {fastDelivery ? "€33,75" : "€23,80"} inkl. MwSt.</span>
+                <span className="sm:hidden">Bestellen – {fastDelivery ? "€33,75" : "€23,80"}</span>
               </span>
             )}
           </Button>

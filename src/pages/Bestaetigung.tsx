@@ -15,7 +15,7 @@ export default function Bestaetigung() {
   const email = searchParams.get("email") || "";
   const propertyInfo = searchParams.get("property") || "";
   const fromVariant = searchParams.get("variant") || "a";
-  const priceParam = searchParams.get("price") || "29.90";
+  const priceParam = searchParams.get("price") || "23.80";
 
   // Check if we have demo mode (no params but user is directly viewing)
   const isDemoMode = !orderNumber && !email;
