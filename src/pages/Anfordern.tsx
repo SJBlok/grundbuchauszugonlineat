@@ -48,13 +48,14 @@ export default function Anfordern() {
     firma: "",
   });
 
-  const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string) => {
+  const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string) => {
     // Navigate to confirmation page with order data
     const params = new URLSearchParams({
       order: orderNumber,
       email: email,
       property: propertyInfo,
       variant: "a",
+      price: totalPrice || "29.90",
     });
     navigate(`/bestaetigung?${params.toString()}`);
   };

@@ -65,6 +65,7 @@ type CreateOrderBody = {
   // optional
   product_name?: string;
   product_price?: number;
+  fast_delivery?: boolean;
 };
 
 serve(async (req: Request): Promise<Response> => {
@@ -116,6 +117,7 @@ serve(async (req: Request): Promise<Response> => {
           firma: body.firma ?? null,
           product_name: body.product_name ?? "Aktueller Grundbuchauszug",
           product_price: body.product_price ?? 29.90,
+          fast_delivery: body.fast_delivery ?? false,
           // required by schema; overwritten by trigger
           order_number: "PENDING",
         },

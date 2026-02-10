@@ -85,7 +85,7 @@ interface AddressSearchResult {
 interface CombinedOrderStepProps {
   initialPropertyData: PropertyData;
   initialApplicantData: ApplicantData;
-  onSubmit: (orderNumber: string, email: string, propertyInfo: string) => void;
+  onSubmit: (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string) => void;
 }
 
 export function CombinedOrderStep({
@@ -100,6 +100,7 @@ export function CombinedOrderStep({
   const [confirmTerms, setConfirmTerms] = useState(false);
   const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fastDelivery, setFastDelivery] = useState(false);
   const { toast } = useToast();
   const sessionIdRef = useRef<string>(getSessionId());
   const lastTrackedEmailRef = useRef<string>("");
@@ -247,7 +248,8 @@ export function CombinedOrderStep({
             wohnsitzland: formData.wohnsitzland,
             firma: formData.firma || null,
             product_name: "Aktueller Grundbuchauszug",
-            product_price: 29.90,
+            product_price: fastDelivery ? 39.85 : 29.90,
+            fast_delivery: fastDelivery,
           },
         }
       );
@@ -275,7 +277,7 @@ export function CombinedOrderStep({
         selectedAddress || ''
       ].filter(Boolean).join(', ');
       
-      onSubmit(orderResult.order_number, formData.email, propertyInfo);
+      onSubmit(orderResult.order_number, formData.email, propertyInfo, fastDelivery ? "39.85" : "29.90");
     } catch (error) {
       console.error("Order submission error:", error);
       toast({
@@ -557,6 +559,71 @@ export function CombinedOrderStep({
         </div>
       </div>
 
+      {/* Delivery Options Card */}
+      <div className="bg-card border border-border rounded overflow-hidden">
+        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
+          <div className="w-0.5 h-4 bg-primary" />
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Lieferoption wählen</h2>
+        </div>
+
+        <div className="p-4 lg:p-6 space-y-3">
+          {/* Standard Delivery */}
+          <button
+            type="button"
+            onClick={() => setFastDelivery(false)}
+            className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+              !fastDelivery
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-muted-foreground/30"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                  !fastDelivery ? "border-primary" : "border-muted-foreground/40"
+                }`}>
+                  {!fastDelivery && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Standard-Zustellung</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 24 Stunden per E-Mail</p>
+                </div>
+              </div>
+              <span className="text-sm font-bold text-foreground">€29,90</span>
+            </div>
+          </button>
+
+          {/* Fast Delivery */}
+          <button
+            type="button"
+            onClick={() => setFastDelivery(true)}
+            className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+              fastDelivery
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-muted-foreground/30"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                  fastDelivery ? "border-primary" : "border-muted-foreground/40"
+                }`}>
+                  {fastDelivery && <div className="h-2.5 w-2.5 rounded-full bg-primary" />}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    Express-Zustellung
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">Schnell</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 1 Stunde per E-Mail</p>
+                </div>
+              </div>
+              <span className="text-sm font-bold text-foreground">€39,85</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* Payment & Confirmation Card */}
       <div className="bg-card border border-border rounded overflow-hidden">
         <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
@@ -570,15 +637,19 @@ export function CombinedOrderStep({
             <div>
               <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                €24,92 netto + €4,98 MwSt.
+                {fastDelivery ? "€33,21 netto + €6,64 MwSt." : "€24,92 netto + €4,98 MwSt."}
               </p>
             </div>
-            <span className="text-xl font-bold text-foreground">€29,90</span>
+            <span className="text-xl font-bold text-foreground">{fastDelivery ? "€39,85" : "€29,90"}</span>
           </div>
           
           <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
             <Clock className="h-4 w-4 text-primary shrink-0" />
-            <span className="text-sm font-medium text-primary">Zustellung per E-Mail in der Regel innerhalb von 1 Stunde</span>
+            <span className="text-sm font-medium text-primary">
+              {fastDelivery 
+                ? "Express: Zustellung per E-Mail innerhalb von 1 Stunde" 
+                : "Zustellung per E-Mail innerhalb von 24 Stunden"}
+            </span>
           </div>
 
           {/* Legal Confirmations */}
@@ -622,8 +693,8 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen – €29,90 inkl. MwSt.</span>
-                <span className="sm:hidden">Bestellen – €29,90</span>
+                <span className="hidden sm:inline">Kostenpflichtig bestellen – {fastDelivery ? "€39,85" : "€29,90"} inkl. MwSt.</span>
+                <span className="sm:hidden">Bestellen – {fastDelivery ? "€39,85" : "€29,90"}</span>
               </span>
             )}
           </Button>

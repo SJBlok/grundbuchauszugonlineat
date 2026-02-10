@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ADD COLUMN fast_delivery BOOLEAN NOT NULL DEFAULT false;

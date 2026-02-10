@@ -15,6 +15,7 @@ export default function Bestaetigung() {
   const email = searchParams.get("email") || "";
   const propertyInfo = searchParams.get("property") || "";
   const fromVariant = searchParams.get("variant") || "a";
+  const priceParam = searchParams.get("price") || "29.90";
 
   // Check if we have demo mode (no params but user is directly viewing)
   const isDemoMode = !orderNumber && !email;
@@ -56,7 +57,7 @@ export default function Bestaetigung() {
               orderNumber={displayOrderNumber}
               email={displayEmail}
               propertyInfo={displayPropertyInfo}
-              totalPrice="€29,90"
+              totalPrice={`€${priceParam.replace('.', ',')}`}
               onConfirm={handleConfirm}
               onBack={handleBack}
             />
