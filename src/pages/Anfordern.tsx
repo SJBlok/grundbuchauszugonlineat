@@ -55,7 +55,7 @@ export default function Anfordern() {
       email: email,
       property: propertyInfo,
       variant: "a",
-      price: totalPrice || "29.90",
+      price: totalPrice || "23.80",
     });
     navigate(`/bestaetigung?${params.toString()}`);
   };
