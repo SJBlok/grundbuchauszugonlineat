@@ -166,7 +166,7 @@ async function createMoneybirdInvoice(
     "Content-Type": "application/json",
   };
 
-  // Price is inclusive of VAT (€29.90 total)
+  // Price is inclusive of VAT (€28.90 standard, €38.85 express)
   // Use prices_are_incl_tax: true so Moneybird calculates the net amount correctly
   const invoiceData = {
     sales_invoice: {
