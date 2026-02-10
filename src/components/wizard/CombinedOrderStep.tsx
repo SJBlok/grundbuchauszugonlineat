@@ -573,13 +573,13 @@ export function CombinedOrderStep({
           </div>
 
           {/* Express Delivery Upsell Checkbox */}
-          <div
-            className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+          <label
+            htmlFor="fastDelivery"
+            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer ${
               fastDelivery
                 ? "border-primary bg-primary/5"
                 : "border-border hover:border-muted-foreground/30"
             }`}
-            onClick={() => setFastDelivery(!fastDelivery)}
           >
             <div className="flex items-start gap-3">
               <Checkbox
@@ -590,16 +590,16 @@ export function CombinedOrderStep({
               />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="fastDelivery" className="text-sm font-semibold text-foreground cursor-pointer flex items-center gap-2">
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-2">
                     Express-Zustellung
                     <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">Schnell</span>
-                  </Label>
+                  </span>
                   <span className="text-sm font-bold text-foreground">+ €9,95</span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 1 Stunde per E-Mail</p>
               </div>
             </div>
-          </div>
+          </label>
         </div>
       </div>
 
