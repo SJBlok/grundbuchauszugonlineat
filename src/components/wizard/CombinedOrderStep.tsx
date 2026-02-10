@@ -291,24 +291,25 @@ export function CombinedOrderStep({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 animate-fade-in" data-testid="combined-order-step">
-      {/* Product Header Card */}
+      {/* Product Header + Address Search Card */}
       <div className="bg-card rounded shadow-lg overflow-hidden">
-        <div className="px-6 py-8 lg:px-8 lg:py-10 border-b border-border/40 bg-gradient-to-b from-muted/20 to-transparent relative overflow-hidden">
-          <div className="absolute top-4 right-6 lg:right-8 text-muted/[0.06] select-none pointer-events-none hidden sm:block">
-            <span className="text-7xl lg:text-8xl font-bold tracking-tighter font-serif">GB</span>
-          </div>
-          
-          <div className="relative">
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight font-serif leading-tight">
-              Grundbuchauszug anfordern
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch.
-            </p>
+        <div className="px-6 py-5 lg:px-8 lg:py-6 border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center shrink-0">
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight font-serif leading-tight">
+                Grundbuchauszug anfordern
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Property Selection - Address Search Only */}
+        {/* Property Selection - Address Search */}
         <div className="p-6 lg:p-8">
           <AddressSearch onSelectResult={handleAddressSelect} />
         </div>
