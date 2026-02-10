@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   Select,
   SelectContent,
@@ -16,12 +16,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AddressSearch } from "@/components/AddressSearch";
-import { KatastralgemeindeCombobox } from "@/components/KatastralgemeindeCombobox";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 import { 
-  FileText, Info, Clock, Shield, HelpCircle, 
+  FileText, Info, Clock, Shield, 
   Mail, Building2, MapPin, Loader2, Check, BadgeCheck 
 } from "lucide-react";
 import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
@@ -93,7 +93,6 @@ export function CombinedOrderStep({
   initialApplicantData,
   onSubmit,
 }: CombinedOrderStepProps) {
-  const [activeTab, setActiveTab] = useState<string>("address");
   const [selectedFromSearch, setSelectedFromSearch] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const [selectedAddressData, setSelectedAddressData] = useState<AddressSearchResult | null>(null);
@@ -309,107 +308,10 @@ export function CombinedOrderStep({
           </div>
         </div>
 
-        {/* Property Selection Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="border-b border-border/40 bg-muted/10">
-            <div className="px-4 md:px-6 lg:px-8">
-              <TabsList className="h-auto p-0 bg-transparent rounded-none w-full justify-start gap-2 md:gap-8">
-                <TabsTrigger 
-                  value="address" 
-                  className="relative px-3 md:px-0 py-3 md:py-4 text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200 whitespace-nowrap"
-                >
-                  Adresse
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="gst" 
-                  className="relative px-3 md:px-0 py-3 md:py-4 text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200 whitespace-nowrap"
-                >
-                  Grundstücksnr.
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="ez" 
-                  className="relative px-3 md:px-0 py-3 md:py-4 text-xs md:text-sm font-medium text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary transition-all duration-200 whitespace-nowrap"
-                >
-                  Einlagezahl
-                </TabsTrigger>
-              </TabsList>
-            </div>
-          </div>
-
-          <div className="p-6 lg:p-8">
-            <TabsContent value="address" className="mt-0 space-y-5">
-              <AddressSearch onSelectResult={handleAddressSelect} />
-            </TabsContent>
-
-            <TabsContent value="gst" className="mt-0 space-y-5">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="kg-gst" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
-                  <KatastralgemeindeCombobox
-                    value={katastralgemeinde}
-                    onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
-                    bundesland={bundesland}
-                    placeholder="Gemeinde eingeben..."
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="gst-nr" className="text-sm font-medium text-foreground">Grundstücksnummer (GST-NR)</Label>
-                  <Input
-                    id="gst-nr"
-                    {...register("grundstuecksnummer")}
-                    placeholder="z.B. 123/4"
-                  />
-                  <button 
-                    type="button"
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
-                  >
-                    <HelpCircle className="h-3 w-3" />
-                    <span>Was ist die Grundstücksnummer?</span>
-                  </button>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="ez" className="mt-0 space-y-5">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="kg-ez" className="text-sm font-medium text-foreground">Katastralgemeinde (KG)</Label>
-                  <KatastralgemeindeCombobox
-                    value={katastralgemeinde}
-                    onChange={(value) => setValue("katastralgemeinde", value, { shouldValidate: true })}
-                    bundesland={bundesland}
-                    placeholder="Gemeinde eingeben..."
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="ez-nr" className="text-sm font-medium text-foreground">Einlagezahl (EZ)</Label>
-                  <Input
-                    id="ez-nr"
-                    {...register("grundstuecksnummer")}
-                    placeholder="z.B. 567"
-                  />
-                  <button 
-                    type="button"
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/80 hover:text-foreground transition-colors"
-                  >
-                    <HelpCircle className="h-3 w-3" />
-                    <span>Was ist die Einlagezahl?</span>
-                  </button>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Hidden fields for manual entry */}
-            {(activeTab === "gst" || activeTab === "ez") && (
-              <div className="hidden">
-                <Input {...register("grundbuchsgericht")} />
-                <Input {...register("bundesland")} />
-              </div>
-            )}
-          </div>
-        </Tabs>
+        {/* Property Selection - Address Search Only */}
+        <div className="p-6 lg:p-8">
+          <AddressSearch onSelectResult={handleAddressSelect} />
+        </div>
       </div>
 
       {/* Property Summary - only show for manual entry (GST/EZ tabs), not for address search */}
@@ -622,14 +524,6 @@ export function CombinedOrderStep({
             <span className="text-xl font-bold text-foreground">{fastDelivery ? "€33,75" : "€23,80"}</span>
           </div>
           
-          <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
-            <Clock className="h-4 w-4 text-primary shrink-0" />
-            <span className="text-sm font-medium text-primary">
-              {fastDelivery 
-                ? "Express: Zustellung per E-Mail innerhalb von 1 Stunde" 
-                : "Zustellung per E-Mail innerhalb von 24 Stunden"}
-            </span>
-          </div>
 
           {/* Legal Confirmations */}
           <div className="space-y-3">
@@ -672,8 +566,8 @@ export function CombinedOrderStep({
             ) : (
               <span className="flex items-center gap-2">
                 <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen – {fastDelivery ? "€33,75" : "€23,80"} inkl. MwSt.</span>
-                <span className="sm:hidden">Bestellen – {fastDelivery ? "€33,75" : "€23,80"}</span>
+                <span className="hidden sm:inline">Kostenpflichtig bestellen</span>
+                <span className="sm:hidden">Bestellen</span>
               </span>
             )}
           </Button>
