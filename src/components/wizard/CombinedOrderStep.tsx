@@ -154,7 +154,7 @@ export function CombinedOrderStep({
           plz: selectedAddressData?.plz || "",
           ort: selectedAddressData?.ort || "",
           productName: "Aktueller Grundbuchauszug",
-          productPrice: 23.80,
+          productPrice: 28.90,
           step: 1,
         },
       });
@@ -247,7 +247,7 @@ export function CombinedOrderStep({
             wohnsitzland: formData.wohnsitzland,
             firma: formData.firma || null,
             product_name: "Aktueller Grundbuchauszug",
-            product_price: fastDelivery ? 33.75 : 23.80,
+            product_price: fastDelivery ? 38.85 : 28.90,
             fast_delivery: fastDelivery,
           },
         }
@@ -276,7 +276,7 @@ export function CombinedOrderStep({
         selectedAddress || ''
       ].filter(Boolean).join(', ');
       
-      onSubmit(orderResult.order_number, formData.email, propertyInfo, fastDelivery ? "33.75" : "23.80");
+      onSubmit(orderResult.order_number, formData.email, propertyInfo, fastDelivery ? "38.85" : "28.90");
     } catch (error) {
       console.error("Order submission error:", error);
       toast({
@@ -512,10 +512,10 @@ export function CombinedOrderStep({
             <div>
               <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {fastDelivery ? "€28,13 netto + €5,62 MwSt." : "€19,83 netto + €3,97 MwSt."}
+                {fastDelivery ? "€32,38 netto + €6,47 MwSt." : "€24,08 netto + €4,82 MwSt."}
               </p>
             </div>
-            <span className="text-xl font-bold text-foreground">{fastDelivery ? "€33,75" : "€23,80"}</span>
+            <span className="text-xl font-bold text-foreground">{fastDelivery ? "€38,85" : "€28,90"}</span>
           </div>
           
 

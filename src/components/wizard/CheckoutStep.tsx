@@ -177,7 +177,7 @@ export function CheckoutStep({
             wohnsitzland: formData.wohnsitzland,
             firma: formData.firma || null,
             product_name: "Aktueller Grundbuchauszug",
-            product_price: 23.80,
+            product_price: 28.90,
           },
         }
       );
@@ -448,7 +448,7 @@ export function CheckoutStep({
                 <span className="font-semibold">Zahlung auf Rechnung:</span>{" "}
                 Die Rechnung wird per E-Mail übermittelt.
               </p>
-              <span className="text-lg font-bold text-foreground shrink-0">€23,80</span>
+              <span className="text-lg font-bold text-foreground shrink-0">€28,90</span>
             </div>
             <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-primary/10">
               <Clock className="h-3.5 w-3.5 text-primary shrink-0" />

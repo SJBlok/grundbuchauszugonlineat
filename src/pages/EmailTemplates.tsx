@@ -33,7 +33,7 @@ const mockSession = {
   plz: "1010",
   ort: "Wien",
   product_name: "Aktueller Grundbuchauszug",
-  product_price: 23.80,
+  product_price: 28.90,
 };
 
 // Mock order data for order confirmation
@@ -52,7 +52,7 @@ const mockOrder = {
   ort: "Wien",
   wohnsitzland: "Österreich",
   product_name: "Aktueller Grundbuchauszug",
-  product_price: 23.80,
+  product_price: 28.90,
   wohnungs_hinweis: "Top 4, 2. Stock",
   created_at: new Date().toISOString(),
 };

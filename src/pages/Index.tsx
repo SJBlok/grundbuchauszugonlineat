@@ -154,7 +154,7 @@ export default function Index() {
             </div>
             <div className="flex items-center gap-8 w-full lg:w-auto">
               <div className="text-center lg:text-right">
-                <span className="text-4xl lg:text-[42px] font-bold text-foreground font-serif">€23,80</span>
+                <span className="text-4xl lg:text-[42px] font-bold text-foreground font-serif">€28,90</span>
                 <p className="text-sm text-muted-foreground mt-0.5">inkl. USt.</p>
               </div>
               <Button asChild size="lg" className="flex-1 lg:flex-none h-14 px-10 text-base">
@@ -396,7 +396,7 @@ export default function Index() {
             </p>
             <Button asChild size="xl" className="w-full sm:w-auto shadow-lg">
               <Link to="/anfordern" className="hover:no-underline">
-                Jetzt anfordern – €23,80
+                Jetzt anfordern – €28,90
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
