@@ -39,7 +39,7 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function generateReportHtml(reportDate: string, orders: any[], totalRevenue: number): string {
+function generateReportHtml(reportDate: string, orders: any[], totalRevenue: number, priorityCount: number): string {
   const ordersTableRows = orders.length > 0 
     ? orders.map(order => `
       <tr>
@@ -100,13 +100,19 @@ function generateReportHtml(reportDate: string, orders: any[], totalRevenue: num
         <!-- Summary Cards -->
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 32px;">
           <tr>
-            <td style="width: 50%; padding-right: 12px;">
+            <td style="width: 33%; padding-right: 8px;">
               <div style="background-color: ${BRAND_COLORS.surface}; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px; padding: 20px; text-align: center;">
                 <p style="margin: 0 0 4px 0; font-size: 32px; font-weight: 600; color: ${BRAND_COLORS.primary};">${orders.length}</p>
                 <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Orders</p>
               </div>
             </td>
-            <td style="width: 50%; padding-left: 12px;">
+            <td style="width: 33%; padding: 0 8px;">
+              <div style="background-color: ${BRAND_COLORS.surface}; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px; padding: 20px; text-align: center;">
+                <p style="margin: 0 0 4px 0; font-size: 32px; font-weight: 600; color: #b45309;">${priorityCount}</p>
+                <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Priority</p>
+              </div>
+            </td>
+            <td style="width: 33%; padding-left: 8px;">
               <div style="background-color: ${BRAND_COLORS.surface}; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px; padding: 20px; text-align: center;">
                 <p style="margin: 0 0 4px 0; font-size: 32px; font-weight: 600; color: ${BRAND_COLORS.primary};">${formatCurrency(totalRevenue)}</p>
                 <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Revenue</p>
@@ -208,9 +214,10 @@ serve(async (req: Request): Promise<Response> => {
       (order) => !TEST_EMAILS.includes(order.email?.toLowerCase())
     );
     const totalRevenue = ordersData.reduce((sum, order) => sum + (order.product_price || 0), 0);
+    const priorityCount = ordersData.filter((order) => order.fast_delivery === true).length;
 
     // Generate email HTML
-    const emailHtml = generateReportHtml(formattedDate, ordersData, totalRevenue);
+    const emailHtml = generateReportHtml(formattedDate, ordersData, totalRevenue, priorityCount);
 
     // Send email via Postmark
     const emailResponse = await fetch("https://api.postmarkapp.com/email", {
