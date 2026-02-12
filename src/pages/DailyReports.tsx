@@ -161,12 +161,18 @@ export default function DailyReports() {
                 </CardHeader>
                 <CardContent>
                   {/* Summary */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="bg-muted/50 rounded-lg p-4 text-center">
                       <p className="text-3xl font-bold text-primary mb-1">
                         {selectedReport.orders_count}
                       </p>
                       <p className="text-sm text-muted-foreground">Bestellungen</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-4 text-center">
+                      <p className="text-3xl font-bold text-amber-600 mb-1">
+                        {(selectedReport.orders_data || []).filter((o: any) => o.fast_delivery === true).length}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Priority</p>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-4 text-center">
                       <p className="text-3xl font-bold text-primary mb-1">
