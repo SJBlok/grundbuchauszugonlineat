@@ -39,7 +39,7 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function generateReportHtml(reportDate: string, orders: any[], totalRevenue: number, priorityCount: number): string {
+function generateReportHtml(reportDate: string, orders: any[], totalRevenue: number, priorityCount: number, priorityRevenue: number, basisRevenue: number): string {
   const ordersTableRows = orders.length > 0 
     ? orders.map(order => `
       <tr>
@@ -98,26 +98,36 @@ function generateReportHtml(reportDate: string, orders: any[], totalRevenue: num
       <div style="padding: 40px;">
         
         <!-- Summary Cards -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 32px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 16px;">
           <tr>
-            <td style="width: 33%; padding-right: 8px;">
+            <td style="width: 50%; padding-right: 8px;">
               <div style="background-color: ${BRAND_COLORS.surface}; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px; padding: 20px; text-align: center;">
                 <p style="margin: 0 0 4px 0; font-size: 32px; font-weight: 600; color: ${BRAND_COLORS.primary};">${orders.length}</p>
                 <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Orders</p>
               </div>
             </td>
-            <td style="width: 33%; padding: 0 8px;">
-              <div style="background-color: ${BRAND_COLORS.surface}; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px; padding: 20px; text-align: center;">
-                <p style="margin: 0 0 4px 0; font-size: 32px; font-weight: 600; color: #b45309;">${priorityCount}</p>
-                <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Priority</p>
-              </div>
-            </td>
-            <td style="width: 33%; padding-left: 8px;">
+            <td style="width: 50%; padding-left: 8px;">
               <div style="background-color: ${BRAND_COLORS.surface}; border: 1px solid ${BRAND_COLORS.border}; border-radius: 4px; padding: 20px; text-align: center;">
                 <p style="margin: 0 0 4px 0; font-size: 32px; font-weight: 600; color: ${BRAND_COLORS.primary};">${formatCurrency(totalRevenue)}</p>
                 <p style="margin: 0; font-size: 13px; color: ${BRAND_COLORS.textMuted}; text-transform: uppercase; letter-spacing: 0.5px;">Revenue</p>
               </div>
             </td>
+          </tr>
+        </table>
+
+        <!-- Revenue Breakdown -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 32px; border: 1px solid ${BRAND_COLORS.borderLight}; border-radius: 4px;">
+          <tr>
+            <td style="padding: 12px 16px; font-size: 13px; color: ${BRAND_COLORS.textSecondary};">${orders.length}× Grundbuchauszug à €\u00A028,90</td>
+            <td style="padding: 12px 16px; font-size: 13px; color: ${BRAND_COLORS.text}; text-align: right; font-weight: 500;">${formatCurrency(basisRevenue)}</td>
+          </tr>
+          <tr style="border-top: 1px solid ${BRAND_COLORS.borderLight};">
+            <td style="padding: 12px 16px; font-size: 13px; color: #b45309;">${priorityCount}× Priority Delivery à €\u00A09,95</td>
+            <td style="padding: 12px 16px; font-size: 13px; color: #b45309; text-align: right; font-weight: 500;">${formatCurrency(priorityRevenue)}</td>
+          </tr>
+          <tr style="border-top: 1px solid ${BRAND_COLORS.border}; background-color: ${BRAND_COLORS.surface};">
+            <td style="padding: 12px 16px; font-size: 13px; color: ${BRAND_COLORS.text}; font-weight: 600;">Totaal</td>
+            <td style="padding: 12px 16px; font-size: 13px; color: ${BRAND_COLORS.primary}; text-align: right; font-weight: 700;">${formatCurrency(totalRevenue)}</td>
           </tr>
         </table>
 
@@ -215,9 +225,11 @@ serve(async (req: Request): Promise<Response> => {
     );
     const totalRevenue = ordersData.reduce((sum, order) => sum + (order.product_price || 0), 0);
     const priorityCount = ordersData.filter((order) => order.fast_delivery === true).length;
+    const priorityRevenue = priorityCount * 9.95;
+    const basisRevenue = ordersData.length * 28.90;
 
     // Generate email HTML
-    const emailHtml = generateReportHtml(formattedDate, ordersData, totalRevenue, priorityCount);
+    const emailHtml = generateReportHtml(formattedDate, ordersData, totalRevenue, priorityCount, priorityRevenue, basisRevenue);
 
     // Send email via Postmark
     const emailResponse = await fetch("https://api.postmarkapp.com/email", {

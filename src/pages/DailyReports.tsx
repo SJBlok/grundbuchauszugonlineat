@@ -161,26 +161,44 @@ export default function DailyReports() {
                 </CardHeader>
                 <CardContent>
                   {/* Summary */}
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="bg-muted/50 rounded-lg p-4 text-center">
-                      <p className="text-3xl font-bold text-primary mb-1">
-                        {selectedReport.orders_count}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Bestellungen</p>
-                    </div>
-                    <div className="bg-muted/50 rounded-lg p-4 text-center">
-                      <p className="text-3xl font-bold text-amber-600 mb-1">
-                        {(selectedReport.orders_data || []).filter((o: any) => o.fast_delivery === true).length}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Priority</p>
-                    </div>
-                    <div className="bg-muted/50 rounded-lg p-4 text-center">
-                      <p className="text-3xl font-bold text-primary mb-1">
-                        {formatCurrency(selectedReport.total_revenue)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Umsatz</p>
-                    </div>
-                  </div>
+                  {(() => {
+                    const ordersData = selectedReport.orders_data || [];
+                    const priorityCount = ordersData.filter((o: any) => o.fast_delivery === true).length;
+                    const basisRevenue = ordersData.length * 28.90;
+                    const priorityRevenue = priorityCount * 9.95;
+                    return (
+                      <>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="bg-muted/50 rounded-lg p-4 text-center">
+                            <p className="text-3xl font-bold text-primary mb-1">
+                              {selectedReport.orders_count}
+                            </p>
+                            <p className="text-sm text-muted-foreground">Bestellungen</p>
+                          </div>
+                          <div className="bg-muted/50 rounded-lg p-4 text-center">
+                            <p className="text-3xl font-bold text-primary mb-1">
+                              {formatCurrency(selectedReport.total_revenue)}
+                            </p>
+                            <p className="text-sm text-muted-foreground">Umsatz</p>
+                          </div>
+                        </div>
+                        <div className="border rounded-lg mb-6 text-sm">
+                          <div className="flex justify-between px-4 py-3">
+                            <span className="text-muted-foreground">{ordersData.length}× Grundbuchauszug à € 28,90</span>
+                            <span className="font-medium">{formatCurrency(basisRevenue)}</span>
+                          </div>
+                          <div className="flex justify-between px-4 py-3 border-t text-amber-600">
+                            <span>{priorityCount}× Priority Delivery à € 9,95</span>
+                            <span className="font-medium">{formatCurrency(priorityRevenue)}</span>
+                          </div>
+                          <div className="flex justify-between px-4 py-3 border-t bg-muted/50 font-semibold">
+                            <span>Totaal</span>
+                            <span className="text-primary">{formatCurrency(selectedReport.total_revenue)}</span>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
 
                   {/* Orders Table */}
                   {selectedReport.orders_data.length > 0 ? (
