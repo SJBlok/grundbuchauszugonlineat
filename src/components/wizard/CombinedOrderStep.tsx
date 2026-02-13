@@ -101,6 +101,7 @@ export function CombinedOrderStep({
   const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fastDelivery, setFastDelivery] = useState(false);
+  const [digitalStorage, setDigitalStorage] = useState(false);
   const { toast } = useToast();
   const sessionIdRef = useRef<string>(getSessionId());
   const lastTrackedEmailRef = useRef<string>("");
@@ -212,8 +213,9 @@ export function CombinedOrderStep({
             wohnsitzland: formData.wohnsitzland,
             firma: formData.firma || null,
             product_name: "Aktueller Grundbuchauszug",
-            product_price: fastDelivery ? 38.85 : 28.90,
+            product_price: (fastDelivery ? 38.85 : 28.90) + (digitalStorage ? 7.95 : 0),
             fast_delivery: fastDelivery,
+            digital_storage_subscription: digitalStorage,
           },
         }
       );
@@ -237,7 +239,8 @@ export function CombinedOrderStep({
       // Build property info string
       const propertyInfo = [strasse, plz, ort].filter(Boolean).join(', ');
       
-      onSubmit(orderResult.order_number, formData.email, propertyInfo, fastDelivery ? "38.85" : "28.90");
+      const totalPrice = ((fastDelivery ? 38.85 : 28.90) + (digitalStorage ? 7.95 : 0)).toFixed(2);
+      onSubmit(orderResult.order_number, formData.email, propertyInfo, totalPrice);
     } catch (error) {
       console.error("Order submission error:", error);
       toast({
@@ -506,9 +509,37 @@ export function CombinedOrderStep({
               </div>
             </div>
           </label>
+
+          {/* Digital Storage Upsell */}
+          <label
+            htmlFor="digitalStorage"
+            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer ${
+              digitalStorage
+                ? "border-primary bg-primary/5"
+                : "border-border hover:border-muted-foreground/30"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="digitalStorage"
+                checked={digitalStorage}
+                onCheckedChange={(checked) => setDigitalStorage(checked === true)}
+                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer"
+              />
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    Digitale Speicherung
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-1.5 py-0.5 rounded">Abo</span>
+                  </span>
+                  <span className="text-sm font-bold text-foreground">+ €7,95/Monat</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">Sichere Online-Speicherung Ihres Auszugs mit digitalem Zugriff</p>
+              </div>
+            </div>
+          </label>
         </div>
       </div>
-
       {/* Payment & Confirmation Card */}
       <div className="bg-card border border-border rounded overflow-hidden">
         <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
@@ -518,14 +549,32 @@ export function CombinedOrderStep({
 
         <div className="p-4 lg:p-6 space-y-4">
           {/* Payment Info - Clean minimal style */}
-          <div className="flex items-center justify-between py-3 border-b border-border">
-            <div>
-              <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {fastDelivery ? "€32,38 netto + €6,47 MwSt." : "€24,08 netto + €4,82 MwSt."}
-              </p>
+          <div className="space-y-2 py-3 border-b border-border">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Grundbuchauszug</span>
+              <span className="text-sm text-foreground">€28,90</span>
             </div>
-            <span className="text-xl font-bold text-foreground">{fastDelivery ? "€38,85" : "€28,90"}</span>
+            {fastDelivery && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Express-Zustellung</span>
+                <span className="text-sm text-foreground">€9,95</span>
+              </div>
+            )}
+            {digitalStorage && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Digitale Speicherung (monatl.)</span>
+                <span className="text-sm text-foreground">€7,95</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <div>
+                <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  inkl. 20% MwSt.
+                </p>
+              </div>
+              <span className="text-xl font-bold text-foreground">€{((fastDelivery ? 38.85 : 28.90) + (digitalStorage ? 7.95 : 0)).toFixed(2).replace('.', ',')}</span>
+            </div>
           </div>
           
 
