@@ -18,8 +18,6 @@ export interface ApplicantData {
   vorname: string;
   nachname: string;
   email: string;
-  wohnsitzland: string;
-  firma: string;
 }
 
 export interface OrderData {
@@ -44,8 +42,6 @@ export default function Anfordern() {
     vorname: "",
     nachname: "",
     email: "",
-    wohnsitzland: "Österreich",
-    firma: "",
   });
 
   const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string) => {

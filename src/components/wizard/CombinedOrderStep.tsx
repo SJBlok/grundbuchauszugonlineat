@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-
 import {
   Select,
   SelectContent,
@@ -22,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
 import { 
   FileText, Info, Clock, Shield, 
-  Mail, Building2, MapPin, Loader2, Check, BadgeCheck 
+  Mail, MapPin, Loader2, Check, BadgeCheck 
 } from "lucide-react";
 import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
 
@@ -64,8 +63,6 @@ const combinedSchema = z.object({
   nachname: z.string().min(1, "Nachname ist erforderlich").max(50),
   email: z.string().email("Ungültige E-Mail-Adresse").max(100).transform(v => v.toLowerCase()),
   emailConfirm: z.string().email("Ungültige E-Mail-Adresse").max(100).transform(v => v.toLowerCase()),
-  wohnsitzland: z.string().min(1, "Wohnsitzland ist erforderlich"),
-  firma: z.string().max(100).optional(),
 }).refine((data) => data.email === data.emailConfirm, {
   message: "E-Mail-Adressen stimmen nicht überein",
   path: ["emailConfirm"],
@@ -73,18 +70,6 @@ const combinedSchema = z.object({
 
 type FormData = z.infer<typeof combinedSchema>;
 
-const countries = [
-  "Österreich",
-  "Deutschland",
-  "Schweiz",
-  "Liechtenstein",
-  "Italien",
-  "Slowenien",
-  "Ungarn",
-  "Slowakei",
-  "Tschechien",
-  "Andere",
-];
 
 interface CombinedOrderStepProps {
   initialPropertyData: PropertyData;
@@ -127,8 +112,6 @@ export function CombinedOrderStep({
   const email = watch("email");
   const vorname = watch("vorname");
   const nachname = watch("nachname");
-  const firma = watch("firma");
-  const wohnsitzland = watch("wohnsitzland");
 
   // Track abandoned session when form data changes
   const trackAbandonedSession = useCallback(async () => {
@@ -143,8 +126,6 @@ export function CombinedOrderStep({
           email,
           vorname,
           nachname,
-          firma,
-          wohnsitzland,
           bundesland,
           wohnungsHinweis: watch("wohnungsHinweis"),
           adresse: strasse || "",
@@ -158,7 +139,7 @@ export function CombinedOrderStep({
     } catch (error) {
       console.error("Error tracking abandoned session:", error);
     }
-  }, [email, vorname, nachname, firma, wohnsitzland, bundesland, strasse, plz, ort, watch]);
+  }, [email, vorname, nachname, bundesland, strasse, plz, ort, watch]);
 
   useEffect(() => {
     if (!email || !email.includes("@")) return;
@@ -201,8 +182,8 @@ export function CombinedOrderStep({
             vorname: formData.vorname,
             nachname: formData.nachname,
             email: formData.email,
-            wohnsitzland: formData.wohnsitzland,
-            firma: formData.firma || null,
+            wohnsitzland: "Österreich",
+            firma: null,
             product_name: "Aktueller Grundbuchauszug",
             product_price: (fastDelivery ? 38.85 : 28.90) + (digitalStorage ? 7.95 : 0),
             fast_delivery: fastDelivery,
@@ -414,48 +395,6 @@ export function CombinedOrderStep({
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="wohnsitzland" className="text-sm font-medium text-foreground">
-                Wohnsitzland <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={wohnsitzland}
-                onValueChange={(value) =>
-                  setValue("wohnsitzland", value, { shouldValidate: true })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Auswählen..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country} value={country} className="text-sm">
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.wohnsitzland && (
-                <p className="text-xs text-destructive">{errors.wohnsitzland.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="firma" className="text-sm font-medium text-muted-foreground">
-                Firma <span className="text-xs font-normal">(optional)</span>
-              </Label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-                <Input 
-                  id="firma" 
-                  {...register("firma")} 
-                  placeholder="Firmenname"
-                  className="pl-9"
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
