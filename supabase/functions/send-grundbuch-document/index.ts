@@ -603,6 +603,18 @@ serve(async (req: Request): Promise<Response> => {
           </tr>
         </table>
         
+        ${order.digital_storage_subscription ? `
+        <!-- Digital Storage Notice -->
+        <div style="background-color: #fafafa; border-left: 2px solid #1a5f4a; padding: 16px 20px; margin: 0 0 28px 0;">
+          <p style="margin: 0; color: #18181b; font-size: 14px; font-weight: 500;">Digitale Speicherung aktiviert</p>
+          <p style="margin: 8px 0 0 0; color: #52525b; font-size: 14px; line-height: 1.6;">
+            Ihr Grundbuchauszug wird innerhalb von 24 Stunden in unserem sicheren Portal bereitgestellt: 
+            <a href="https://grundbuchauszugonline-portal.at/" style="color: #1a5f4a; font-weight: 500;">grundbuchauszugonline-portal.at</a>
+          </p>
+          <p style="margin: 8px 0 0 0; color: #71717a; font-size: 13px;">Sie erhalten dazu eine separate E-Mail mit Ihren Zugangsdaten.</p>
+        </div>
+        ` : ''}
+
         <!-- Signature -->
         <div style="margin-top: 36px; padding-top: 28px; border-top: 1px solid #f4f4f5;">
           <p style="margin: 0; font-size: 14px; color: #52525b; line-height: 1.8;">Mit freundlichen Grüßen</p>
@@ -657,9 +669,13 @@ IBAN: DE56 2022 0800 0058 7945 48
 BIC: SXPYDEHHXXX
 Verwendungszweck: ${order.order_number}
 
-Hinweis: Eine detaillierte Rechnung wird Ihnen separat von unserem Buchhaltungssystem zugestellt.
-
-Bei Rückfragen: info@grundbuchauszugonline.at
+${order.digital_storage_subscription ? `
+DIGITALE SPEICHERUNG
+--------------------
+Ihr Grundbuchauszug wird innerhalb von 24 Stunden in unserem sicheren Portal bereitgestellt:
+https://grundbuchauszugonline-portal.at/
+Sie erhalten dazu eine separate E-Mail mit Ihren Zugangsdaten.
+` : ''}Bei Rückfragen: info@grundbuchauszugonline.at
 
 Mit freundlichen Grüßen,
 Ihr Grundbuchservice-Team
