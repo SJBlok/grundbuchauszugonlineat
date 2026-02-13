@@ -292,7 +292,7 @@ export function CombinedOrderStep({
               Bundesland <span className="text-destructive">*</span>
             </Label>
             <Select
-              value={bundesland || undefined}
+              value={bundesland || ""}
               onValueChange={(value) =>
                 setValue("bundesland", value, { shouldValidate: true })
               }
