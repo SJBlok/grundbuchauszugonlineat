@@ -97,8 +97,6 @@ export function CombinedOrderStep({
   initialApplicantData,
   onSubmit,
 }: CombinedOrderStepProps) {
-  const [confirmTerms, setConfirmTerms] = useState(false);
-  const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fastDelivery, setFastDelivery] = useState(false);
   const [digitalStorage, setDigitalStorage] = useState(false);
@@ -170,7 +168,7 @@ export function CombinedOrderStep({
     return () => clearTimeout(timer);
   }, [email, trackAbandonedSession]);
 
-  const allConfirmed = confirmTerms && confirmNoRefund;
+  const allConfirmed = true;
   const hasPropertyData = !!(strasse && plz && ort && bundesland);
 
   const handleFormSubmit = async (formData: FormData) => {
@@ -183,14 +181,7 @@ export function CombinedOrderStep({
       return;
     }
 
-    if (!allConfirmed) {
-      toast({
-        title: "Bestätigungen erforderlich",
-        description: "Bitte bestätigen Sie alle Checkboxen.",
-        variant: "destructive",
-      });
-      return;
-    }
+
 
     setIsSubmitting(true);
 
@@ -578,30 +569,14 @@ export function CombinedOrderStep({
           </div>
           
 
-          {/* Legal Confirmations */}
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3 -mx-3 rounded hover:bg-muted/30 transition-colors">
-              <Checkbox
-                id="confirmTerms"
-                checked={confirmTerms}
-                onCheckedChange={(checked) => setConfirmTerms(checked === true)}
-                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer"
-              />
-              <Label htmlFor="confirmTerms" className="font-normal text-xs leading-relaxed cursor-pointer">
-                Ich habe die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>Datenschutzerklärung</a> gelesen und akzeptiere diese. <span className="text-destructive">*</span>
-              </Label>
-            </div>
-
-            <div className="flex items-start gap-3 p-3 -mx-3 rounded hover:bg-muted/30 transition-colors">
-              <Checkbox
-                id="confirmNoRefund"
-                checked={confirmNoRefund}
-                onCheckedChange={(checked) => setConfirmNoRefund(checked === true)}
-                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer"
-              />
-              <Label htmlFor="confirmNoRefund" className="font-normal text-xs leading-relaxed cursor-pointer">
-                Ich stimme zu, dass die Bestellung sofort bearbeitet wird. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr. <span className="text-destructive">*</span>
-              </Label>
+          {/* Legal Notice */}
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Bei Bestellung akzeptieren Sie:</p>
+            <div className="flex items-start gap-2 px-3 py-2 rounded bg-muted/30">
+              <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline">Datenschutzerklärung</a>. Die Bestellung wird sofort bearbeitet. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr.
+              </p>
             </div>
           </div>
 
