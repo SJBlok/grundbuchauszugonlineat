@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+
 
 
 import { supabase } from "@/integrations/supabase/client";
@@ -412,11 +412,12 @@ export function CombinedOrderStep({
             }`}
           >
             <div className="flex items-start gap-3">
-              <Checkbox
+              <input
+                type="checkbox"
                 id="fastDelivery"
                 checked={fastDelivery}
-                onCheckedChange={(checked) => setFastDelivery(checked === true)}
-                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none"
+                readOnly
+                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none accent-[hsl(var(--primary))] rounded"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
@@ -440,11 +441,12 @@ export function CombinedOrderStep({
             }`}
           >
             <div className="flex items-start gap-3">
-              <Checkbox
+              <input
+                type="checkbox"
                 id="digitalStorage"
                 checked={digitalStorage}
-                onCheckedChange={(checked) => setDigitalStorage(checked === true)}
-                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none"
+                readOnly
+                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none accent-[hsl(var(--primary))] rounded"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
