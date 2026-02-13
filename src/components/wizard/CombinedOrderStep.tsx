@@ -7,13 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 
 import { supabase } from "@/integrations/supabase/client";
@@ -291,23 +284,21 @@ export function CombinedOrderStep({
             <Label htmlFor="bundesland" className="text-sm font-medium text-foreground">
               Bundesland <span className="text-destructive">*</span>
             </Label>
-            <Select
-              value={bundesland || undefined}
-              onValueChange={(value) =>
-                setValue("bundesland", value, { shouldValidate: true })
+            <select
+              id="bundesland"
+              value={bundesland || ""}
+              onChange={(e) =>
+                setValue("bundesland", e.target.value, { shouldValidate: true })
               }
+              className="flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Bundesland auswählen..." />
-              </SelectTrigger>
-              <SelectContent>
-                {bundeslaender.map((bl) => (
-                  <SelectItem key={bl} value={bl} className="text-sm">
-                    {bl}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <option value="" disabled>Bundesland auswählen...</option>
+              {bundeslaender.map((bl) => (
+                <option key={bl} value={bl}>
+                  {bl}
+                </option>
+              ))}
+            </select>
             {errors.bundesland && (
               <p className="text-xs text-destructive">{errors.bundesland.message}</p>
             )}
