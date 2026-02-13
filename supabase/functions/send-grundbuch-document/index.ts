@@ -61,6 +61,8 @@ interface OrderData {
   wohnsitzland: string;
   product_name: string;
   product_price: number;
+  fast_delivery: boolean;
+  digital_storage_subscription: boolean;
   created_at: string;
 }
 
@@ -166,8 +168,29 @@ async function createMoneybirdInvoice(
     "Content-Type": "application/json",
   };
 
-  // Price is inclusive of VAT (€28.90 standard, €38.85 express)
-  // Use prices_are_incl_tax: true so Moneybird calculates the net amount correctly
+  // Build line items for invoice
+  const basePrice = order.digital_storage_subscription 
+    ? (order.product_price - 7.95) 
+    : order.product_price;
+
+  const detailsAttributes: Array<{description: string; price: string; amount: string; tax_rate_id: string}> = [
+    {
+      description: `${order.product_name}\nKG: ${order.katastralgemeinde}\nEZ/GST: ${order.grundstuecksnummer}`,
+      price: basePrice.toString(),
+      amount: "1",
+      tax_rate_id: MONEYBIRD_TAX_RATE_ID,
+    },
+  ];
+
+  if (order.digital_storage_subscription) {
+    detailsAttributes.push({
+      description: "Digitale Speicherung – monatliches Abonnement",
+      price: "7.95",
+      amount: "1",
+      tax_rate_id: MONEYBIRD_TAX_RATE_ID,
+    });
+  }
+
   const invoiceData = {
     sales_invoice: {
       contact_id: contactId,
@@ -175,14 +198,7 @@ async function createMoneybirdInvoice(
       document_style_id: MONEYBIRD_DOC_STYLE_ID,
       reference: order.order_number,
       prices_are_incl_tax: true,
-      details_attributes: [
-        {
-          description: `${order.product_name}\nKG: ${order.katastralgemeinde}\nEZ/GST: ${order.grundstuecksnummer}`,
-          price: order.product_price.toString(),
-          amount: "1",
-          tax_rate_id: MONEYBIRD_TAX_RATE_ID,
-        },
-      ],
+      details_attributes: detailsAttributes,
     },
   };
 
@@ -568,6 +584,12 @@ serve(async (req: Request): Promise<Response> => {
             <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Bundesland</td>
             <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.bundesland}</td>
           </tr>
+          ${order.digital_storage_subscription ? `
+          <tr>
+            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Digitale Speicherung</td>
+            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">€ 7,95 / Monat</td>
+          </tr>
+          ` : ''}
           <tr>
             <td class="label-cell" style="padding: 20px 0 0 0; font-size: 13px; font-weight: 500; color: #18181b; border-top: 1px solid #e4e4e7; width: 140px; vertical-align: top;">Betrag</td>
             <td class="value-cell" style="padding: 20px 0 0 0; font-size: 16px; font-weight: 600; color: #1a5f4a; border-top: 1px solid #e4e4e7; vertical-align: top;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
@@ -658,7 +680,8 @@ Dokumenttyp: ${order.product_name}${order.adresse ? `
 Adresse: ${order.adresse}${order.plz && order.ort ? `, ${order.plz} ${order.ort}` : ''}` : ''}
 Katastralgemeinde: ${order.katastralgemeinde}
 Einlagezahl / Grundstücksnr.: ${order.grundstuecksnummer}
-Rechnungsbetrag: € ${order.product_price.toFixed(2)}
+Rechnungsbetrag: € ${order.product_price.toFixed(2)}${order.digital_storage_subscription ? `
+Digitale Speicherung: € 7,95 / Monat (im Betrag enthalten)` : ''}
 
 ZAHLUNGSANWEISUNG
 -----------------
@@ -807,6 +830,12 @@ GrundbuchauszugOnline.at
                         <td style="padding: 8px 0; color: #666; width: 40%;">Product:</td>
                         <td style="padding: 8px 0;">${order.product_name}</td>
                       </tr>
+                      ${order.digital_storage_subscription ? `
+                      <tr>
+                        <td style="padding: 8px 0; color: #666;">Digitale Speicherung:</td>
+                        <td style="padding: 8px 0;">€ 7,95 / Monat</td>
+                      </tr>
+                      ` : ''}
                       <tr style="border-top: 1px solid #e2e8f0;">
                         <td style="padding: 12px 0; color: #666; font-weight: bold;">Totaalbedrag:</td>
                         <td style="padding: 12px 0; font-weight: bold; font-size: 20px; color: #22c55e;">€ ${order.product_price.toFixed(2)}</td>
@@ -861,7 +890,8 @@ ${order.wohnungs_hinweis ? `Wohnungshinweis: ${order.wohnungs_hinweis}` : ''}
 
 === BESTELLING ===
 Product: ${order.product_name}
-Betrag: € ${order.product_price.toFixed(2)}
+Betrag: € ${order.product_price.toFixed(2)}${order.digital_storage_subscription ? `
+Digitale Speicherung: € 7,95 / Monat (im Betrag enthalten)` : ''}
 
 === STATUS ===
 Dokument: ${hasDocument ? 'Erfolgreich zugestellt' : `NIET OPGEHAALD - ${documentFetchError}`}

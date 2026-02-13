@@ -19,6 +19,7 @@ export type Database = {
           adresse: string | null
           bundesland: string | null
           created_at: string
+          digital_storage_subscription: boolean | null
           email: string
           expires_at: string
           firma: string | null
@@ -46,6 +47,7 @@ export type Database = {
           adresse?: string | null
           bundesland?: string | null
           created_at?: string
+          digital_storage_subscription?: boolean | null
           email: string
           expires_at?: string
           firma?: string | null
@@ -73,6 +75,7 @@ export type Database = {
           adresse?: string | null
           bundesland?: string | null
           created_at?: string
+          digital_storage_subscription?: boolean | null
           email?: string
           expires_at?: string
           firma?: string | null
@@ -136,6 +139,7 @@ export type Database = {
           adresse: string | null
           bundesland: string
           created_at: string
+          digital_storage_subscription: boolean
           email: string
           fast_delivery: boolean
           firma: string | null
@@ -160,6 +164,7 @@ export type Database = {
           adresse?: string | null
           bundesland: string
           created_at?: string
+          digital_storage_subscription?: boolean
           email: string
           fast_delivery?: boolean
           firma?: string | null
@@ -184,6 +189,7 @@ export type Database = {
           adresse?: string | null
           bundesland?: string
           created_at?: string
+          digital_storage_subscription?: boolean
           email?: string
           fast_delivery?: boolean
           firma?: string | null
