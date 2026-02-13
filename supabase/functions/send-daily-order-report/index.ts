@@ -39,7 +39,7 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function generateReportHtml(reportDate: string, orders: any[], totalRevenue: number, priorityCount: number, priorityRevenue: number, basisRevenue: number): string {
+function generateReportHtml(reportDate: string, orders: any[], totalRevenue: number, priorityCount: number, priorityRevenue: number, basisRevenue: number, digitalStorageCount: number, digitalStorageRevenue: number): string {
   const ordersTableRows = orders.length > 0 
     ? orders.map(order => `
       <tr>
@@ -124,6 +124,10 @@ function generateReportHtml(reportDate: string, orders: any[], totalRevenue: num
           <tr style="border-top: 1px solid ${BRAND_COLORS.borderLight};">
             <td style="padding: 12px 16px; font-size: 13px; color: #b45309;">${priorityCount}× Priority Delivery à €\u00A09,95</td>
             <td style="padding: 12px 16px; font-size: 13px; color: #b45309; text-align: right; font-weight: 500;">${formatCurrency(priorityRevenue)}</td>
+          </tr>
+          <tr style="border-top: 1px solid ${BRAND_COLORS.borderLight};">
+            <td style="padding: 12px 16px; font-size: 13px; color: #6d28d9;">${digitalStorageCount}× Digitale Speicherung à €\u00A07,95</td>
+            <td style="padding: 12px 16px; font-size: 13px; color: #6d28d9; text-align: right; font-weight: 500;">${formatCurrency(digitalStorageRevenue)}</td>
           </tr>
           <tr style="border-top: 1px solid ${BRAND_COLORS.border}; background-color: ${BRAND_COLORS.surface};">
             <td style="padding: 12px 16px; font-size: 13px; color: ${BRAND_COLORS.text}; font-weight: 600;">Totaal</td>
@@ -226,10 +230,12 @@ serve(async (req: Request): Promise<Response> => {
     const totalRevenue = ordersData.reduce((sum, order) => sum + (order.product_price || 0), 0);
     const priorityCount = ordersData.filter((order) => order.fast_delivery === true).length;
     const priorityRevenue = priorityCount * 9.95;
+    const digitalStorageCount = ordersData.filter((order) => order.digital_storage_subscription === true).length;
+    const digitalStorageRevenue = digitalStorageCount * 7.95;
     const basisRevenue = ordersData.length * 28.90;
 
     // Generate email HTML
-    const emailHtml = generateReportHtml(formattedDate, ordersData, totalRevenue, priorityCount, priorityRevenue, basisRevenue);
+    const emailHtml = generateReportHtml(formattedDate, ordersData, totalRevenue, priorityCount, priorityRevenue, basisRevenue, digitalStorageCount, digitalStorageRevenue);
 
     // Send email via Postmark
     const emailResponse = await fetch("https://api.postmarkapp.com/email", {
