@@ -54,6 +54,7 @@ const mockOrder = {
   product_name: "Aktueller Grundbuchauszug",
   product_price: 28.90,
   wohnungs_hinweis: "Top 4, 2. Stock",
+  digital_storage_subscription: true,
   created_at: new Date().toISOString(),
 };
 
@@ -201,6 +202,17 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
           <p><strong>Hinweis zur Lieferung:</strong> Ihr Dokument wird innerhalb von 24 Stunden an ${order.email} versendet. Eine detaillierte Rechnung erhalten Sie separat.</p>
         </div>
         
+        ${order.digital_storage_subscription ? `
+        <div style="background-color: #fafafa; border-left: 2px solid ${BRAND_COLORS.primary}; padding: 16px 20px; margin: 0 0 28px 0;">
+          <p style="margin: 0; color: ${BRAND_COLORS.text}; font-size: 14px; font-weight: 500;">Digitale Speicherung aktiviert</p>
+          <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textSecondary}; font-size: 14px; line-height: 1.6;">
+            Ihr Grundbuchauszug wird innerhalb von 24 Stunden in unserem sicheren Portal bereitgestellt: 
+            <a href="https://grundbuchauszugonline-portal.at/" style="color: ${BRAND_COLORS.primary}; font-weight: 500;">grundbuchauszugonline-portal.at</a>
+          </p>
+          <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textMuted}; font-size: 13px;">Sie erhalten dazu eine separate E-Mail mit Ihren Zugangsdaten.</p>
+        </div>
+        ` : ''}
+        
         ${getSignature()}
       </div>
       ${getEmailFooter()}
@@ -246,6 +258,16 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
       <p style="color: ${BRAND_COLORS.success}; font-weight: 500;">Ihr Grundbuchauszug liegt dieser E-Mail als PDF bei.</p>
       ${getPaymentDetailsBox(order.order_number)}
       ${productSummary}
+      ${order.digital_storage_subscription ? `
+      <div style="background-color: #fafafa; border-left: 2px solid ${BRAND_COLORS.primary}; padding: 16px 20px; margin: 0 0 28px 0;">
+        <p style="margin: 0; color: ${BRAND_COLORS.text}; font-size: 14px; font-weight: 500;">Digitale Speicherung aktiviert</p>
+        <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textSecondary}; font-size: 14px; line-height: 1.6;">
+          Ihr Grundbuchauszug wird innerhalb von 24 Stunden in unserem sicheren Portal bereitgestellt: 
+          <a href="https://grundbuchauszugonline-portal.at/" style="color: ${BRAND_COLORS.primary}; font-weight: 500;">grundbuchauszugonline-portal.at</a>
+        </p>
+        <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textMuted}; font-size: 13px;">Sie erhalten dazu eine separate E-Mail mit Ihren Zugangsdaten.</p>
+      </div>
+      ` : ''}
       <p style="font-size: 13px; color: ${BRAND_COLORS.textMuted};">
         Eine Rechnung wird Ihnen separat zugestellt.
       </p>
