@@ -556,87 +556,52 @@ serve(async (req: Request): Promise<Response> => {
             : 'Vielen Dank für Ihre Bestellung. <strong>Ihre Bestellung wird manuell bearbeitet.</strong> Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt.'}
         </p>
         
-        <!-- Order Details Table - Responsive -->
-        <table class="responsive-table" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 32px 0; border-collapse: collapse;">
+        <!-- Order Summary - Compact -->
+        <table class="responsive-table" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 28px 0; border-collapse: collapse;">
           <tr>
-            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Produkt</td>
-            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.product_name}</td>
+            <td class="label-cell" style="padding: 10px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Produkt</td>
+            <td class="value-cell" style="padding: 10px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.product_name}</td>
           </tr>
           ${order.adresse ? `
           <tr>
-            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Adresse</td>
-            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.adresse}${order.plz && order.ort ? `, ${order.plz} ${order.ort}` : ''}</td>
+            <td class="label-cell" style="padding: 10px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Objekt</td>
+            <td class="value-cell" style="padding: 10px 0; font-size: 14px; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.adresse}${order.plz && order.ort ? `, ${order.plz} ${order.ort}` : ''}</td>
           </tr>
           ` : ''}
-          <tr>
-            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Katastralgemeinde</td>
-            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.katastralgemeinde}</td>
-          </tr>
-          <tr>
-            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Einlagezahl</td>
-            <td class="value-cell" style="padding: 14px 0; font-size: 13px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; font-family: 'SF Mono', Monaco, Consolas, monospace; vertical-align: top;">${order.grundstuecksnummer}</td>
-          </tr>
-          <tr>
-            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Bezirksgericht</td>
-            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.grundbuchsgericht}</td>
-          </tr>
-          <tr>
-            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Bundesland</td>
-            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">${order.bundesland}</td>
-          </tr>
           ${order.digital_storage_subscription ? `
           <tr>
-            <td class="label-cell" style="padding: 14px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Digitale Speicherung</td>
-            <td class="value-cell" style="padding: 14px 0; font-size: 14px; font-weight: 500; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">€ 7,95 / Monat</td>
+            <td class="label-cell" style="padding: 10px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Digitale Speicherung</td>
+            <td class="value-cell" style="padding: 10px 0; font-size: 14px; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">€ 7,95 / Monat</td>
           </tr>
           ` : ''}
           <tr>
-            <td class="label-cell" style="padding: 20px 0 0 0; font-size: 13px; font-weight: 500; color: #18181b; border-top: 1px solid #e4e4e7; width: 140px; vertical-align: top;">Betrag</td>
-            <td class="value-cell" style="padding: 20px 0 0 0; font-size: 16px; font-weight: 600; color: #1a5f4a; border-top: 1px solid #e4e4e7; vertical-align: top;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+            <td class="label-cell" style="padding: 14px 0 0 0; font-size: 13px; font-weight: 500; color: #18181b; border-top: 1px solid #e4e4e7; width: 140px; vertical-align: top;">Gesamt</td>
+            <td class="value-cell" style="padding: 14px 0 0 0; font-size: 16px; font-weight: 600; color: #1a5f4a; border-top: 1px solid #e4e4e7; vertical-align: top;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
           </tr>
         </table>
         
-        <!-- Payment Details Box - Responsive -->
-        <p style="margin: 0 0 16px 0; font-size: 14px; color: #52525b; line-height: 1.6;">
-          Um die Bestellung vollständig abzuschließen, schließen Sie bitte die Zahlung ab.
-        </p>
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 0 0 32px 0;">
+        <!-- Payment Block -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 0 0 28px 0;">
           <tr>
             <td style="background-color: #fafafa; padding: 20px 24px; border: 1px solid #e4e4e7; border-radius: 4px;">
-              <p style="margin: 0 0 20px 0; font-size: 12px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.8px;">
-                Zahlungsinformationen
-              </p>
+              <p style="margin: 0 0 16px 0; font-size: 12px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.8px;">Überweisung</p>
               <table class="responsive-table" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse: collapse;">
                 <tr>
-                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Betrag</td>
-                  <td class="value-cell" style="padding: 12px 0; font-size: 15px; font-weight: 600; color: #1a5f4a; border-bottom: 1px solid #f4f4f5; vertical-align: top;">€ ${order.product_price.toFixed(2).replace('.', ',')}</td>
+                  <td class="label-cell" style="padding: 8px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px;">Empfänger</td>
+                  <td class="value-cell" style="padding: 8px 0; font-size: 14px; color: #18181b; border-bottom: 1px solid #f4f4f5;">Application Assistant Ltd</td>
                 </tr>
                 <tr>
-                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">Empfänger</td>
-                  <td class="value-cell" style="padding: 12px 0; font-size: 14px; color: #18181b; border-bottom: 1px solid #f4f4f5; vertical-align: top;">Application Assistant Ltd</td>
+                  <td class="label-cell" style="padding: 8px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px;">IBAN</td>
+                  <td class="value-cell" style="padding: 8px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid #f4f4f5; word-break: break-all;">DE56 2022 0800 0058 7945 48</td>
                 </tr>
                 <tr>
-                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">IBAN</td>
-                  <td class="value-cell" style="padding: 12px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid #f4f4f5; vertical-align: top; word-break: break-all;">DE56 2022 0800 0058 7945 48</td>
-                </tr>
-                <tr>
-                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; border-bottom: 1px solid #f4f4f5; width: 140px; vertical-align: top;">BIC</td>
-                  <td class="value-cell" style="padding: 12px 0; font-size: 13px; color: #18181b; font-family: 'SF Mono', Monaco, Consolas, monospace; border-bottom: 1px solid #f4f4f5; vertical-align: top;">SXPYDEHHXXX</td>
-                </tr>
-                <tr>
-                  <td class="label-cell" style="padding: 12px 0; font-size: 13px; color: #71717a; width: 140px; vertical-align: top;">Verwendungszweck</td>
-                  <td class="value-cell" style="padding: 12px 0; font-size: 14px; color: #18181b; font-weight: 500; vertical-align: top;">${order.order_number}</td>
+                  <td class="label-cell" style="padding: 8px 0; font-size: 13px; color: #71717a; width: 140px;">Verwendungszweck</td>
+                  <td class="value-cell" style="padding: 8px 0; font-size: 14px; color: #18181b; font-weight: 500;">${order.order_number}</td>
                 </tr>
               </table>
             </td>
           </tr>
         </table>
-        
-        <div style="background-color: #fafafa; border-left: 2px solid #1a5f4a; padding: 16px 20px; margin: 24px 0;">
-          <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
-            Eine detaillierte Rechnung wird Ihnen separat von unserem Buchhaltungssystem zugestellt.
-          </p>
-        </div>
         
         <!-- Signature -->
         <div style="margin-top: 36px; padding-top: 28px; border-top: 1px solid #f4f4f5;">
