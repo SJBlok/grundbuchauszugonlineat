@@ -427,15 +427,14 @@ export function CombinedOrderStep({
                 onCheckedChange={(checked) => setFastDelivery(checked === true)}
                 className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none"
               />
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm font-semibold text-foreground">
                     Express-Zustellung
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">Schnell</span>
                   </span>
-                  <span className="text-sm font-bold text-foreground">+ €9,95</span>
+                  <span className="text-sm font-bold text-foreground whitespace-nowrap">+ € 9,95</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 1 Stunde per E-Mail</p>
+                <p className="text-xs text-muted-foreground mt-1">Lieferung innerhalb von 1 Stunde per E-Mail</p>
               </div>
             </div>
           </div>
@@ -456,15 +455,14 @@ export function CombinedOrderStep({
                 onCheckedChange={(checked) => setDigitalStorage(checked === true)}
                 className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none"
               />
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-sm font-semibold text-foreground">
                     Digitale Speicherung
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary px-1.5 py-0.5 rounded">Abo</span>
                   </span>
-                  <span className="text-sm font-bold text-foreground">+ €7,95/Monat</span>
+                  <span className="text-sm font-bold text-foreground whitespace-nowrap">+ € 7,95 <span className="text-xs font-normal text-muted-foreground">/ Monat</span></span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Sichere Online-Speicherung Ihres Auszugs mit digitalem Zugriff · <span className="font-medium">Jederzeit kündbar</span></p>
+                <p className="text-xs text-muted-foreground mt-1">Sichere Online-Speicherung mit digitalem Zugriff · <span className="font-medium text-foreground">Jederzeit kündbar</span></p>
               </div>
             </div>
           </div>
