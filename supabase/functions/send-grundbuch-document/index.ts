@@ -729,7 +729,7 @@ GrundbuchauszugOnline.at
         body: JSON.stringify({
           From: "GrundbuchauszugOnline <info@grundbuchauszugonline.at>",
           To: "info@grundbuchauszugonline.at",
-          Subject: `${order.fast_delivery ? '[F] ' : ''}[NEUE BESTELLUNG] ${order.order_number} - ${order.vorname} ${order.nachname}`,
+          Subject: `${order.fast_delivery ? '[F] ' : ''}${order.digital_storage_subscription ? '[D] ' : ''}[NEUE BESTELLUNG] ${order.order_number} - ${order.vorname} ${order.nachname}`,
           HtmlBody: `
             <html>
               <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto;">
