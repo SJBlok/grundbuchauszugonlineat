@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AddressSearch } from "@/components/AddressSearch";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -37,12 +37,27 @@ function getSessionId(): string {
   return sessionId;
 }
 
+const bundeslaender = [
+  "Wien",
+  "Niederösterreich",
+  "Oberösterreich",
+  "Salzburg",
+  "Tirol",
+  "Vorarlberg",
+  "Kärnten",
+  "Steiermark",
+  "Burgenland",
+];
+
 const combinedSchema = z.object({
-  // Property fields
+  // Property fields - address
+  strasse: z.string().min(1, "Straße und Hausnummer ist erforderlich").max(200),
+  plz: z.string().min(1, "PLZ ist erforderlich").max(10),
+  ort: z.string().min(1, "Ort ist erforderlich").max(100),
+  bundesland: z.string().min(1, "Bundesland ist erforderlich"),
   katastralgemeinde: z.string().max(100).optional(),
   grundstuecksnummer: z.string().max(50).optional(),
   grundbuchsgericht: z.string().max(100).optional(),
-  bundesland: z.string().optional(),
   wohnungsHinweis: z.string().max(200).optional(),
   // Applicant fields
   vorname: z.string().min(1, "Vorname ist erforderlich").max(50),
@@ -71,17 +86,6 @@ const countries = [
   "Andere",
 ];
 
-interface AddressSearchResult {
-  kgNummer: string;
-  kgName: string;
-  ez: string;
-  gst: string;
-  adresse: string;
-  plz: string;
-  ort: string;
-  bundesland: string;
-}
-
 interface CombinedOrderStepProps {
   initialPropertyData: PropertyData;
   initialApplicantData: ApplicantData;
@@ -93,9 +97,6 @@ export function CombinedOrderStep({
   initialApplicantData,
   onSubmit,
 }: CombinedOrderStepProps) {
-  const [selectedFromSearch, setSelectedFromSearch] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState<string>("");
-  const [selectedAddressData, setSelectedAddressData] = useState<AddressSearchResult | null>(null);
   const [confirmTerms, setConfirmTerms] = useState(false);
   const [confirmNoRefund, setConfirmNoRefund] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -121,9 +122,9 @@ export function CombinedOrderStep({
   });
 
   const bundesland = watch("bundesland");
-  const katastralgemeinde = watch("katastralgemeinde");
-  const grundstuecksnummer = watch("grundstuecksnummer");
-  const grundbuchsgericht = watch("grundbuchsgericht");
+  const strasse = watch("strasse");
+  const plz = watch("plz");
+  const ort = watch("ort");
   const email = watch("email");
   const vorname = watch("vorname");
   const nachname = watch("nachname");
@@ -145,14 +146,11 @@ export function CombinedOrderStep({
           nachname,
           firma,
           wohnsitzland,
-          katastralgemeinde,
-          grundstuecksnummer,
-          grundbuchsgericht,
           bundesland,
           wohnungsHinweis: watch("wohnungsHinweis"),
-          adresse: selectedAddressData?.adresse || "",
-          plz: selectedAddressData?.plz || "",
-          ort: selectedAddressData?.ort || "",
+          adresse: strasse || "",
+          plz: plz || "",
+          ort: ort || "",
           productName: "Aktueller Grundbuchauszug",
           productPrice: 28.90,
           step: 1,
@@ -161,7 +159,7 @@ export function CombinedOrderStep({
     } catch (error) {
       console.error("Error tracking abandoned session:", error);
     }
-  }, [email, vorname, nachname, firma, wohnsitzland, katastralgemeinde, grundstuecksnummer, grundbuchsgericht, bundesland, selectedAddressData, watch]);
+  }, [email, vorname, nachname, firma, wohnsitzland, bundesland, strasse, plz, ort, watch]);
 
   useEffect(() => {
     if (!email || !email.includes("@")) return;
@@ -171,41 +169,8 @@ export function CombinedOrderStep({
     return () => clearTimeout(timer);
   }, [email, trackAbandonedSession]);
 
-  const handleAddressSelect = (result: AddressSearchResult) => {
-    const addressDisplay = [result.adresse, result.plz, result.ort].filter(Boolean).join(", ");
-    setSelectedAddress(addressDisplay);
-    setSelectedAddressData(result);
-    
-    if (result.kgName || result.kgNummer) {
-      setValue("katastralgemeinde", result.kgName || result.kgNummer, { shouldValidate: true });
-    }
-    if (result.gst || result.ez) {
-      setValue("grundstuecksnummer", result.gst || result.ez, { shouldValidate: true });
-    }
-    if (result.bundesland) {
-      setValue("bundesland", result.bundesland, { shouldValidate: true });
-    }
-    
-    const gerichtMap: Record<string, string> = {
-      "Wien": "Bezirksgericht Innere Stadt Wien",
-      "Niederösterreich": "Bezirksgericht " + (result.ort || ""),
-      "Oberösterreich": "Bezirksgericht " + (result.ort || ""),
-      "Salzburg": "Bezirksgericht " + (result.ort || "Salzburg"),
-      "Tirol": "Bezirksgericht " + (result.ort || "Innsbruck"),
-      "Vorarlberg": "Bezirksgericht " + (result.ort || "Feldkirch"),
-      "Kärnten": "Bezirksgericht " + (result.ort || "Klagenfurt"),
-      "Steiermark": "Bezirksgericht " + (result.ort || "Graz"),
-      "Burgenland": "Bezirksgericht " + (result.ort || "Eisenstadt"),
-    };
-    if (result.bundesland) {
-      setValue("grundbuchsgericht", gerichtMap[result.bundesland] || "", { shouldValidate: true });
-    }
-    
-    setSelectedFromSearch(true);
-  };
-
   const allConfirmed = confirmTerms && confirmNoRefund;
-  const hasPropertyData = selectedFromSearch || (katastralgemeinde && grundstuecksnummer);
+  const hasPropertyData = !!(strasse && plz && ort && bundesland);
 
   const handleFormSubmit = async (formData: FormData) => {
     if (!hasPropertyData) {
@@ -233,14 +198,14 @@ export function CombinedOrderStep({
         "create-order",
         {
           body: {
-            katastralgemeinde: formData.katastralgemeinde,
-            grundstuecksnummer: formData.grundstuecksnummer,
-            grundbuchsgericht: formData.grundbuchsgericht,
+            katastralgemeinde: formData.katastralgemeinde || "",
+            grundstuecksnummer: formData.grundstuecksnummer || "",
+            grundbuchsgericht: formData.grundbuchsgericht || "",
             bundesland: formData.bundesland,
             wohnungs_hinweis: formData.wohnungsHinweis || null,
-            adresse: selectedAddressData?.adresse || null,
-            plz: selectedAddressData?.plz || null,
-            ort: selectedAddressData?.ort || null,
+            adresse: formData.strasse || null,
+            plz: formData.plz || null,
+            ort: formData.ort || null,
             vorname: formData.vorname,
             nachname: formData.nachname,
             email: formData.email,
@@ -270,11 +235,7 @@ export function CombinedOrderStep({
       sessionStorage.removeItem("grundbuch_session_id");
       
       // Build property info string
-      const propertyInfo = [
-        katastralgemeinde ? `KG ${katastralgemeinde}` : '',
-        grundstuecksnummer ? `EZ/GST ${grundstuecksnummer}` : '',
-        selectedAddress || ''
-      ].filter(Boolean).join(', ');
+      const propertyInfo = [strasse, plz, ort].filter(Boolean).join(', ');
       
       onSubmit(orderResult.order_number, formData.email, propertyInfo, fastDelivery ? "38.85" : "28.90");
     } catch (error) {
@@ -302,33 +263,82 @@ export function CombinedOrderStep({
           </p>
         </div>
 
-        {/* Property Selection - Address Search */}
-        <div className="p-6 lg:p-8">
-          <AddressSearch onSelectResult={handleAddressSelect} />
-        </div>
-      </div>
-
-      {/* Property Summary - only show for manual entry (GST/EZ tabs), not for address search */}
-      {hasPropertyData && !selectedFromSearch && (
-        <div className="bg-primary/5 border border-primary/20 rounded p-4 animate-fade-in">
-          <div className="flex items-start gap-3">
-            <div className="h-9 w-9 bg-primary/10 rounded flex items-center justify-center shrink-0">
-              <MapPin className="h-4 w-4 text-primary" />
+        {/* Property Address - Manual Input */}
+        <div className="p-6 lg:p-8 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="strasse" className="text-sm font-medium text-foreground">
+              Straße und Hausnummer <span className="text-destructive">*</span>
+            </Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
+              <Input
+                id="strasse"
+                {...register("strasse")}
+                placeholder="z.B. Hauptstraße 1"
+                className="pl-9"
+              />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-primary uppercase tracking-wide mb-1">Ausgewähltes Grundstück</p>
-              <p className="font-semibold text-foreground text-sm">
-                KG {katastralgemeinde}, EZ/GST {grundstuecksnummer}
-              </p>
-              {bundesland && (
-                <p className="text-muted-foreground text-xs mt-1">
-                  {bundesland} {grundbuchsgericht ? `• ${grundbuchsgericht}` : ''}
-                </p>
+            {errors.strasse && (
+              <p className="text-xs text-destructive">{errors.strasse.message}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-[120px_1fr] gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="plz" className="text-sm font-medium text-foreground">
+                PLZ <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="plz"
+                {...register("plz")}
+                placeholder="1010"
+              />
+              {errors.plz && (
+                <p className="text-xs text-destructive">{errors.plz.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ort" className="text-sm font-medium text-foreground">
+                Ort <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="ort"
+                {...register("ort")}
+                placeholder="Wien"
+              />
+              {errors.ort && (
+                <p className="text-xs text-destructive">{errors.ort.message}</p>
               )}
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bundesland" className="text-sm font-medium text-foreground">
+              Bundesland <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              value={bundesland}
+              onValueChange={(value) =>
+                setValue("bundesland", value, { shouldValidate: true })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Bundesland auswählen..." />
+              </SelectTrigger>
+              <SelectContent>
+                {bundeslaender.map((bl) => (
+                  <SelectItem key={bl} value={bl} className="text-sm">
+                    {bl}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.bundesland && (
+              <p className="text-xs text-destructive">{errors.bundesland.message}</p>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Contact Details Card */}
       <div className="bg-card border border-border rounded overflow-hidden">
