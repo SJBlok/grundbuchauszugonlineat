@@ -19,8 +19,6 @@ export interface ApplicantData {
   vorname: string;
   nachname: string;
   email: string;
-  wohnsitzland: string;
-  firma: string;
 }
 
 export interface OrderData {
@@ -46,8 +44,6 @@ export default function AnfordernB() {
     vorname: "",
     nachname: "",
     email: "",
-    wohnsitzland: "Österreich",
-    firma: "",
   });
 
   // Scroll to top when step changes
