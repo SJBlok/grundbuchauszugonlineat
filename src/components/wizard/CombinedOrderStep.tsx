@@ -412,9 +412,9 @@ export function CombinedOrderStep({
           </div>
 
           {/* Express Delivery Upsell Checkbox */}
-          <label
-            htmlFor="fastDelivery"
-            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer ${
+          <div
+            onClick={() => setFastDelivery(!fastDelivery)}
+            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer select-none ${
               fastDelivery
                 ? "border-primary bg-primary/5"
                 : "border-border hover:border-muted-foreground/30"
@@ -425,7 +425,7 @@ export function CombinedOrderStep({
                 id="fastDelivery"
                 checked={fastDelivery}
                 onCheckedChange={(checked) => setFastDelivery(checked === true)}
-                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer"
+                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none"
               />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
@@ -438,12 +438,12 @@ export function CombinedOrderStep({
                 <p className="text-xs text-muted-foreground mt-0.5">Lieferung innerhalb von 1 Stunde per E-Mail</p>
               </div>
             </div>
-          </label>
+          </div>
 
           {/* Digital Storage Upsell */}
-          <label
-            htmlFor="digitalStorage"
-            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer ${
+          <div
+            onClick={() => setDigitalStorage(!digitalStorage)}
+            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer select-none ${
               digitalStorage
                 ? "border-primary bg-primary/5"
                 : "border-border hover:border-muted-foreground/30"
@@ -454,7 +454,7 @@ export function CombinedOrderStep({
                 id="digitalStorage"
                 checked={digitalStorage}
                 onCheckedChange={(checked) => setDigitalStorage(checked === true)}
-                className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer"
+                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none"
               />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
@@ -464,10 +464,10 @@ export function CombinedOrderStep({
                   </span>
                   <span className="text-sm font-bold text-foreground">+ €7,95/Monat</span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">Sichere Online-Speicherung Ihres Auszugs mit digitalem Zugriff</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Sichere Online-Speicherung Ihres Auszugs mit digitalem Zugriff · <span className="font-medium">Jederzeit kündbar</span></p>
               </div>
             </div>
-          </label>
+          </div>
         </div>
       </div>
       {/* Payment & Confirmation Card */}
