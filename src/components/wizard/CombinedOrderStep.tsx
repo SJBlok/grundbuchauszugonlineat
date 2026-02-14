@@ -223,15 +223,7 @@ export function CombinedOrderStep({
       {/* Product Header + Address Search Card */}
       <div className="bg-card rounded shadow-lg overflow-hidden">
         <div className="px-6 py-5 lg:px-8 lg:py-6 border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
-          <div className="flex items-start gap-4">
-            <a href="/grundbuch-preview" target="_blank" className="shrink-0 group">
-              <img 
-                src={grundbuchPreview} 
-                alt="Beispiel Grundbuchauszug" 
-                className="w-16 h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
-              />
-              <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors block text-center mt-1">Beispiel</span>
-            </a>
+          <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight font-serif leading-tight">
                 Grundbuchauszug anfordern
@@ -240,7 +232,18 @@ export function CombinedOrderStep({
                 Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch
               </p>
             </div>
+            <a href="/grundbuch-preview" target="_blank" className="shrink-0 group text-center">
+              <img 
+                src={grundbuchPreview} 
+                alt="Beispiel Grundbuchauszug" 
+                className="w-16 h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
+              />
+              <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors mt-1 block">Beispiel ansehen</span>
+            </a>
           </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            Enthält Eigentümer, Grundstücksdaten und eingetragene Lasten wie Hypotheken und Dienstbarkeiten.
+          </p>
         </div>
 
         {/* Property Address - Manual Input */}
