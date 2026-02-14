@@ -232,7 +232,7 @@ export function CombinedOrderStep({
       {/* Product Header + Address Search Card */}
       <div className="bg-card rounded shadow-lg overflow-hidden">
         <div className="px-6 py-5 lg:px-8 lg:py-6 border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
             <div>
               <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight font-serif leading-tight">
                 Grundbuchauszug anfordern
@@ -243,13 +243,13 @@ export function CombinedOrderStep({
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <button type="button" className="shrink-0 group text-center cursor-pointer">
+                <button type="button" className="shrink-0 group flex sm:flex-col items-center gap-3 sm:gap-0 sm:text-center cursor-pointer rounded-lg border border-border/50 p-2 sm:border-0 sm:p-0 hover:bg-muted/30 sm:hover:bg-transparent transition-colors">
                   <img 
                     src={grundbuchPreview} 
                     alt="Beispiel Grundbuchauszug" 
-                    className="w-16 h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
+                    className="w-12 h-16 sm:w-16 sm:h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
                   />
-                  <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors mt-1 block">Beispiel ansehen</span>
+                  <span className="text-xs sm:text-[10px] text-muted-foreground group-hover:text-primary transition-colors sm:mt-1">Beispiel ansehen →</span>
                 </button>
               </DialogTrigger>
               <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
