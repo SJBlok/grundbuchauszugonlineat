@@ -3,6 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +24,8 @@ import {
   Mail, MapPin, Loader2, Check, BadgeCheck 
 } from "lucide-react";
 import grundbuchPreview from "@/assets/grundbuch-preview.jpg";
+import grundbuchPage1 from "@/assets/grundbuch-example-fictitious.jpg";
+import grundbuchPage2 from "@/assets/grundbuch-example-page2.jpg";
 
 // Generate or retrieve session ID for abandoned cart tracking
 function getSessionId(): string {
@@ -232,14 +241,30 @@ export function CombinedOrderStep({
                 Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch. Enthält <span className="font-medium text-foreground">A-Blatt</span> (Grundstücke &amp; Flächen), <span className="font-medium text-foreground">B-Blatt</span> (Eigentümer) und <span className="font-medium text-foreground">C-Blatt</span> (Hypotheken &amp; Lasten).
               </p>
             </div>
-            <a href="/grundbuch-preview" target="_blank" className="shrink-0 group text-center">
-              <img 
-                src={grundbuchPreview} 
-                alt="Beispiel Grundbuchauszug" 
-                className="w-16 h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
-              />
-              <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors mt-1 block">Beispiel ansehen</span>
-            </a>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button type="button" className="shrink-0 group text-center cursor-pointer">
+                  <img 
+                    src={grundbuchPreview} 
+                    alt="Beispiel Grundbuchauszug" 
+                    className="w-16 h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
+                  />
+                  <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors mt-1 block">Beispiel ansehen</span>
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Beispiel Grundbuchauszug</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground">
+                  So sieht ein Grundbuchauszug aus. Die gezeigten Daten sind fiktiv.
+                </p>
+                <div className="space-y-4">
+                  <img src={grundbuchPage1} alt="Grundbuchauszug Seite 1" className="w-full rounded border border-border" />
+                  <img src={grundbuchPage2} alt="Grundbuchauszug Seite 2" className="w-full rounded border border-border" />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
