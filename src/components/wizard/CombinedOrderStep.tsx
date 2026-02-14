@@ -252,6 +252,9 @@ export function CombinedOrderStep({
                         className="w-12 h-16 sm:w-16 sm:h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
                       />
                     </div>
+                    <div className="flex sm:hidden items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-serif font-bold text-sm">
+                      GB
+                    </div>
                     <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-serif font-bold text-lg">
                       GB
                     </div>
