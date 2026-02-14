@@ -244,11 +244,18 @@ export function CombinedOrderStep({
             <Dialog>
               <DialogTrigger asChild>
                 <button type="button" className="shrink-0 group flex sm:flex-col items-center gap-3 sm:gap-0 sm:text-center cursor-pointer rounded-lg border border-border/50 p-2 sm:border-0 sm:p-0 hover:bg-muted/30 sm:hover:bg-transparent transition-colors">
-                  <img 
-                    src={grundbuchPreview} 
-                    alt="Beispiel Grundbuchauszug" 
-                    className="w-12 h-16 sm:w-16 sm:h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
-                  />
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <img 
+                        src={grundbuchPreview} 
+                        alt="Beispiel Grundbuchauszug" 
+                        className="w-12 h-16 sm:w-16 sm:h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
+                      />
+                    </div>
+                    <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-serif font-bold text-lg">
+                      GB
+                    </div>
+                  </div>
                   <span className="text-xs sm:text-[10px] text-muted-foreground group-hover:text-primary transition-colors sm:mt-1">Beispiel ansehen →</span>
                 </button>
               </DialogTrigger>
