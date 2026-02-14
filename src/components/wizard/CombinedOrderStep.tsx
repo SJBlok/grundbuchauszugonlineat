@@ -229,7 +229,7 @@ export function CombinedOrderStep({
                 Grundbuchauszug anfordern
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch
+                Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch. Enthält <span className="font-medium text-foreground">A-Blatt</span> (Grundstücke &amp; Flächen), <span className="font-medium text-foreground">B-Blatt</span> (Eigentümer) und <span className="font-medium text-foreground">C-Blatt</span> (Hypotheken &amp; Lasten).
               </p>
             </div>
             <a href="/grundbuch-preview" target="_blank" className="shrink-0 group text-center">
@@ -241,9 +241,6 @@ export function CombinedOrderStep({
               <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors mt-1 block">Beispiel ansehen</span>
             </a>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            Enthält <span className="font-medium text-foreground">A-Blatt</span> (Grundstücke &amp; Flächen), <span className="font-medium text-foreground">B-Blatt</span> (Eigentümer) und <span className="font-medium text-foreground">C-Blatt</span> (Hypotheken &amp; Lasten).
-          </p>
         </div>
 
         {/* Property Address - Manual Input */}
