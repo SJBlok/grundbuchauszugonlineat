@@ -241,20 +241,9 @@ export function CombinedOrderStep({
               <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors mt-1 block">Beispiel ansehen</span>
             </a>
           </div>
-          <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
-            <div className="rounded bg-muted/40 px-2 py-1.5">
-              <span className="font-semibold text-foreground">A-Blatt</span>
-              <p className="text-muted-foreground mt-0.5 leading-tight">Grundstücke, Flächen &amp; Nutzungsart</p>
-            </div>
-            <div className="rounded bg-muted/40 px-2 py-1.5">
-              <span className="font-semibold text-foreground">B-Blatt</span>
-              <p className="text-muted-foreground mt-0.5 leading-tight">Eigentümer &amp; Eigentumsanteile</p>
-            </div>
-            <div className="rounded bg-muted/40 px-2 py-1.5">
-              <span className="font-semibold text-foreground">C-Blatt</span>
-              <p className="text-muted-foreground mt-0.5 leading-tight">Hypotheken, Pfandrechte &amp; Lasten</p>
-            </div>
-          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            Enthält <span className="font-medium text-foreground">A-Blatt</span> (Grundstücke &amp; Flächen), <span className="font-medium text-foreground">B-Blatt</span> (Eigentümer) und <span className="font-medium text-foreground">C-Blatt</span> (Hypotheken &amp; Lasten).
+          </p>
         </div>
 
         {/* Property Address - Manual Input */}
