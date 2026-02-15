@@ -28,7 +28,7 @@ export function Header({ compact }: { compact?: boolean }) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className={compact ? "relative z-50" : "sticky top-0 z-50"}>
       {/* Top accent bar - thin elegant line */}
       <div className="h-0.5 bg-gradient-to-r from-primary via-primary to-primary/70" />
       
