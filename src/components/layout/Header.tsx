@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { label: "Startseite", href: "/" },
   { label: "Grundbuchauszug", href: "/grundbuchauszug" },
-  { label: "Ablauf", href: "/ablauf" },
-  { label: "Preise", href: "/preise" },
-  { label: "Lexikon", href: "/lexikon" },
+  { label: "Preise & Ablauf", href: "/preise" },
   { label: "FAQ", href: "/faq" },
   { label: "Kontakt", href: "/kontakt" },
 ];

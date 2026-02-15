@@ -11,7 +11,7 @@ const footerLinks = [
 
 const serviceLinks = [
   { label: "Grundbuchauszug anfordern", href: "/anfordern" },
-  { label: "Ablauf & Lieferung", href: "/ablauf" },
+  { label: "Ablauf & Lieferung", href: "/preise" },
   { label: "Preise", href: "/preise" },
   { label: "Häufige Fragen", href: "/faq" },
 ];

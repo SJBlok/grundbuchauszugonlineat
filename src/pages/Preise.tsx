@@ -1,14 +1,6 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CheckCircle, ChevronRight } from "lucide-react";
 import iconDocument from "@/assets/icon-document.png";
 
@@ -18,6 +10,33 @@ const productFeatures = [
   "Übersicht über Lasten und Beschränkungen (C-Blatt)",
   "Zustellung per E-Mail innerhalb weniger Minuten",
   "Elektronisch signiertes PDF-Dokument",
+];
+
+const steps = [
+  {
+    number: "1",
+    title: "Grundstücksdaten eingeben",
+    description:
+      "Geben Sie die erforderlichen Informationen zum Grundstück ein: Katastralgemeinde, Grundstücksnummer, Grundbuchsgericht und Bundesland.",
+  },
+  {
+    number: "2",
+    title: "Produkt auswählen und Angaben prüfen",
+    description:
+      "Überprüfen Sie Ihre eingegebenen Daten und wählen Sie den gewünschten Grundbuchauszug.",
+  },
+  {
+    number: "3",
+    title: "Bestellung abschließen",
+    description:
+      "Geben Sie Ihre Kontaktdaten ein, wählen Sie die Zahlungsart und bestätigen Sie die Bestellung.",
+  },
+  {
+    number: "4",
+    title: "Versand per E-Mail",
+    description:
+      "Nach Abschluss der Bestellung wird der Grundbuchauszug innerhalb weniger Minuten per E-Mail an Sie versendet.",
+  },
 ];
 
 export default function Preise() {
@@ -62,13 +81,44 @@ export default function Preise() {
             </div>
 
             {/* Payment Info */}
-            <div className="bg-info p-6 rounded border mb-8">
+            <div className="bg-info p-6 rounded border mb-12">
               <h3 className="font-semibold text-foreground mb-2">
                 Zahlungsart
               </h3>
               <p className="text-muted-foreground">
                 Die Zahlung erfolgt auf Rechnung (Überweisung). Die Rechnung wird nach Abschluss der Bestellung per E-Mail übermittelt. Die Zahlungsfrist beträgt 14 Tage.
               </p>
+            </div>
+
+            {/* Ablauf Section */}
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+              Ablauf
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              In wenigen Schritten zu Ihrem Grundbuchauszug.
+            </p>
+
+            <div className="space-y-6 mb-12">
+              {steps.map((step, index) => (
+                <div key={step.number} className="flex gap-6">
+                  <div className="flex-shrink-0 flex flex-col items-center">
+                    <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
+                      {step.number}
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div className="w-0.5 flex-1 bg-border mt-2" />
+                    )}
+                  </div>
+                  <div className="pb-6">
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="text-center">

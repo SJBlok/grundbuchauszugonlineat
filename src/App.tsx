@@ -5,11 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Grundbuchauszug from "./pages/Grundbuchauszug";
-import Ablauf from "./pages/Ablauf";
 import Preise from "./pages/Preise";
 import FAQ from "./pages/FAQ";
 import Kontakt from "./pages/Kontakt";
-import Lexikon from "./pages/Lexikon";
 import Anfordern from "./pages/Anfordern";
 import AnfordernB from "./pages/AnfordernB";
 import Danke from "./pages/Danke";
@@ -35,11 +33,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/grundbuchauszug" element={<Grundbuchauszug />} />
-          <Route path="/ablauf" element={<Ablauf />} />
+          <Route path="/ablauf" element={<Preise />} />
           <Route path="/preise" element={<Preise />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/kontakt" element={<Kontakt />} />
-          <Route path="/lexikon" element={<Lexikon />} />
           <Route path="/anfordern" element={<Anfordern />} />
           <Route path="/anfordern-b" element={<AnfordernB />} />
           <Route path="/danke" element={<Danke />} />
