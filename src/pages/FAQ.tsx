@@ -88,21 +88,13 @@ export default function FAQ() {
                 Weitere Fragen?
               </h2>
               <p className="text-muted-foreground mb-4">
-                Besuchen Sie unser Grundbuch-Lexikon für detaillierte Erklärungen aller Begriffe.
+                Kontaktieren Sie uns – wir helfen Ihnen gerne weiter.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild variant="outline">
-                  <Link to="/lexikon" className="hover:no-underline">
-                    Zum Lexikon
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link to="/kontakt" className="hover:no-underline">
-                    Kontakt
-                  </Link>
-                </Button>
-              </div>
+              <Button asChild>
+                <Link to="/kontakt" className="hover:no-underline">
+                  Kontakt
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
