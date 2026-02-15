@@ -70,7 +70,7 @@ export default function AnfordernB() {
   // Intro step (step 0)
   if (step === 0) {
     return (
-      <Layout>
+      <Layout compactHeader>
         <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-8 md:py-14 lg:py-16 pb-16 md:pb-24 lg:pb-32">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
@@ -84,7 +84,7 @@ export default function AnfordernB() {
 
   // Order form step (step 1)
   return (
-    <Layout>
+    <Layout compactHeader>
       <section className="min-h-[calc(100vh-200px)] bg-gradient-to-b from-background via-muted/30 to-background py-8 md:py-14 lg:py-16 pb-16 md:pb-24 lg:pb-32">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">

@@ -11,7 +11,7 @@ const navItems = [
   { label: "Kontakt", href: "/kontakt" },
 ];
 
-export function Header() {
+export function Header({ compact }: { compact?: boolean }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
@@ -59,7 +59,7 @@ export function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className={`${compact ? 'hidden' : 'hidden lg:flex'} items-center gap-1`}>
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -82,7 +82,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden h-12 w-12 shrink-0 hover:bg-muted"
+              className={`${compact ? '' : 'lg:hidden'} h-12 w-12 shrink-0 hover:bg-muted`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
             >
@@ -92,7 +92,7 @@ export function Header() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className="lg:hidden py-4 border-t border-border/40 animate-fade-in safe-area-inset-bottom">
+            <nav className={`${compact ? '' : 'lg:hidden'} py-4 border-t border-border/40 animate-fade-in safe-area-inset-bottom`}>
               <div className="flex flex-col gap-1">
                 {navItems.map((item, index) => (
                   <Link
