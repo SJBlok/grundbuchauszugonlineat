@@ -18,68 +18,59 @@ const serviceLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-header text-header-foreground mt-auto">
+    <footer className="bg-[hsl(220,20%,16%)] text-white mt-auto">
       {/* Top accent bar */}
-      <div className="h-0.5 bg-gradient-to-r from-primary via-primary to-primary/70" />
+      <div className="h-1 bg-primary" />
       
       {/* Trust bar */}
-      <div className="border-b border-header-foreground/10">
-        <div className="container mx-auto py-4 md:py-6">
-          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-header-foreground/70">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
+      <div className="border-b border-white/8">
+        <div className="container mx-auto py-4">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-white/50">
+            <div className="flex items-center gap-1.5">
+              <Shield className="h-3.5 w-3.5" />
               <span>SSL-verschlüsselt</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" />
               <span>Sofortige Zustellung</span>
             </div>
-            <div className="flex items-center gap-2">
-              <FileCheck className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-1.5">
+              <FileCheck className="h-3.5 w-3.5" />
               <span>Amtlich beglaubigt</span>
             </div>
           </div>
         </div>
       </div>
       
-      <div className="py-10 md:py-16 lg:py-20">
+      <div className="py-10 md:py-14">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
             {/* Brand column */}
             <div className="sm:col-span-2 lg:col-span-2">
-              <div className="flex items-center gap-3.5 mb-6">
-                {/* Austrian flag colors */}
+              <div className="flex items-center gap-3 mb-5">
                 <div className="flex items-center gap-0.5">
-                  <div className="w-1.5 h-8 bg-[hsl(0,65%,48%)] rounded-sm" />
-                  <div className="w-1.5 h-8 bg-header-foreground rounded-sm" />
-                  <div className="w-1.5 h-8 bg-[hsl(0,65%,48%)] rounded-sm" />
+                  <div className="w-1 h-7 bg-primary rounded-sm" />
+                  <div className="w-1 h-7 bg-white rounded-sm" />
+                  <div className="w-1 h-7 bg-primary rounded-sm" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-bold text-lg font-serif">GrundbuchauszugOnline</span>
-                  <span className="text-[13px] text-header-foreground/60">Ihr Grundbuchservice für Österreich</span>
+                  <span className="font-bold text-base">GrundbuchauszugOnline</span>
+                  <span className="text-[11px] text-white/40">Ihr Grundbuchservice für Österreich</span>
                 </div>
               </div>
               
-              <p className="text-[15px] text-header-foreground/60 max-w-md leading-relaxed mb-8">
+              <p className="text-sm text-white/50 max-w-md leading-relaxed mb-6">
                 Unabhängiger, kommerzieller Online-Service für die Beantragung von Grundbuchauszügen. 
                 Wir sind keine Behörde und kein Teil des österreichischen Grundbuchsystems.
               </p>
 
-              {/* Contact info */}
-              <div className="space-y-3">
-                <a 
-                  href="mailto:info@grundbuchauszugonline.at" 
-                  className="flex items-center gap-3 text-[15px] text-header-foreground/60 hover:text-header-foreground transition-colors group"
-                >
-                  <div className="h-9 w-9 rounded bg-header-foreground/5 flex items-center justify-center group-hover:bg-header-foreground/10 transition-colors">
-                    <Mail className="h-4 w-4" />
-                  </div>
+              <div className="space-y-2">
+                <a href="mailto:info@grundbuchauszugonline.at" className="flex items-center gap-2 text-sm text-white/50 hover:text-white/80 transition-colors">
+                  <Mail className="h-3.5 w-3.5" />
                   <span>info@grundbuchauszugonline.at</span>
                 </a>
-                <div className="flex items-center gap-3 text-[15px] text-header-foreground/60">
-                  <div className="h-9 w-9 rounded bg-header-foreground/5 flex items-center justify-center">
-                    <Building2 className="h-4 w-4" />
-                  </div>
+                <div className="flex items-center gap-2 text-sm text-white/50">
+                  <Building2 className="h-3.5 w-3.5" />
                   <span>Tophallen Bouw B.V.</span>
                 </div>
               </div>
@@ -87,20 +78,13 @@ export function Footer() {
 
             {/* Service links */}
             <div>
-              <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-header-foreground/80">
+              <h3 className="font-semibold text-xs uppercase tracking-wider mb-4 text-white/60">
                 Service
               </h3>
-              <nav className="flex flex-col gap-3">
+              <nav className="flex flex-col gap-2">
                 {serviceLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className="text-[15px] text-header-foreground/60 hover:text-header-foreground transition-colors relative group inline-flex"
-                  >
-                    <span className="relative">
-                      {link.label}
-                      <span className="absolute bottom-0 left-0 w-0 h-px bg-header-foreground transition-all duration-300 group-hover:w-full" />
-                    </span>
+                  <Link key={link.href} to={link.href} className="text-sm text-white/50 hover:text-white/80 transition-colors">
+                    {link.label}
                   </Link>
                 ))}
               </nav>
@@ -108,20 +92,13 @@ export function Footer() {
 
             {/* Legal links */}
             <div>
-              <h3 className="font-semibold text-sm uppercase tracking-wider mb-5 text-header-foreground/80">
+              <h3 className="font-semibold text-xs uppercase tracking-wider mb-4 text-white/60">
                 Rechtliches
               </h3>
-              <nav className="flex flex-col gap-3">
+              <nav className="flex flex-col gap-2">
                 {footerLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className="text-[15px] text-header-foreground/60 hover:text-header-foreground transition-colors relative group inline-flex"
-                  >
-                    <span className="relative">
-                      {link.label}
-                      <span className="absolute bottom-0 left-0 w-0 h-px bg-header-foreground transition-all duration-300 group-hover:w-full" />
-                    </span>
+                  <Link key={link.href} to={link.href} className="text-sm text-white/50 hover:text-white/80 transition-colors">
+                    {link.label}
                   </Link>
                 ))}
               </nav>
@@ -129,16 +106,14 @@ export function Footer() {
           </div>
 
           {/* Bottom bar */}
-          <div className="mt-10 md:mt-16 pt-6 md:pt-8 border-t border-header-foreground/10 safe-area-inset-bottom">
-            <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:justify-between gap-4">
-              <p className="text-sm text-header-foreground/40">
+          <div className="mt-10 pt-6 border-t border-white/8 safe-area-inset-bottom">
+            <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:justify-between gap-3">
+              <p className="text-xs text-white/30">
                 © {new Date().getFullYear()} Tophallen Bouw B.V. Alle Rechte vorbehalten.
               </p>
-              <div className="flex items-center gap-6">
-                <span className="text-xs text-header-foreground/30">
-                  Kerkweg 1a, Stavenisse, Niederlande
-                </span>
-              </div>
+              <span className="text-xs text-white/20">
+                Kerkweg 1a, Stavenisse, Niederlande
+              </span>
             </div>
           </div>
         </div>

@@ -18,7 +18,6 @@ export function Header({ compact }: { compact?: boolean }) {
 
   const currentPageLabel = navItems.find(item => item.href === location.pathname)?.label;
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -29,51 +28,46 @@ export function Header({ compact }: { compact?: boolean }) {
 
   return (
     <header className={compact ? "relative z-50" : "sticky top-0 z-50"}>
-      {/* Top accent bar - thin elegant line */}
-      <div className="h-0.5 bg-gradient-to-r from-primary via-primary to-primary/70" />
+      {/* Top institutional accent bar */}
+      <div className="h-1 bg-primary" />
       
-      {/* Main header */}
-      <div className={`transition-all duration-350 ease-premium ${
-        scrolled 
-          ? "backdrop-premium shadow-lg" 
-          : "bg-background border-b border-border/40"
+      {/* Main header - clean white */}
+      <div className={`bg-white border-b border-border transition-shadow duration-200 ${
+        scrolled ? "shadow-md" : ""
       }`}>
         <div className="container mx-auto">
-          <div className="flex items-center justify-between h-16 lg:h-[88px]">
+          <div className="flex items-center justify-between h-16 lg:h-[72px]">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3.5 text-foreground hover:no-underline min-w-0 group">
-              {/* Austrian flag colors - refined */}
+            <Link to="/" className="flex items-center gap-3 text-foreground hover:no-underline min-w-0">
+              {/* Austrian coat of arms inspired icon */}
               <div className="flex items-center gap-0.5 shrink-0">
-                <div className="w-1.5 lg:w-2 h-9 lg:h-11 bg-[hsl(0,65%,48%)] rounded-sm transition-all duration-300 group-hover:h-10 lg:group-hover:h-12" />
-                <div className="w-1.5 lg:w-2 h-9 lg:h-11 bg-white border border-border/30 rounded-sm transition-all duration-300 group-hover:h-10 lg:group-hover:h-12" />
-                <div className="w-1.5 lg:w-2 h-9 lg:h-11 bg-[hsl(0,65%,48%)] rounded-sm transition-all duration-300 group-hover:h-10 lg:group-hover:h-12" />
+                <div className="w-1.5 h-8 bg-primary rounded-sm" />
+                <div className="w-1.5 h-8 bg-white border border-border rounded-sm" />
+                <div className="w-1.5 h-8 bg-primary rounded-sm" />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-lg lg:text-xl font-bold leading-tight tracking-tight font-serif">
+                <span className="text-base lg:text-lg font-bold leading-tight tracking-tight">
                   GrundbuchauszugOnline
                 </span>
-                <span className="text-xs lg:text-[13px] text-muted-foreground leading-tight hidden sm:block">
+                <span className="text-[11px] lg:text-xs text-muted-foreground leading-tight hidden sm:block">
                   Ihr Grundbuchservice für Österreich
                 </span>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className={`${compact ? 'hidden' : 'hidden lg:flex'} items-center gap-1`}>
+            <nav className={`${compact ? 'hidden' : 'hidden lg:flex'} items-center gap-0.5`}>
               {navItems.map((item) => (
                 <Link
                   key={item.href}
                   to={item.href}
-                  className={`px-4 py-2.5 text-[15px] font-medium rounded transition-all duration-200 hover:no-underline relative group ${
+                  className={`px-3.5 py-2 text-sm font-semibold transition-colors duration-150 hover:no-underline ${
                     location.pathname === item.href
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-foreground/75 hover:text-foreground hover:bg-muted/80"
+                      ? "text-primary border-b-2 border-primary -mb-[1px]"
+                      : "text-foreground/70 hover:text-foreground"
                   }`}
                 >
                   {item.label}
-                  {location.pathname !== item.href && (
-                    <span className="absolute bottom-1.5 left-4 right-4 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-                  )}
                 </Link>
               ))}
             </nav>
@@ -82,28 +76,27 @@ export function Header({ compact }: { compact?: boolean }) {
             <Button
               variant="ghost"
               size="icon"
-              className={`${compact ? '' : 'lg:hidden'} h-12 w-12 shrink-0 hover:bg-muted`}
+              className={`${compact ? '' : 'lg:hidden'} h-10 w-10 shrink-0`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <nav className={`${compact ? '' : 'lg:hidden'} py-4 border-t border-border/40 animate-fade-in safe-area-inset-bottom`}>
-              <div className="flex flex-col gap-1">
-                {navItems.map((item, index) => (
+            <nav className={`${compact ? '' : 'lg:hidden'} py-3 border-t border-border safe-area-inset-bottom`}>
+              <div className="flex flex-col">
+                {navItems.map((item) => (
                   <Link
                     key={item.href}
                     to={item.href}
-                    className={`px-4 py-3.5 text-base font-medium rounded transition-all duration-200 hover:no-underline animate-fade-in-up touch-target ${
+                    className={`px-4 py-3 text-sm font-semibold transition-colors hover:no-underline touch-target ${
                       location.pathname === item.href
-                        ? "bg-primary text-primary-foreground"
-                        : "text-foreground hover:bg-muted"
+                        ? "text-primary bg-primary/5 border-l-3 border-primary"
+                        : "text-foreground/80 hover:bg-muted hover:text-foreground"
                     }`}
-                    style={{ animationDelay: `${index * 0.05}s` }}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -115,16 +108,16 @@ export function Header({ compact }: { compact?: boolean }) {
         </div>
       </div>
 
-      {/* Breadcrumb bar - only on non-home pages */}
+      {/* Breadcrumb bar */}
       {location.pathname !== "/" && currentPageLabel && (
-        <div className="bg-muted/50 border-b border-border/30">
-          <div className="container mx-auto py-3">
-            <nav className="text-sm text-muted-foreground flex items-center gap-2">
-              <Link to="/" className="hover:text-foreground transition-colors link-underline">
+        <div className="bg-muted/60 border-b border-border/50">
+          <div className="container mx-auto py-2.5">
+            <nav className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <Link to="/" className="hover:text-foreground transition-colors">
                 Startseite
               </Link>
-              <span className="text-muted-foreground/50">›</span>
-              <span className="text-foreground font-medium">{currentPageLabel}</span>
+              <span className="text-muted-foreground/40">›</span>
+              <span className="text-foreground font-semibold">{currentPageLabel}</span>
             </nav>
           </div>
         </div>
