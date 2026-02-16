@@ -41,9 +41,9 @@ export function Header({ compact }: { compact?: boolean }) {
             <Link to="/" className="flex items-center gap-3 text-foreground hover:no-underline min-w-0">
               {/* Austrian coat of arms inspired icon */}
               <div className="flex items-center gap-0.5 shrink-0">
-                <div className="w-1.5 h-8 bg-primary rounded-sm" />
+                <div className="w-1.5 h-8 bg-[#ED2939] rounded-sm" />
                 <div className="w-1.5 h-8 bg-white border border-border rounded-sm" />
-                <div className="w-1.5 h-8 bg-primary rounded-sm" />
+                <div className="w-1.5 h-8 bg-[#ED2939] rounded-sm" />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-base lg:text-lg font-bold leading-tight tracking-tight">
