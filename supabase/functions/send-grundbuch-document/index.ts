@@ -265,19 +265,27 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Validate origin to prevent unauthorized access
-    if (!isValidOrigin(req)) {
-      console.warn("Rejected request from unauthorized origin");
+    const body = await req.json();
+
+    // Support both camelCase (internal use) and snake_case (portal API)
+    const orderId = body.orderId || body.order_id;
+    const sessionId = body.sessionId || body.session_id;
+
+    // Determine auth method: portal API key OR valid origin
+    const apiKey = req.headers.get("x-api-key");
+    const validApiKey = Deno.env.get("PORTAL_API_KEY");
+    const hasValidApiKey = apiKey && validApiKey && apiKey === validApiKey;
+
+    if (!hasValidApiKey && !isValidOrigin(req)) {
+      console.warn("Rejected request: no valid API key or origin");
       return new Response(
-        JSON.stringify({ error: "Forbidden" }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ error: "Unauthorized: provide x-api-key header or request from allowed origin" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const { orderId, sessionId } = await req.json();
-
     if (!orderId) {
-      throw new Error("Order ID is required");
+      throw new Error("Order ID is required (order_id)");
     }
     
     // Initialize Supabase client

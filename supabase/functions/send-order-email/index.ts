@@ -5,16 +5,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-api-key",
 };
 
+const AVAILABLE_TEMPLATES = [
+  { id: "order_confirmation", name: "Bestellbevestiging", description: "Versturen na succesvolle betaling", variables: ["customer_name", "order_number", "product_name", "amount"] },
+  { id: "awaiting_customer_response", name: "Wachten op klant", description: "Versturen als extra informatie nodig is", variables: ["customer_name", "order_number", "missing_information"] },
+  { id: "documents_ready", name: "Documenten klaar", description: "Versturen als document beschikbaar is als bijlage", variables: ["customer_name", "order_number"] },
+  { id: "order_completed", name: "Order afgerond", description: "Bevestiging dat de order volledig is afgehandeld", variables: ["customer_name", "order_number"] },
+  { id: "order_cancelled", name: "Order geannuleerd", description: "Notificatie bij annulering", variables: ["customer_name", "order_number", "reason"] },
+  { id: "abandoned_reminder_1h", name: "Herinnering 1u", description: "Automatische herinnering 1 uur na verlaten bestelformulier", variables: ["vorname", "email", "product_name"] },
+  { id: "abandoned_reminder_25h", name: "Herinnering 25u", description: "Tweede herinnering 25 uur na verlaten bestelformulier", variables: ["vorname", "email", "product_name"] },
+  { id: "abandoned_reminder_72h", name: "Herinnering 72u", description: "Laatste herinnering 72 uur na verlaten bestelformulier", variables: ["vorname", "email", "product_name"] },
+];
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
-  }
-
-  if (req.method !== "POST") {
-    return new Response(
-      JSON.stringify({ error: "Method not allowed" }),
-      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
   }
 
   const apiKey = req.headers.get("x-api-key");
@@ -24,6 +28,28 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ error: "Unauthorized: invalid or missing API key" }),
       { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  // GET: list available templates
+  if (req.method === "GET") {
+    const url = new URL(req.url);
+    if (url.searchParams.get("list_templates") === "true") {
+      return new Response(
+        JSON.stringify({ templates: AVAILABLE_TEMPLATES }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    return new Response(
+      JSON.stringify({ error: "Use list_templates=true to list templates, or POST to send an email" }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Method not allowed" }),
+      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 
