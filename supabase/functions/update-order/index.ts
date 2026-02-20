@@ -95,8 +95,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    let baseQuery = supabase.from("orders").update(updates).select().single();
-
+    let baseQuery;
     if (orderId) {
       baseQuery = supabase.from("orders").update(updates).eq("id", orderId).select().single();
     } else {
