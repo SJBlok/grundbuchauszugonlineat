@@ -43,6 +43,8 @@ Deno.serve(async (req) => {
       );
     }
 
+    const VALID_STATUSES = ["open", "awaiting_customer", "processed", "cancelled", "deleted"];
+
     const allowedFields = [
       "status",
       "payment_status",
@@ -58,6 +60,16 @@ Deno.serve(async (req) => {
       if (field in updateFields) {
         updates[field] = updateFields[field];
       }
+    }
+
+    // Validate status if provided
+    if ("status" in updates && !VALID_STATUSES.includes(updates.status as string)) {
+      return new Response(
+        JSON.stringify({
+          error: `Invalid status '${updates.status}'. Must be one of: ${VALID_STATUSES.join(", ")}`,
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     if (Object.keys(updates).length === 0) {

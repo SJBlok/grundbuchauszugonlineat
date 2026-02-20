@@ -291,7 +291,7 @@ const ApiDocs = () => {
             <div>
               <SectionTitle>Query parameters (optioneel)</SectionTitle>
               <ParamTable rows={[
-                { param: "status", type: "string", desc: "Filter op orderstatus (bv. pending, completed)" },
+                { param: "status", type: "string", desc: "Filter op orderstatus (bv. open, awaiting_customer, processed, cancelled, deleted)" },
                 { param: "payment_status", type: "string", desc: "Filter op betaalstatus (bv. paid, pending)" },
                 { param: "from_date", type: "date", desc: "Orders vanaf datum (bv. 2025-01-01)" },
                 { param: "to_date", type: "date", desc: "Orders tot datum (bv. 2025-12-31)" },
@@ -325,7 +325,7 @@ const ApiDocs = () => {
       "grundbuchsgericht": "Bezirksgericht Innere Stadt Wien",
       "bundesland": "Wien",
       "wohnungs_hinweis": null,
-      "status": "pending",
+      "status": "open",
       "payment_status": "paid",
       "processing_status": "unprocessed",
       "processing_notes": null,
@@ -375,7 +375,7 @@ const ApiDocs = () => {
     "vorname": "Jan",
     "nachname": "Janssen",
     "email": "jan@example.com",
-    "status": "pending",
+    "status": "open",
     "payment_status": "paid",
     "processing_status": "unprocessed",
     "documents": [],
@@ -407,7 +407,7 @@ const ApiDocs = () => {
             <div>
               <SectionTitle>Request body (JSON, alle velden optioneel)</SectionTitle>
               <ParamTable rows={[
-                { param: "status", type: "string", desc: "Orderstatus (bv. pending, completed, cancelled)" },
+                { param: "status", type: "string", desc: "Orderstatus (open, awaiting_customer, processed, cancelled, deleted)" },
                 { param: "payment_status", type: "string", desc: "Betaalstatus (bv. paid, pending, failed)" },
                 { param: "processing_status", type: "string", desc: "Verwerkingsstatus (bv. unprocessed, processing, done)" },
                 { param: "processing_notes", type: "string", desc: "Interne verwerkingsnotities" },
@@ -424,7 +424,7 @@ const ApiDocs = () => {
   -H "Content-Type: application/json" \\
   -d '{
     "processing_status": "processing",
-    "status": "completed",
+     "status": "processed",
     "moneybird_invoice_id": "123456789",
     "moneybird_invoice_status": "sent",
     "documents": [
@@ -442,7 +442,7 @@ const ApiDocs = () => {
   "order": {
     "id": "uuid",
     "order_number": "GB-100001",
-    "status": "completed",
+    "status": "processed",
     "payment_status": "paid",
     "processing_status": "processing",
     "moneybird_invoice_id": "123456789",
@@ -476,7 +476,7 @@ const ApiDocs = () => {
               <ParamTable rows={[
                 { param: "order_numbers", type: "string[]", required: false, desc: "Array van ordernummers (bv. [\"GB-100001\", \"GB-100002\"])" },
                 { param: "order_ids", type: "uuid[]", required: false, desc: "Array van order UUIDs (alternatief voor order_numbers)" },
-                { param: "status", type: "string", required: false, desc: "Orderstatus om in te stellen" },
+                { param: "status", type: "string", required: false, desc: "Orderstatus (open, awaiting_customer, processed, cancelled, deleted)" },
                 { param: "payment_status", type: "string", required: false, desc: "Betaalstatus om in te stellen" },
                 { param: "processing_status", type: "string", required: false, desc: "Verwerkingsstatus om in te stellen" },
                 { param: "processing_notes", type: "string", required: false, desc: "Interne verwerkingsnotities" },
@@ -494,7 +494,7 @@ const ApiDocs = () => {
   -d '{
     "order_numbers": ["GB-100001", "GB-100002", "GB-100003"],
     "processing_status": "processing",
-    "status": "completed"
+    "status": "processed"
   }'`} />
             </div>
             <div>

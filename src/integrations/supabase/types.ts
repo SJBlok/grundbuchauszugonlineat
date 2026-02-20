@@ -134,6 +134,50 @@ export type Database = {
         }
         Relationships: []
       }
+      order_status_history: {
+        Row: {
+          automated: boolean | null
+          changed_at: string
+          changed_by: string | null
+          from_status: string | null
+          id: string
+          notes: string | null
+          order_id: string
+          order_number: string
+          to_status: string
+        }
+        Insert: {
+          automated?: boolean | null
+          changed_at?: string
+          changed_by?: string | null
+          from_status?: string | null
+          id?: string
+          notes?: string | null
+          order_id: string
+          order_number: string
+          to_status: string
+        }
+        Update: {
+          automated?: boolean | null
+          changed_at?: string
+          changed_by?: string | null
+          from_status?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string
+          order_number?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_history_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           adresse: string | null
