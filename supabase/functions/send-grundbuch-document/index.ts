@@ -299,7 +299,7 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
     
-    if (orderCheck.status === "completed") {
+    if (orderCheck.status === "processed") {
       return new Response(
         JSON.stringify({ error: "Order already processed", order_number: orderCheck.id }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -894,7 +894,7 @@ Zahlung: Ausstehend
     // Update order status
     await supabase
       .from("orders")
-      .update({ status: "completed" })
+      .update({ status: "processed" })
       .eq("id", orderId);
 
     return new Response(
