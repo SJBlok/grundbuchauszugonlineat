@@ -97,18 +97,37 @@ const ApiDocs = () => {
     {
       "id": "uuid",
       "order_number": "GB-100001",
+
+      // Klantgegevens
       "vorname": "Jan",
       "nachname": "Janssen",
       "email": "jan@example.com",
+      "firma": null,
+      "wohnsitzland": "Österreich",
+
+      // Adresgegevens
+      "adresse": "Musterstraße 1",
+      "plz": "1010",
+      "ort": "Wien",
+
+      // Eigendomsgegevens
+      "katastralgemeinde": "Wien",
+      "grundstuecksnummer": "123/4",
+      "grundbuchsgericht": "Bezirksgericht Innere Stadt Wien",
+      "bundesland": "Wien",
+      "wohnungs_hinweis": null,
+
+      // Ordergegevens
       "status": "pending",
       "payment_status": "paid",
       "product_name": "Aktueller Grundbuchauszug",
       "product_price": 28.90,
-      "katastralgemeinde": "...",
-      "grundstuecksnummer": "...",
-      "grundbuchsgericht": "...",
-      "bundesland": "...",
-      "created_at": "2025-01-15T10:00:00Z"
+      "fast_delivery": false,
+      "digital_storage_subscription": false,
+
+      // Tijdstempels
+      "created_at": "2025-01-15T10:00:00Z",
+      "updated_at": "2025-01-15T10:05:00Z"
     }
   ],
   "total": 42,
