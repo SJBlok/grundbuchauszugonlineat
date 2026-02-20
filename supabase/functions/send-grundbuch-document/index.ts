@@ -293,7 +293,7 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Verify order exists and is pending (prevents re-processing)
+    // Verify order exists
     const { data: orderCheck, error: checkError } = await supabase
       .from("orders")
       .select("id, status")
@@ -307,9 +307,10 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
     
-    if (orderCheck.status === "processed") {
+    // Only block re-processing for internal calls (no API key), not for portal API calls
+    if (orderCheck.status === "processed" && !hasValidApiKey) {
       return new Response(
-        JSON.stringify({ error: "Order already processed", order_number: orderCheck.id }),
+        JSON.stringify({ error: "Order already processed", order_id: orderCheck.id }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -907,9 +908,12 @@ Zahlung: Ausstehend
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
-        messageId: emailResult.MessageID,
-        orderNumber: order.order_number 
+        success: true,
+        message_id: emailResult.MessageID,
+        order_number: order.order_number,
+        document_sent: hasDocument,
+        email_sent_to: order.email,
+        status_updated_to: "processed",
       }),
       {
         status: 200,
