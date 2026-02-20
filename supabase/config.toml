@@ -14,3 +14,15 @@ verify_jwt = false
 
 [functions.update-order]
 verify_jwt = false
+
+[functions.get-order]
+verify_jwt = false
+
+[functions.bulk-update-orders]
+verify_jwt = false
+
+[functions.send-order-email]
+verify_jwt = false
+
+[functions.manage-webhooks]
+verify_jwt = false
