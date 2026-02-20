@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.send-daily-order-report]
 verify_jwt = false
+
+[functions.get-orders]
+verify_jwt = false
