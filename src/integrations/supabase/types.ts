@@ -140,6 +140,7 @@ export type Database = {
           bundesland: string
           created_at: string
           digital_storage_subscription: boolean
+          documents: Json | null
           email: string
           fast_delivery: boolean
           firma: string | null
@@ -147,11 +148,15 @@ export type Database = {
           grundstuecksnummer: string
           id: string
           katastralgemeinde: string
+          moneybird_invoice_id: string | null
+          moneybird_invoice_status: string | null
           nachname: string
           order_number: string
           ort: string | null
           payment_status: string
           plz: string | null
+          processing_notes: string | null
+          processing_status: string | null
           product_name: string
           product_price: number
           status: string
@@ -165,6 +170,7 @@ export type Database = {
           bundesland: string
           created_at?: string
           digital_storage_subscription?: boolean
+          documents?: Json | null
           email: string
           fast_delivery?: boolean
           firma?: string | null
@@ -172,11 +178,15 @@ export type Database = {
           grundstuecksnummer: string
           id?: string
           katastralgemeinde: string
+          moneybird_invoice_id?: string | null
+          moneybird_invoice_status?: string | null
           nachname: string
           order_number: string
           ort?: string | null
           payment_status?: string
           plz?: string | null
+          processing_notes?: string | null
+          processing_status?: string | null
           product_name?: string
           product_price?: number
           status?: string
@@ -190,6 +200,7 @@ export type Database = {
           bundesland?: string
           created_at?: string
           digital_storage_subscription?: boolean
+          documents?: Json | null
           email?: string
           fast_delivery?: boolean
           firma?: string | null
@@ -197,11 +208,15 @@ export type Database = {
           grundstuecksnummer?: string
           id?: string
           katastralgemeinde?: string
+          moneybird_invoice_id?: string | null
+          moneybird_invoice_status?: string | null
           nachname?: string
           order_number?: string
           ort?: string | null
           payment_status?: string
           plz?: string | null
+          processing_notes?: string | null
+          processing_status?: string | null
           product_name?: string
           product_price?: number
           status?: string
