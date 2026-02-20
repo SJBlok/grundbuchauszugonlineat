@@ -128,6 +128,160 @@ const ApiDocs = () => {
           <CodeBlock code={BASE_URL} />
         </section>
 
+        {/* ===== ORDER STATUSSEN ===== */}
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold mb-6">Order Statussen</h2>
+          <p className="text-muted-foreground mb-6">
+            Elke order heeft een <code className="text-sm bg-muted px-1 py-0.5 rounded">status</code> veld dat de lifecycle van de order bijhoudt.
+            Gebruik de <code className="text-sm bg-muted px-1 py-0.5 rounded">status</code> filter in <code className="text-sm bg-muted px-1 py-0.5 rounded">/get-orders</code> of update via <code className="text-sm bg-muted px-1 py-0.5 rounded">/update-order</code>.
+          </p>
+
+          {/* Status tabel */}
+          <div className="border rounded-xl overflow-hidden mb-6">
+            <div className="px-5 py-4 bg-muted/50 border-b">
+              <h3 className="font-semibold text-sm">Beschikbare statussen</h3>
+            </div>
+            <div className="divide-y">
+              {[
+                {
+                  code: "open",
+                  label: "Open",
+                  color: "bg-blue-100 text-blue-800",
+                  desc: "Order is nieuw ontvangen, nog niet in behandeling genomen. Wacht op admin actie.",
+                  next: ["awaiting_customer", "processed", "cancelled"],
+                  email: "order_confirmation",
+                },
+                {
+                  code: "awaiting_customer",
+                  label: "Wachten op klant",
+                  color: "bg-yellow-100 text-yellow-800",
+                  desc: "Admin heeft extra informatie nodig. Order staat on-hold, wacht op reactie van klant.",
+                  next: ["open", "processed", "cancelled"],
+                  email: "awaiting_customer_response",
+                  auto: "Automatische reminder na 3 dagen",
+                },
+                {
+                  code: "processed",
+                  label: "Verwerkt",
+                  color: "bg-green-100 text-green-800",
+                  desc: "Order volledig afgehandeld. Documenten verstuurd, klant geïnformeerd, factuur aangemaakt.",
+                  next: [],
+                  email: "order_completed",
+                  auto: "MoneyBird factuur betaald zetten, archivering na 30 dagen",
+                },
+                {
+                  code: "cancelled",
+                  label: "Geannuleerd",
+                  color: "bg-gray-100 text-gray-800",
+                  desc: "Order geannuleerd door klant of admin. Geen verdere verwerking.",
+                  next: [],
+                  email: "order_cancelled",
+                  auto: "MoneyBird factuur annuleren, refund indien betaald",
+                },
+                {
+                  code: "deleted",
+                  label: "Verwijderd",
+                  color: "bg-red-100 text-red-800",
+                  desc: "Soft delete — data blijft in database. Alleen voor admins zichtbaar. Kan hersteld worden.",
+                  next: [],
+                  email: null,
+                },
+              ].map((s) => (
+                <div key={s.code} className="px-5 py-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-6">
+                  <div className="flex-shrink-0 w-40">
+                    <span className={`inline-block font-mono text-xs font-bold px-2 py-1 rounded ${s.color}`}>
+                      {s.code}
+                    </span>
+                  </div>
+                  <div className="flex-1 text-sm space-y-1">
+                    <p className="font-medium">{s.label}</p>
+                    <p className="text-muted-foreground">{s.desc}</p>
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
+                      {s.next.length > 0 && (
+                        <span>→ <span className="font-medium">Volgende:</span> {s.next.map(n => <code key={n} className="bg-muted px-1 rounded mx-0.5">{n}</code>)}</span>
+                      )}
+                      {s.email && (
+                        <span>✉ <span className="font-medium">Template:</span> <code className="bg-muted px-1 rounded">{s.email}</code></span>
+                      )}
+                      {!s.email && (
+                        <span className="text-muted-foreground">✉ Geen email notificatie</span>
+                      )}
+                      {s.auto && (
+                        <span>⚡ {s.auto}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Status flow */}
+          <div className="border rounded-xl p-5 bg-muted/30 mb-6">
+            <SectionTitle>Status flow</SectionTitle>
+            <div className="flex flex-wrap gap-2 items-center text-sm font-mono">
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">open</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-bold">awaiting_customer</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">open</span>
+              <span className="text-muted-foreground">or</span>
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded font-bold">processed</span>
+            </div>
+            <div className="flex flex-wrap gap-2 items-center text-sm font-mono mt-2">
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">open</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded font-bold">processed</span>
+            </div>
+            <div className="flex flex-wrap gap-2 items-center text-sm font-mono mt-2">
+              <span className="text-muted-foreground">any</span>
+              <span className="text-muted-foreground">→</span>
+              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded font-bold">cancelled</span>
+              <span className="text-muted-foreground">or</span>
+              <span className="bg-red-100 text-red-800 px-2 py-1 rounded font-bold">deleted</span>
+            </div>
+          </div>
+
+          {/* Voorbeeld status update */}
+          <div className="border rounded-xl overflow-hidden mb-6">
+            <div className="flex items-center gap-3 px-5 py-4 bg-muted/50 border-b">
+              <span className="font-mono text-xs font-bold px-2 py-1 rounded bg-yellow-100 text-yellow-800">PATCH</span>
+              <code className="text-sm font-mono">/update-order</code>
+              <span className="text-muted-foreground text-sm ml-2">Status wijzigen van een order</span>
+            </div>
+            <div className="p-5 space-y-4">
+              <SectionTitle>Voorbeeld: order naar "processed" zetten</SectionTitle>
+              <CodeBlock code={`curl -X PATCH \\
+  "${BASE_URL}/update-order?order_number=GB-100001" \\
+  -H "x-api-key: <jouw_api_key>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "status": "processed",
+    "processing_notes": "Alle documenten verstuurd per email"
+  }'`} />
+              <SectionTitle>Voorbeeld: order naar "awaiting_customer" zetten</SectionTitle>
+              <CodeBlock code={`curl -X PATCH \\
+  "${BASE_URL}/update-order?order_number=GB-100001" \\
+  -H "x-api-key: <jouw_api_key>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "status": "awaiting_customer",
+    "processing_notes": "Extra informatie nodig: perceel niet gevonden in kadaster"
+  }'`} />
+              <SectionTitle>Bulk status update (meerdere orders tegelijk)</SectionTitle>
+              <CodeBlock code={`curl -X POST \\
+  "${BASE_URL}/bulk-update-orders" \\
+  -H "x-api-key: <jouw_api_key>" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "order_numbers": ["GB-100001", "GB-100002", "GB-100003"],
+    "status": "processed",
+    "processing_notes": "Batch verwerking week 8"
+  }'`} />
+            </div>
+          </div>
+        </section>
+
         {/* ===== ORDERS ===== */}
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-6">Orders</h2>
