@@ -95,19 +95,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    let query = supabase
-      .from("orders")
-      .update(updates)
-      .select()
-      .single();
+    let baseQuery = supabase.from("orders").update(updates).select().single();
 
     if (orderId) {
-      query = supabase.from("orders").update(updates).eq("id", orderId).select().single();
+      baseQuery = supabase.from("orders").update(updates).eq("id", orderId).select().single();
     } else {
-      query = supabase.from("orders").update(updates).eq("order_number", orderNumber!).select().single();
+      baseQuery = supabase.from("orders").update(updates).eq("order_number", orderNumber!).select().single();
     }
 
-    const { data: order, error } = await query;
+    const { data: order, error } = await baseQuery;
 
     if (error) throw error;
     if (!order) {
