@@ -164,8 +164,10 @@ export default function DailyReports() {
                   {(() => {
                     const ordersData = selectedReport.orders_data || [];
                     const priorityCount = ordersData.filter((o: any) => o.fast_delivery === true).length;
+                    const digitalCount = ordersData.filter((o: any) => o.digital_storage_subscription === true).length;
                     const basisRevenue = ordersData.length * 28.90;
                     const priorityRevenue = priorityCount * 9.95;
+                    const digitalRevenue = digitalCount * 7.95;
                     return (
                       <>
                         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -190,6 +192,10 @@ export default function DailyReports() {
                           <div className="flex justify-between px-4 py-3 border-t text-amber-600">
                             <span>{priorityCount}× Priority Delivery à € 9,95</span>
                             <span className="font-medium">{formatCurrency(priorityRevenue)}</span>
+                          </div>
+                          <div className="flex justify-between px-4 py-3 border-t text-blue-600">
+                            <span>{digitalCount}× Digitale Speicherung à € 7,95</span>
+                            <span className="font-medium">{formatCurrency(digitalRevenue)}</span>
                           </div>
                           <div className="flex justify-between px-4 py-3 border-t bg-muted/50 font-semibold">
                             <span>Totaal</span>
