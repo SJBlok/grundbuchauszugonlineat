@@ -375,7 +375,14 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
           <InfoRow label="Name" value={`${order.vorname} ${order.nachname}`} />
           <InfoRow label="E-Mail" value={order.email} copyable />
           {order.firma && <InfoRow label="Firma" value={order.firma} />}
-          <InfoRow label="Adresse" value={order.adresse} />
+          <InfoRow
+            label="Straße"
+            value={order.adresse ? order.adresse.replace(/\s+\S*$/, "").trim() || order.adresse : ""}
+          />
+          <InfoRow
+            label="Hausnr."
+            value={order.adresse ? (order.adresse.match(/\s(\S+)$/) || [])[1] || "" : ""}
+          />
           <InfoRow label="PLZ" value={order.plz} />
           <InfoRow label="Ort" value={order.ort} />
           <InfoRow label="Bundesland" value={order.bundesland} />
