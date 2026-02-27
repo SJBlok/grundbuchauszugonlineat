@@ -482,10 +482,10 @@ export function CombinedOrderStep({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-sm font-semibold text-foreground">Express-Zustellung</span>
+              <span className="text-sm font-semibold text-foreground">Sofortige PDF-Zustellung per E-Mail</span>
               <span className="text-sm font-bold text-foreground whitespace-nowrap">+ € 9,95</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Lieferung innerhalb von 1 Stunde per E-Mail</p>
+            <p className="text-xs text-muted-foreground mt-1">Direkter Versand Ihres Dokuments als PDF an Ihre E-Mail-Adresse.</p>
           </div>
         </div>
 
