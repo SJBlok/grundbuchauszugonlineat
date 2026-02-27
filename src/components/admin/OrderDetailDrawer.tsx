@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -213,8 +213,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const sep = <Separator className={d ? "bg-slate-800/60" : "bg-border/40"} />;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className={`w-[520px] max-w-full p-0 overflow-y-auto border-l ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-white border-border text-foreground"}`}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={`max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-xl ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-white border-border text-foreground"}`}>
 
         {/* ─── A. Header ─── */}
         <div className={`sticky top-0 z-10 px-6 py-4 border-b ${d ? "bg-slate-950/95 border-slate-800 backdrop-blur" : "bg-white/95 border-border/50 backdrop-blur"}`}>
@@ -545,7 +545,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
             <p className="font-mono">{order.id}</p>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }
