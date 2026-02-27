@@ -464,15 +464,18 @@ export function CombinedOrderStep({
           <span className="text-sm text-muted-foreground">Standard: Zustellung innerhalb von 24 Stunden per E-Mail</span>
         </div>
 
-        {/* Express */}
+        {/* Express – highlighted */}
         <div
           onClick={() => setFastDelivery(!fastDelivery)}
-          className={`flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none ${
-            fastDelivery ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
+          className={`relative flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none ${
+            fastDelivery ? "border-primary bg-primary/5" : "border-primary/40 bg-primary/[0.03] hover:border-primary/60"
           }`}
         >
+          <span className="absolute -top-2.5 right-3 text-[10px] font-bold uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+            Empfohlen
+          </span>
           <div className={`w-5 h-5 rounded shrink-0 mt-0.5 border-2 flex items-center justify-center transition-all ${
-            fastDelivery ? "border-primary bg-primary" : "border-muted-foreground/30 bg-background"
+            fastDelivery ? "border-primary bg-primary" : "border-primary/40 bg-background"
           }`}>
             {fastDelivery && (
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
