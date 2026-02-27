@@ -369,15 +369,17 @@ serve(async (req: Request): Promise<Response> => {
     let moneybirdInvoicePdf: string | null = null;
     let moneybirdInvoiceId: string | null = null;
     if (moneybirdApiKey) {
-      if (!providedPdfBase64) {
-        // First call (no PDF = confirmation email): create invoice + send via Moneybird
+      // Always ensure a Moneybird invoice exists (fixes fast-delivery flow where no separate confirmation call is made)
+      const existingInvoiceId = order.moneybird_invoice_id;
+      
+      if (!existingInvoiceId) {
+        // No invoice yet: create one regardless of whether PDF is provided
         try {
-          console.log("Creating Moneybird invoice (confirmation)...");
+          console.log("Creating Moneybird invoice...");
           const contact = await findOrCreateMoneybirdContact(moneybirdApiKey, order);
           const invoice = await createMoneybirdInvoice(moneybirdApiKey, contact.id, order);
           await sendMoneybirdInvoice(moneybirdApiKey, invoice.id, order.email);
           moneybirdInvoiceId = invoice.id;
-          // Save invoice ID to order for later retrieval
           await supabase
             .from("orders")
             .update({ moneybird_invoice_id: invoice.id })
@@ -386,39 +388,34 @@ serve(async (req: Request): Promise<Response> => {
         } catch (moneybirdError: any) {
           console.error("Moneybird error (non-blocking):", moneybirdError.message);
         }
-      } else {
-        // Second call (with PDF = document delivery): attach existing invoice PDF as reminder
+      } else if (providedPdfBase64) {
+        // Invoice exists + PDF provided (second call): fetch invoice PDF to attach to delivery email
         try {
-          const existingInvoiceId = order.moneybird_invoice_id;
-          if (existingInvoiceId) {
-            console.log(`Fetching Moneybird invoice PDF ${existingInvoiceId} as reminder...`);
-            const baseUrl = `https://moneybird.com/api/v2/${MONEYBIRD_ORG_ID}`;
-            const pdfRes = await fetch(
-              `${baseUrl}/sales_invoices/${existingInvoiceId}/download_pdf.json`,
-              {
-                headers: { "Authorization": `Bearer ${moneybirdApiKey}` },
-              }
-            );
-            if (pdfRes.ok) {
-              const pdfData = await pdfRes.json();
-              if (pdfData.download_url) {
-                const downloadRes = await fetch(pdfData.download_url);
-                if (downloadRes.ok) {
-                  const arrayBuffer = await downloadRes.arrayBuffer();
-                  const bytes = new Uint8Array(arrayBuffer);
-                  let binary = "";
-                  for (let i = 0; i < bytes.length; i++) {
-                    binary += String.fromCharCode(bytes[i]);
-                  }
-                  moneybirdInvoicePdf = btoa(binary);
-                  console.log(`Moneybird invoice PDF fetched successfully`);
+          console.log(`Fetching Moneybird invoice PDF ${existingInvoiceId} as reminder...`);
+          const baseUrl = `https://moneybird.com/api/v2/${MONEYBIRD_ORG_ID}`;
+          const pdfRes = await fetch(
+            `${baseUrl}/sales_invoices/${existingInvoiceId}/download_pdf.json`,
+            {
+              headers: { "Authorization": `Bearer ${moneybirdApiKey}` },
+            }
+          );
+          if (pdfRes.ok) {
+            const pdfData = await pdfRes.json();
+            if (pdfData.download_url) {
+              const downloadRes = await fetch(pdfData.download_url);
+              if (downloadRes.ok) {
+                const arrayBuffer = await downloadRes.arrayBuffer();
+                const bytes = new Uint8Array(arrayBuffer);
+                let binary = "";
+                for (let i = 0; i < bytes.length; i++) {
+                  binary += String.fromCharCode(bytes[i]);
                 }
+                moneybirdInvoicePdf = btoa(binary);
+                console.log(`Moneybird invoice PDF fetched successfully`);
               }
-            } else {
-              console.warn(`Could not fetch Moneybird invoice PDF: ${pdfRes.status}`);
             }
           } else {
-            console.log("No existing Moneybird invoice ID found on order, skipping PDF attachment");
+            console.warn(`Could not fetch Moneybird invoice PDF: ${pdfRes.status}`);
           }
         } catch (mbPdfErr: any) {
           console.warn("Moneybird PDF fetch error (non-blocking):", mbPdfErr.message);
