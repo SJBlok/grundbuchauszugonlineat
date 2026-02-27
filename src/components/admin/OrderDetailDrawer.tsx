@@ -3,8 +3,6 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -53,8 +51,6 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const [saving, setSaving] = useState(false);
   const [notes, setNotes] = useState("");
   const [documents, setDocuments] = useState<any[]>([]);
-
-  // UVST state
   const [uvstLoading, setUvstLoading] = useState(false);
   const [uvstResult, setUvstResult] = useState<any>(null);
   const [uvstError, setUvstError] = useState<string | null>(null);
@@ -109,7 +105,6 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !order) return;
-
     setUploading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -117,7 +112,6 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       formData.append("file", file);
       formData.append("order_id", order.id);
       formData.append("order_number", order.order_number);
-
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-order-document`,
         {
@@ -129,10 +123,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
           body: formData,
         }
       );
-
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-
       setDocuments([...documents, data.document]);
       toast({ title: "Dokument hochgeladen", description: file.name });
       onRefresh();
@@ -144,47 +136,25 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     }
   };
 
-  // UVST Grundbuch Abfrage
   const handleUvstAbfrage = async () => {
     setUvstLoading(true);
     setUvstError(null);
     setUvstResult(null);
     try {
-      // Step 1: Authenticate
       const authRes = await supabase.functions.invoke("uvst-proxy", {
         body: { action: "authenticate", environment: "prod" },
       });
-      if (authRes.error || !authRes.data?.success) {
-        throw new Error(authRes.error?.message || "UVST Authentifizierung fehlgeschlagen");
-      }
+      if (authRes.error || !authRes.data?.success) throw new Error(authRes.error?.message || "UVST Authentifizierung fehlgeschlagen");
       const token = authRes.data.data.accessToken;
-
-      // Step 2: Grundbuch Abfrage
       const abfrageRes = await supabase.functions.invoke("uvst-proxy", {
         body: {
-          action: "grundbuchAbfrage",
-          environment: "prod",
-          data: {
-            token,
-            kgNummer: order.katastralgemeinde,
-            einlagezahl: order.grundstuecksnummer,
-            format: "pdf",
-            historisch: false,
-            signiert: false,
-            linked: true,
-            produkt: "GT_GBA",
-          },
+          action: "grundbuchAbfrage", environment: "prod",
+          data: { token, kgNummer: order.katastralgemeinde, einlagezahl: order.grundstuecksnummer, format: "pdf", historisch: false, signiert: false, linked: true, produkt: "GT_GBA" },
         },
       });
-
-      if (abfrageRes.error || !abfrageRes.data?.success) {
-        throw new Error(abfrageRes.error?.message || "Grundbuch Abfrage fehlgeschlagen");
-      }
-
+      if (abfrageRes.error || !abfrageRes.data?.success) throw new Error(abfrageRes.error?.message || "Grundbuch Abfrage fehlgeschlagen");
       setUvstResult(abfrageRes.data.data);
       toast({ title: "Grundbuchauszug erfolgreich abgerufen" });
-
-      // Auto-update status to processed
       await onUpdateOrder(order.id, { status: "processed" });
     } catch (err: any) {
       setUvstError(err.message);
@@ -197,165 +167,173 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const sc = STATUS_COLORS[order.status] || STATUS_COLORS.open;
 
   const InfoItem = ({ label, value, copyable, mono }: { label: string; value: string | null | undefined; copyable?: boolean; mono?: boolean }) => (
-    <div className="space-y-0.5">
-      <div className={`text-[11px] uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>{label}</div>
+    <div>
+      <div className={`text-[11px] uppercase tracking-wider font-medium mb-1 ${d ? "text-slate-500" : "text-muted-foreground/60"}`}>{label}</div>
       <div className="flex items-center gap-1.5">
-        <span className={`text-sm ${mono ? "font-mono" : ""} ${d ? "text-slate-200" : "text-gray-800"}`}>{value || "—"}</span>
+        <span className={`text-[15px] leading-snug ${mono ? "font-mono" : ""} ${d ? "text-slate-200" : "text-foreground"}`}>{value || "—"}</span>
         {copyable && value && (
-          <button onClick={() => copyText(value, label)} className={`${d ? "text-slate-600 hover:text-slate-400" : "text-gray-300 hover:text-gray-500"}`}>
-            {copied === label ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+          <button onClick={() => copyText(value, label)} className={`opacity-40 hover:opacity-80 transition-opacity`}>
+            {copied === label ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
           </button>
         )}
       </div>
     </div>
   );
 
+  // Shared section card styling
+  const sectionCard = `rounded-xl border ${d ? "bg-slate-900/40 border-slate-800/80" : "bg-white border-border/50"} shadow-sm`;
+  const sectionTitle = `text-base font-semibold flex items-center gap-2.5 ${d ? "text-slate-200" : "text-foreground"}`;
+  const sectionIcon = `w-[18px] h-[18px] ${d ? "text-slate-400" : "text-muted-foreground/70"}`;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-w-5xl max-h-[90vh] overflow-y-auto p-0 gap-0 ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-900"}`}>
-        {/* Header */}
-        <div className={`sticky top-0 z-10 px-6 py-4 border-b ${d ? "bg-slate-950 border-slate-800" : "bg-white border-gray-200"}`}>
+      <DialogContent className={`max-w-5xl max-h-[92vh] overflow-y-auto p-0 gap-0 rounded-xl ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-muted/30 border-border text-foreground"}`}>
+
+        {/* ─── Header ─── */}
+        <div className={`sticky top-0 z-10 px-8 py-5 border-b ${d ? "bg-slate-950/95 border-slate-800 backdrop-blur" : "bg-white/95 border-border/50 backdrop-blur"}`}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}
-                className={`h-8 w-8 p-0 ${d ? "text-slate-400 hover:bg-slate-800" : "text-gray-500 hover:bg-gray-100"}`}>
+            <div className="flex items-center gap-4">
+              <button onClick={() => onOpenChange(false)}
+                className={`h-9 w-9 rounded-full flex items-center justify-center border transition-colors ${d ? "border-slate-700 hover:bg-slate-800 text-slate-400" : "border-border hover:bg-accent text-muted-foreground"}`}>
                 <ArrowLeft className="w-4 h-4" />
-              </Button>
+              </button>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className={`font-mono text-lg font-semibold ${d ? "text-slate-100" : "text-gray-900"}`}>{order.order_number}</span>
-                  <Badge variant="outline" className={d ? sc.dark : sc.light}>
+                <div className="flex items-center gap-2.5">
+                  <span className={`font-mono text-xl font-bold tracking-tight ${d ? "text-slate-50" : "text-foreground"}`}>{order.order_number}</span>
+                  <Badge variant="outline" className={`text-xs font-medium ${d ? sc.dark : sc.light}`}>
                     {STATUS_OPTIONS.find(s => s.value === order.status)?.label || order.status}
                   </Badge>
                 </div>
-                <span className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{fmtDate(order.created_at)}</span>
+                <span className={`text-[13px] ${d ? "text-slate-500" : "text-muted-foreground"}`}>{fmtDate(order.created_at)}</span>
               </div>
             </div>
-            <span className={`text-2xl font-semibold ${d ? "text-slate-100" : "text-gray-900"}`}>{fmtCur(order.product_price)}</span>
+            <span className={`text-2xl font-bold tracking-tight ${d ? "text-slate-50" : "text-foreground"}`}>{fmtCur(order.product_price)}</span>
           </div>
         </div>
 
-        <div className="p-6 space-y-5">
-          {/* Row 1: Status + Payment controls */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-              <CardContent className="pt-4 pb-4 space-y-2">
-                <p className={`text-xs font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Status ändern</p>
-                <Select value={order.status} onValueChange={handleStatusChange} disabled={saving}>
-                  <SelectTrigger className={`h-9 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200"}`}><SelectValue /></SelectTrigger>
-                  <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
-                    {STATUS_OPTIONS.map(o => (
-                      <SelectItem key={o.value} value={o.value}>
-                        <div>
-                          <p className="text-sm font-medium">{o.label}</p>
-                          <p className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{o.description}</p>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-              <CardContent className="pt-4 pb-4 space-y-2">
-                <p className={`text-xs font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Zahlungsstatus</p>
-                <Select value={order.payment_status} onValueChange={handlePaymentChange} disabled={saving}>
-                  <SelectTrigger className={`h-9 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200"}`}><SelectValue /></SelectTrigger>
-                  <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
-                    {PAYMENT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-              <CardContent className="pt-4 pb-4 space-y-2">
-                <p className={`text-xs font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Extras</p>
-                <div className="space-y-1">
-                  {order.fast_delivery && <p className="text-sm flex items-center gap-1.5"><Zap className="w-3.5 h-3.5 text-amber-400" />Express-Lieferung</p>}
-                  {order.digital_storage_subscription && <p className="text-sm flex items-center gap-1.5"><HardDrive className="w-3.5 h-3.5 text-blue-400" />Digitale Speicherung</p>}
-                  {!order.fast_delivery && !order.digital_storage_subscription && <span className={`text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Keine Extras</span>}
-                </div>
-              </CardContent>
-            </Card>
+        <div className="p-8 space-y-6">
+
+          {/* ─── Row 1: Status / Payment / Extras ─── */}
+          <div className={`grid grid-cols-3 gap-px rounded-xl overflow-hidden border ${d ? "bg-slate-800/50 border-slate-800/80" : "bg-border/30 border-border/50"}`}>
+            {[
+              {
+                label: "Status ändern",
+                content: (
+                  <Select value={order.status} onValueChange={handleStatusChange} disabled={saving}>
+                    <SelectTrigger className={`h-10 mt-1.5 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-muted/50 border-border"}`}><SelectValue /></SelectTrigger>
+                    <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
+                      {STATUS_OPTIONS.map(o => (
+                        <SelectItem key={o.value} value={o.value}>
+                          <div>
+                            <p className="text-sm font-medium">{o.label}</p>
+                            <p className={`text-xs ${d ? "text-slate-500" : "text-muted-foreground"}`}>{o.description}</p>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ),
+              },
+              {
+                label: "Zahlungsstatus",
+                content: (
+                  <Select value={order.payment_status} onValueChange={handlePaymentChange} disabled={saving}>
+                    <SelectTrigger className={`h-10 mt-1.5 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-muted/50 border-border"}`}><SelectValue /></SelectTrigger>
+                    <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
+                      {PAYMENT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ),
+              },
+              {
+                label: "Extras",
+                content: (
+                  <div className="mt-2 space-y-1.5">
+                    {order.fast_delivery && <p className="text-sm flex items-center gap-2"><Zap className="w-3.5 h-3.5 text-amber-500" />Express-Lieferung</p>}
+                    {order.digital_storage_subscription && <p className="text-sm flex items-center gap-2"><HardDrive className="w-3.5 h-3.5 text-blue-500" />Digitale Speicherung</p>}
+                    {!order.fast_delivery && !order.digital_storage_subscription && <span className={`text-sm ${d ? "text-slate-500" : "text-muted-foreground"}`}>Keine Extras</span>}
+                  </div>
+                ),
+              },
+            ].map((cell, i) => (
+              <div key={i} className={`px-6 py-5 ${d ? "bg-slate-900/60" : "bg-white"}`}>
+                <p className={`text-xs font-medium tracking-wide ${d ? "text-slate-400" : "text-muted-foreground"}`}>{cell.label}</p>
+                {cell.content}
+              </div>
+            ))}
           </div>
 
-          {/* Row 2: Customer + Property info side by side */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-              <CardHeader className="pb-3">
-                <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
-                  <User className="w-4 h-4" /> Kundendaten
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+          {/* ─── Row 2: Kundendaten + Grundstückdaten ─── */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className={sectionCard}>
+              <div className="px-7 pt-6 pb-2">
+                <h3 className={sectionTitle}><User className={sectionIcon} /> Kundendaten</h3>
+              </div>
+              <div className="px-7 pb-7 space-y-4 pt-4">
                 <InfoItem label="Name" value={`${order.vorname} ${order.nachname}`} />
                 <InfoItem label="E-Mail" value={order.email} copyable />
                 {order.firma && <InfoItem label="Firma" value={order.firma} />}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-              <CardHeader className="pb-3">
-                <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
-                  <MapPin className="w-4 h-4" /> Grundstückdaten
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            <div className={sectionCard}>
+              <div className="px-7 pt-6 pb-2">
+                <h3 className={sectionTitle}><MapPin className={sectionIcon} /> Grundstückdaten</h3>
+              </div>
+              <div className="px-7 pb-7 space-y-4 pt-4">
                 <InfoItem label="Produkt" value={order.product_name} />
                 <InfoItem label="Bundesland" value={order.bundesland} />
                 <InfoItem label="Grundbuchsgericht" value={order.grundbuchsgericht} />
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-6">
                   <InfoItem label="KG-Nummer" value={order.katastralgemeinde} copyable mono />
                   <InfoItem label="Einlagezahl (EZ)" value={order.grundstuecksnummer} copyable mono />
                 </div>
                 {order.wohnungs_hinweis && <InfoItem label="Wohnungshinweis" value={order.wohnungs_hinweis} />}
                 <InfoItem label="Adresse" value={[order.adresse, [order.plz, order.ort].filter(Boolean).join(" "), order.wohnsitzland].filter(Boolean).join(", ")} />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
-          {/* Row 3: UVST Grundbuch Verarbeitung */}
-          <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-            <CardHeader className="pb-3">
-              <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
-                <Play className="w-4 h-4" /> Grundbuch Verarbeitung (UVST)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>
-                Grundbuchauszug über die UVST Schnittstelle abrufen. Verwendet KG-Nr. <span className="font-mono">{order.katastralgemeinde}</span> und EZ <span className="font-mono">{order.grundstuecksnummer}</span>.
+          {/* ─── Row 3: UVST Grundbuch Verarbeitung ─── */}
+          <div className={sectionCard}>
+            <div className="px-7 pt-6 pb-2">
+              <h3 className={sectionTitle}><Play className={sectionIcon} /> Grundbuch Verarbeitung (UVST)</h3>
+            </div>
+            <div className="px-7 pb-7 pt-3 space-y-4">
+              <p className={`text-sm leading-relaxed ${d ? "text-slate-400" : "text-muted-foreground"}`}>
+                Grundbuchauszug über die UVST Schnittstelle abrufen. Verwendet KG-Nr. <span className="font-mono font-medium">{order.katastralgemeinde}</span> und EZ <span className="font-mono font-medium">{order.grundstuecksnummer}</span>.
               </p>
 
-              <div className="flex items-center gap-3">
-                <Button onClick={handleUvstAbfrage} disabled={uvstLoading} size="sm" className="gap-1.5">
-                  {uvstLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+              <div className="flex items-center gap-4">
+                <Button onClick={handleUvstAbfrage} disabled={uvstLoading} size="default" className="gap-2">
+                  {uvstLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
                   Grundbuchauszug abrufen
                 </Button>
                 {order.status === "processed" && (
-                  <span className="flex items-center gap-1 text-xs text-emerald-400">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Bereits verarbeitet
+                  <span className="flex items-center gap-1.5 text-sm text-emerald-500">
+                    <CheckCircle2 className="w-4 h-4" /> Bereits verarbeitet
                   </span>
                 )}
               </div>
 
               {uvstError && (
-                <div className={`flex items-start gap-2 p-3 rounded-lg ${d ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200"}`}>
-                  <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                <div className={`flex items-start gap-3 p-4 rounded-lg ${d ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200"}`}>
+                  <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-red-400">UVST Fehler</p>
-                    <p className={`text-xs ${d ? "text-red-400/70" : "text-red-600"}`}>{uvstError}</p>
+                    <p className="text-sm font-medium text-red-500">UVST Fehler</p>
+                    <p className={`text-sm mt-0.5 ${d ? "text-red-400/70" : "text-red-600"}`}>{uvstError}</p>
                   </div>
                 </div>
               )}
 
               {uvstResult && (
-                <div className={`flex items-center justify-between p-3 rounded-lg ${d ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-200"}`}>
-                  <div className="flex items-center gap-2 text-emerald-400">
+                <div className={`flex items-center justify-between p-4 rounded-lg ${d ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-200"}`}>
+                  <div className="flex items-center gap-2.5 text-emerald-500">
                     <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-sm">Grundbuchauszug erfolgreich abgerufen</span>
+                    <span className="text-sm font-medium">Grundbuchauszug erfolgreich abgerufen</span>
                   </div>
                   {uvstResult.pdfBase64 && (
-                    <Button size="sm" variant="outline" className="gap-1" onClick={() => {
+                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => {
                       const link = document.createElement("a");
                       link.href = `data:application/pdf;base64,${uvstResult.pdfBase64}`;
                       link.download = `Grundbuchauszug_${order.order_number}.pdf`;
@@ -367,105 +345,105 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {/* Row 4: Notes + Documents side by side */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-              <CardHeader className="pb-3">
-                <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
-                  <Save className="w-4 h-4" /> Verarbeitungsnotizen
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+          {/* ─── Row 4: Notizen + Dokumente ─── */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className={sectionCard}>
+              <div className="px-7 pt-6 pb-2">
+                <h3 className={sectionTitle}><Save className={sectionIcon} /> Verarbeitungsnotizen</h3>
+              </div>
+              <div className="px-7 pb-7 pt-3 space-y-3">
                 <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notizen zur Bearbeitung..." rows={5}
-                  className={d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200"} />
-                <Button onClick={handleSaveNotes} disabled={saving || notes === (order.processing_notes || "")} size="sm" className="gap-1">
+                  className={`resize-none ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-muted/30 border-border"}`} />
+                <Button onClick={handleSaveNotes} disabled={saving || notes === (order.processing_notes || "")} size="sm" className="gap-1.5">
                   <Save className="w-3.5 h-3.5" />Speichern
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
-                    <Upload className="w-4 h-4" /> Dokumente
-                  </CardTitle>
-                  <span className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{documents.length} Datei{documents.length !== 1 ? "en" : ""}</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className={`flex items-center justify-between p-3 rounded-lg ${d ? "bg-slate-800/50" : "bg-gray-50"}`}>
+            <div className={sectionCard}>
+              <div className="px-7 pt-6 pb-2 flex items-center justify-between">
+                <h3 className={sectionTitle}><Upload className={sectionIcon} /> Dokumente</h3>
+                <span className={`text-xs font-medium ${d ? "text-slate-500" : "text-muted-foreground"}`}>{documents.length} Datei{documents.length !== 1 ? "en" : ""}</span>
+              </div>
+              <div className="px-7 pb-7 pt-3 space-y-3">
+                {/* Visibility toggle */}
+                <div className={`flex items-center justify-between p-4 rounded-lg ${d ? "bg-slate-800/60" : "bg-muted/40"}`}>
                   <div>
-                    <p className={`text-sm font-medium ${d ? "text-slate-200" : "text-gray-700"}`}>Sichtbar für Kunden</p>
-                    <p className={`text-[11px] ${d ? "text-slate-500" : "text-gray-400"}`}>
-                      {order.digital_storage_subscription
-                        ? "Kunde hat Digitale Speicherung gebucht"
-                        : "Keine Digitale Speicherung gebucht"}
+                    <p className={`text-sm font-medium ${d ? "text-slate-200" : "text-foreground"}`}>Sichtbar für Kunden</p>
+                    <p className={`text-[12px] mt-0.5 ${d ? "text-slate-500" : "text-muted-foreground"}`}>
+                      {order.digital_storage_subscription ? "Kunde hat Digitale Speicherung gebucht" : "Keine Digitale Speicherung gebucht"}
                     </p>
                   </div>
                   <Button
                     size="sm"
                     variant={order.document_visible ? "default" : "outline"}
-                    onClick={async () => {
-                      await onUpdateOrder(order.id, { document_visible: !order.document_visible });
-                    }}
+                    onClick={async () => { await onUpdateOrder(order.id, { document_visible: !order.document_visible }); }}
                     disabled={!order.digital_storage_subscription}
-                    className="gap-1"
+                    className="gap-1.5"
                   >
-                    {order.document_visible ? (
-                      <><CheckCircle2 className="w-3.5 h-3.5" /> Sichtbar</>
-                    ) : (
-                      <><Lock className="w-3.5 h-3.5" /> Verborgen</>
-                    )}
+                    {order.document_visible ? <><CheckCircle2 className="w-3.5 h-3.5" /> Sichtbar</> : <><Lock className="w-3.5 h-3.5" /> Verborgen</>}
                   </Button>
                 </div>
-                <Separator className={d ? "bg-slate-800" : "bg-gray-100"} />
+
                 {/* Upload zone */}
-                <label className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${
+                <label className={`flex flex-col items-center justify-center py-5 px-4 rounded-lg border-2 border-dashed cursor-pointer transition-all ${
                   uploading
-                    ? (d ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-200 bg-emerald-50")
-                    : (d ? "border-slate-700 hover:border-slate-600 bg-slate-800/30" : "border-gray-200 hover:border-gray-300 bg-gray-50/50")
+                    ? (d ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-300 bg-emerald-50")
+                    : (d ? "border-slate-700 hover:border-slate-600 bg-slate-800/20" : "border-border hover:border-primary/30 bg-muted/20 hover:bg-muted/40")
                 }`}>
                   <input type="file" className="hidden" onChange={handleUploadDocument} accept=".pdf,.xml,.html,.doc,.docx,.jpg,.png" disabled={uploading} />
                   {uploading ? (
                     <>
-                      <Loader2 className="w-6 h-6 animate-spin text-emerald-400 mb-1" />
-                      <span className={`text-xs ${d ? "text-emerald-400" : "text-emerald-600"}`}>Wird hochgeladen...</span>
+                      <Loader2 className="w-6 h-6 animate-spin text-emerald-500 mb-1.5" />
+                      <span className="text-xs font-medium text-emerald-500">Wird hochgeladen...</span>
                     </>
                   ) : (
                     <>
-                      <Upload className={`w-6 h-6 mb-1 ${d ? "text-slate-500" : "text-gray-400"}`} />
-                      <span className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>PDF oder Datei hochladen</span>
-                      <span className={`text-[10px] mt-0.5 ${d ? "text-slate-600" : "text-gray-300"}`}>Klicken oder Datei hierher ziehen</span>
+                      <Upload className={`w-6 h-6 mb-1.5 ${d ? "text-slate-500" : "text-muted-foreground/50"}`} />
+                      <span className={`text-xs font-medium ${d ? "text-slate-400" : "text-muted-foreground"}`}>PDF oder Datei hochladen</span>
+                      <span className={`text-[11px] mt-0.5 ${d ? "text-slate-600" : "text-muted-foreground/50"}`}>Klicken oder Datei hierher ziehen</span>
                     </>
                   )}
                 </label>
+
                 {/* Document list */}
                 {documents.length === 0 ? (
-                  <div className={`text-center py-4 text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Noch keine Dokumente</div>
-                ) : documents.map((doc: any, i: number) => (
-                  <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${d ? "bg-slate-800/50" : "bg-gray-50"}`}>
-                    <FileText className={`w-4 h-4 shrink-0 ${d ? "text-slate-400" : "text-gray-400"}`} />
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-sm truncate ${d ? "text-slate-200" : "text-gray-800"}`}>{doc.name}</div>
-                    </div>
-                    {doc.url && <a href={doc.url} target="_blank" rel="noopener noreferrer" className={d ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}><ExternalLink className="w-3.5 h-3.5" /></a>}
-                    <button onClick={() => handleRemoveDocument(i)} className="text-red-400 hover:text-red-300"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <div className={`text-center py-6 text-sm ${d ? "text-slate-600" : "text-muted-foreground/50"}`}>Noch keine Dokumente</div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {documents.map((doc: any, i: number) => (
+                      <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${d ? "bg-slate-800/40 hover:bg-slate-800/60" : "bg-muted/30 hover:bg-muted/50"}`}>
+                        <FileText className={`w-4 h-4 shrink-0 ${d ? "text-slate-400" : "text-muted-foreground"}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-sm truncate font-medium ${d ? "text-slate-200" : "text-foreground"}`}>{doc.name}</div>
+                        </div>
+                        {doc.url && (
+                          <a href={doc.url} target="_blank" rel="noopener noreferrer"
+                            className={`p-1.5 rounded-md transition-colors ${d ? "text-slate-500 hover:text-slate-300 hover:bg-slate-700" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        <button onClick={() => handleRemoveDocument(i)}
+                          className="p-1.5 rounded-md text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Row 5: Metadata */}
-          <div className={`flex items-center gap-6 text-xs px-1 ${d ? "text-slate-500" : "text-gray-400"}`}>
+          {/* ─── Footer metadata ─── */}
+          <div className={`flex items-center gap-6 text-xs pt-2 ${d ? "text-slate-600" : "text-muted-foreground/50"}`}>
             <span>Erstellt: {fmtDate(order.created_at)}</span>
             <span>Aktualisiert: {fmtDate(order.updated_at)}</span>
             {order.moneybird_invoice_id && <span>Moneybird: {order.moneybird_invoice_id}</span>}
-            <span className="font-mono">{order.id}</span>
+            <span className="font-mono text-[11px]">{order.id}</span>
           </div>
         </div>
       </DialogContent>
