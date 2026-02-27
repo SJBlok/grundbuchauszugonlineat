@@ -89,7 +89,7 @@ const GBIcon = () => (
         <div key={i} className="h-0.5 bg-border rounded-full mb-0.5" style={{ width: i === 3 ? '60%' : '100%' }} />
       ))}
     </div>
-    <span className="text-xl font-bold text-foreground mt-2 font-serif">GB</span>
+    <span className="text-xl font-bold text-foreground mt-2">GB</span>
   </div>
 );
 
@@ -242,7 +242,7 @@ export function CombinedOrderStep({
       <div className="bg-card rounded-xl border border-border p-6 lg:p-7">
         <div className="flex gap-5 items-start">
           <div className="flex-1">
-            <h1 className="text-xl lg:text-[22px] font-bold text-foreground tracking-tight font-serif leading-tight">
+            <h1 className="text-xl lg:text-[22px] font-bold text-foreground tracking-tight leading-tight">
               Grundbuchauszug anfordern
             </h1>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
