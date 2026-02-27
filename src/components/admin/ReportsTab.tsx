@@ -10,7 +10,8 @@ import {
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
-import { useAdminTheme, useAdminApi } from "@/pages/Admin";
+import { supabase } from "@/integrations/supabase/client";
+import { useAdminTheme } from "@/pages/Admin";
 
 interface Order {
   id: string;
@@ -30,7 +31,6 @@ interface DailyReport {
 
 export function ReportsTab() {
   const { isDark: d } = useAdminTheme();
-  const { apiKey, supabaseUrl: SUPABASE_URL, supabaseKey: SUPABASE_KEY } = useAdminApi();
   const [orders, setOrders] = useState<Order[]>([]);
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,23 +42,19 @@ export function ReportsTab() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch orders via edge function
-      const ordersRes = await fetch(
-        `${SUPABASE_URL}/functions/v1/get-orders?limit=500`,
-        { headers: { "apikey": SUPABASE_KEY, "x-api-key": apiKey } }
-      );
-      const ordersData = await ordersRes.json();
-      if (ordersData.orders) setOrders(ordersData.orders);
+      const { data: ordersData } = await supabase
+        .from("orders")
+        .select("id, product_name, product_price, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (ordersData) setOrders(ordersData);
 
-      // Fetch reports - these have public read via different policy
-      const reportsRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/daily_order_reports?select=id,report_date,orders_count,total_revenue,email_sent&order=report_date.desc&limit=30`,
-        { headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` } }
-      );
-      if (reportsRes.ok) {
-        const reportsData = await reportsRes.json();
-        setReports(reportsData || []);
-      }
+      const { data: reportsData } = await supabase
+        .from("daily_order_reports")
+        .select("id, report_date, orders_count, total_revenue, email_sent")
+        .order("report_date", { ascending: false })
+        .limit(30);
+      if (reportsData) setReports(reportsData);
     } catch (err) {
       console.error("Error:", err);
     } finally {
