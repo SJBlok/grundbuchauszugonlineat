@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   User, Mail, MapPin, FileText, Euro, Clock, Building, Zap, HardDrive,
   Copy, Check, Save, Upload, Trash2, ExternalLink, ArrowLeft, Play,
-  Loader2, CheckCircle2, AlertCircle, Download,
+  Loader2, CheckCircle2, AlertCircle, Download, Lock,
 } from "lucide-react";
 import { useAdminTheme } from "@/pages/Admin";
 import { useToast } from "@/hooks/use-toast";
@@ -358,6 +358,32 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
+                <div className={`flex items-center justify-between p-3 rounded-lg ${d ? "bg-slate-800/50" : "bg-gray-50"}`}>
+                  <div>
+                    <p className={`text-sm font-medium ${d ? "text-slate-200" : "text-gray-700"}`}>Sichtbar für Kunden</p>
+                    <p className={`text-[11px] ${d ? "text-slate-500" : "text-gray-400"}`}>
+                      {order.digital_storage_subscription
+                        ? "Kunde hat Digitale Speicherung gebucht"
+                        : "Keine Digitale Speicherung gebucht"}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={order.document_visible ? "default" : "outline"}
+                    onClick={async () => {
+                      await onUpdateOrder(order.id, { document_visible: !order.document_visible });
+                    }}
+                    disabled={!order.digital_storage_subscription}
+                    className="gap-1"
+                  >
+                    {order.document_visible ? (
+                      <><CheckCircle2 className="w-3.5 h-3.5" /> Sichtbar</>
+                    ) : (
+                      <><Lock className="w-3.5 h-3.5" /> Verborgen</>
+                    )}
+                  </Button>
+                </div>
+                <Separator className={d ? "bg-slate-800" : "bg-gray-100"} />
                 {documents.length === 0 ? (
                   <div className={`text-center py-6 text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Noch keine Dokumente</div>
                 ) : documents.map((doc: any, i: number) => (

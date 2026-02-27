@@ -24,6 +24,7 @@ import GrundbuchPreview from "./pages/GrundbuchPreview";
 import DailyReports from "./pages/DailyReports";
 import ApiDocs from "./pages/ApiDocs";
 import Admin from "./pages/Admin";
+import MeineDokumente from "./pages/MeineDokumente";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/daily-reports" element={<DailyReports />} />
           <Route path="/api-docs" element={<ApiDocs />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/meine-dokumente" element={<MeineDokumente />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

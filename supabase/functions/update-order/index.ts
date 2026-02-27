@@ -59,6 +59,7 @@ Deno.serve(async (req) => {
       "moneybird_invoice_id",
       "moneybird_invoice_status",
       "documents",
+      "document_visible",
     ];
 
     const updates: Record<string, unknown> = {};
