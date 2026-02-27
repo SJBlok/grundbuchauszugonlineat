@@ -458,6 +458,23 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-xs"
+                  onClick={() => {
+                    setGbStep("idle");
+                    setSelectedKgEz(null);
+                    setOverrideType(null);
+                    setOverrideSignatur(null);
+                    setValidationFailed(false);
+                    setAddressResults([]);
+                    setGbError(null);
+                  }}
+                >
+                  Suche zurücksetzen
+                </Button>
               </div>
             );
           })()}
