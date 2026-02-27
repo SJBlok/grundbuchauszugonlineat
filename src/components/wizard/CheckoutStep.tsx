@@ -187,16 +187,6 @@ export function CheckoutStep({
         throw new Error("Order creation failed");
       }
 
-      // Trigger document delivery via edge function (this also marks session as completed)
-      const { error: deliveryError } = await supabase.functions.invoke(
-        "send-grundbuch-document",
-        { body: { orderId: orderResult.id, sessionId: sessionIdRef.current } }
-      );
-
-      if (deliveryError) {
-        console.error("Document delivery error:", deliveryError);
-      }
-
       // Clear session ID on successful order
       sessionStorage.removeItem("grundbuch_session_id");
 
