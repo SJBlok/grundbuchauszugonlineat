@@ -52,13 +52,22 @@ const products = [
     id: "aktuell",
     name: "Grundbuchauszug aktuell",
     description: "Aktueller, vollständiger Auszug mit A-Blatt, B-Blatt und C-Blatt.",
-    price: 28.90,
+    price: 28.80,
+    badge: "Meistgewählt",
   },
   {
     id: "historisch",
     name: "Grundbuchauszug historisch",
-    description: "Vollständiger Auszug inkl. aller gelöschten Eintragungen seit der Grundbuchs­anlegung.",
-    price: 32.90,
+    description: "Vollständiger Auszug inkl. aller gelöschten Eintragungen seit der Grundbuchsanlegung. Zeigt frühere Eigentümer, alte Hypotheken und historische Änderungen.",
+    price: 19.80,
+  },
+  {
+    id: "kombi",
+    name: "Grundbuch Kombi-Pack",
+    description: "Aktueller und historischer Auszug gemeinsam bestellen. Enthält beide Dokumente zum Vorteilspreis.",
+    price: 42.20,
+    originalPrice: 48.60,
+    savings: 6.40,
   },
 ];
 
@@ -192,7 +201,7 @@ export function CombinedOrderStep({
     setIsSubmitting(true);
 
     try {
-      const productName = selectedProduct === "historisch" ? "Grundbuchauszug historisch" : "Aktueller Grundbuchauszug";
+      const productName = selectedProduct === "kombi" ? "Grundbuch Kombi-Pack" : selectedProduct === "historisch" ? "Grundbuchauszug historisch" : "Aktueller Grundbuchauszug";
       const { data: orderResult, error } = await supabase.functions.invoke(
         "create-order",
         {
@@ -287,6 +296,7 @@ export function CombinedOrderStep({
         <div className="flex flex-col gap-2.5">
           {products.map((product) => {
             const isSelected = selectedProduct === product.id;
+            const isHighlighted = product.id === "aktuell";
             return (
               <label
                 key={product.id}
@@ -294,6 +304,8 @@ export function CombinedOrderStep({
                 className={`flex items-start gap-3.5 p-4 sm:p-4 rounded-lg border-[1.5px] cursor-pointer transition-all min-h-[56px] ${
                   isSelected
                     ? "border-primary bg-primary/5"
+                    : isHighlighted
+                    ? "border-primary/30 bg-primary/[0.02] hover:border-primary/50"
                     : "border-border hover:border-muted-foreground/30"
                 }`}
               >
@@ -305,13 +317,32 @@ export function CombinedOrderStep({
                 </div>
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-baseline gap-3 flex-wrap">
-                    <span className="text-[15px] font-semibold text-foreground">{product.name}</span>
-                    <span className="text-[15px] font-bold text-foreground whitespace-nowrap tabular-nums">
-                      € {product.price.toFixed(2).replace('.', ',')}
-                    </span>
+                  <div className="flex justify-between items-center gap-3 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[15px] font-semibold text-foreground">{product.name}</span>
+                      {product.badge && (
+                        <span className="text-[11px] font-semibold text-primary-foreground bg-primary px-2.5 py-0.5 rounded-full whitespace-nowrap leading-[18px]">
+                          {product.badge}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      {product.originalPrice && (
+                        <span className="text-[13px] text-muted-foreground line-through tabular-nums">
+                          € {product.originalPrice.toFixed(2).replace('.', ',')}
+                        </span>
+                      )}
+                      <span className="text-[15px] font-bold text-foreground whitespace-nowrap tabular-nums">
+                        € {product.price.toFixed(2).replace('.', ',')}
+                      </span>
+                    </div>
                   </div>
                   <p className="text-[13px] text-muted-foreground mt-1 leading-snug">{product.description}</p>
+                  {product.savings && (
+                    <p className="text-[12px] text-primary font-semibold mt-1">
+                      Sie sparen € {product.savings.toFixed(2).replace('.', ',')}
+                    </p>
+                  )}
                 </div>
               </label>
             );
