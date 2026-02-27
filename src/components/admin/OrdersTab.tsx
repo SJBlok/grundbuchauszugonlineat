@@ -14,7 +14,7 @@ import { OrderDetailDrawer } from "./OrderDetailDrawer";
 import {
   Search, RefreshCw, Package, ChevronLeft, ChevronRight, ExternalLink,
 } from "lucide-react";
-import { useAdminTheme, useAdminApi } from "@/pages/Admin";
+import { useAdminTheme } from "@/pages/Admin";
 
 interface Order {
   id: string;
@@ -70,7 +70,6 @@ const PAGE_SIZE = 25;
 
 export function OrdersTab() {
   const { isDark: d } = useAdminTheme();
-  const { apiKey, supabaseUrl: SUPABASE_URL, supabaseKey: SUPABASE_KEY } = useAdminApi();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -84,41 +83,24 @@ export function OrdersTab() {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.set("limit", String(PAGE_SIZE));
-      params.set("offset", String(page * PAGE_SIZE));
-      if (statusFilter !== "all") params.set("status", statusFilter);
-      if (paymentFilter !== "all") params.set("payment_status", paymentFilter);
+      let query = supabase
+        .from("orders")
+        .select("*", { count: "exact" })
+        .order("created_at", { ascending: false })
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-      const res = await fetch(
-        `${SUPABASE_URL}/functions/v1/get-orders?${params.toString()}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_KEY,
-            "x-api-key": apiKey,
-          },
-        }
-      );
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Failed to fetch orders");
-
-      let filteredOrders = data.orders || [];
-
-      // Client-side search (edge function doesn't support search)
+      if (statusFilter !== "all") query = query.eq("status", statusFilter);
+      if (paymentFilter !== "all") query = query.eq("payment_status", paymentFilter);
       if (search.trim()) {
-        const q = search.toLowerCase();
-        filteredOrders = filteredOrders.filter((o: Order) =>
-          o.order_number?.toLowerCase().includes(q) ||
-          o.email?.toLowerCase().includes(q) ||
-          o.nachname?.toLowerCase().includes(q) ||
-          o.vorname?.toLowerCase().includes(q)
-        );
+        const q = `%${search.trim()}%`;
+        query = query.or(`order_number.ilike.${q},email.ilike.${q},nachname.ilike.${q},vorname.ilike.${q}`);
       }
 
-      setOrders(filteredOrders);
-      setTotalCount(data.total || 0);
+      const { data, count, error } = await query;
+      if (error) throw error;
+
+      setOrders((data as Order[]) || []);
+      setTotalCount(count || 0);
     } catch (err) {
       console.error("Error fetching orders:", err);
     } finally {
@@ -149,25 +131,14 @@ export function OrdersTab() {
 
   const updateOrder = async (orderId: string, updates: Record<string, unknown>) => {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/functions/v1/update-order?id=${orderId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_KEY,
-            "x-api-key": apiKey,
-          },
-          body: JSON.stringify(updates),
-        }
-      );
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error);
-      }
-      // Refresh the selected order
-      const data = await res.json();
-      if (data.order) setSelectedOrder(data.order);
+      const { data, error } = await supabase
+        .from("orders")
+        .update(updates)
+        .eq("id", orderId)
+        .select()
+        .single();
+      if (error) throw error;
+      if (data) setSelectedOrder(data as Order);
       fetchOrders();
     } catch (err) {
       console.error("Error updating order:", err);
