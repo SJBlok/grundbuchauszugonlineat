@@ -1,16 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
-import {
-  Package, Euro, TrendingUp, Calendar, BarChart3, ArrowUpRight, ArrowDownRight,
-} from "lucide-react";
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-} from "recharts";
-import { supabase } from "@/integrations/supabase/client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Package, Euro, TrendingUp, Calendar, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useAdminTheme } from "@/pages/Admin";
 
 interface Order {
@@ -36,31 +30,18 @@ export function ReportsTab() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const { data: ordersData } = await supabase
-        .from("orders")
-        .select("id, product_name, product_price, status, created_at")
-        .order("created_at", { ascending: false })
-        .limit(500);
-      if (ordersData) setOrders(ordersData);
-
-      const { data: reportsData } = await supabase
-        .from("daily_order_reports")
-        .select("id, report_date, orders_count, total_revenue, email_sent")
-        .order("report_date", { ascending: false })
-        .limit(30);
-      if (reportsData) setReports(reportsData);
-    } catch (err) {
-      console.error("Error:", err);
-    } finally {
+    const load = async () => {
+      setLoading(true);
+      const [o, r] = await Promise.all([
+        supabase.from("orders").select("*").order("created_at", { ascending: false }),
+        supabase.from("daily_order_reports").select("*").order("report_date", { ascending: false }).limit(30),
+      ]);
+      if (o.data) setOrders(o.data);
+      if (r.data) setReports(r.data);
       setLoading(false);
-    }
-  };
+    };
+    load();
+  }, []);
 
   const fmtCur = (n: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR" }).format(n);
 
@@ -69,74 +50,53 @@ export function ReportsTab() {
     const todayStr = now.toISOString().split("T")[0];
     const weekAgo = new Date(now.getTime() - 7 * 86400000);
     const monthAgo = new Date(now.getTime() - 30 * 86400000);
-    const prevMonthStart = new Date(now.getTime() - 60 * 86400000);
-
-    const todayOrders = orders.filter((o) => o.created_at.startsWith(todayStr));
-    const weekOrders = orders.filter((o) => new Date(o.created_at) >= weekAgo);
-    const monthOrders = orders.filter((o) => new Date(o.created_at) >= monthAgo);
-    const prevMonthOrders = orders.filter((o) => new Date(o.created_at) >= prevMonthStart && new Date(o.created_at) < monthAgo);
-
-    const monthRev = monthOrders.reduce((s, o) => s + o.product_price, 0);
-    const prevRev = prevMonthOrders.reduce((s, o) => s + o.product_price, 0);
-
+    const prev = new Date(now.getTime() - 60 * 86400000);
+    const t = orders.filter(o => o.created_at.startsWith(todayStr));
+    const w = orders.filter(o => new Date(o.created_at) >= weekAgo);
+    const m = orders.filter(o => new Date(o.created_at) >= monthAgo);
+    const p = orders.filter(o => new Date(o.created_at) >= prev && new Date(o.created_at) < monthAgo);
+    const mr = m.reduce((s, o) => s + o.product_price, 0);
+    const pr = p.reduce((s, o) => s + o.product_price, 0);
     return {
-      todayCount: todayOrders.length,
-      todayRevenue: todayOrders.reduce((s, o) => s + o.product_price, 0),
-      weekCount: weekOrders.length,
-      weekRevenue: weekOrders.reduce((s, o) => s + o.product_price, 0),
-      monthCount: monthOrders.length,
-      monthRevenue: monthRev,
-      revenueChange: prevRev > 0 ? ((monthRev - prevRev) / prevRev) * 100 : 0,
-      pendingCount: orders.filter((o) => o.status === "pending" || o.status === "open").length,
+      todayCount: t.length, todayRevenue: t.reduce((s, o) => s + o.product_price, 0),
+      weekCount: w.length, weekRevenue: w.reduce((s, o) => s + o.product_price, 0),
+      monthCount: m.length, monthRevenue: mr,
+      change: pr > 0 ? ((mr - pr) / pr) * 100 : 0,
+      pending: orders.filter(o => o.status === "pending" || o.status === "open").length,
       totalRevenue: orders.reduce((s, o) => s + o.product_price, 0),
     };
   }, [orders]);
 
-  const chartData = useMemo(() =>
-    reports.slice(0, 14).reverse().map((r) => ({
-      date: new Date(r.report_date).toLocaleDateString("de-AT", { day: "2-digit", month: "2-digit" }),
-      orders: r.orders_count,
-      revenue: r.total_revenue,
-    })), [reports]);
+  const chartData = useMemo(() => reports.slice(0, 14).reverse().map(r => ({
+    date: new Date(r.report_date).toLocaleDateString("de-AT", { day: "2-digit", month: "2-digit" }),
+    orders: r.orders_count, revenue: r.total_revenue,
+  })), [reports]);
 
-  const productBreakdown = useMemo(() => {
-    const map: Record<string, { count: number; revenue: number }> = {};
-    orders.forEach((o) => {
-      const k = o.product_name || "Unbekannt";
-      if (!map[k]) map[k] = { count: 0, revenue: 0 };
-      map[k].count += 1;
-      map[k].revenue += o.product_price;
-    });
-    return Object.entries(map).sort((a, b) => b[1].revenue - a[1].revenue).map(([name, data]) => ({ name, ...data }));
+  const products = useMemo(() => {
+    const m: Record<string, { count: number; revenue: number }> = {};
+    orders.forEach(o => { const k = o.product_name || "?"; if (!m[k]) m[k] = { count: 0, revenue: 0 }; m[k].count++; m[k].revenue += o.product_price; });
+    return Object.entries(m).sort((a, b) => b[1].revenue - a[1].revenue).map(([name, data]) => ({ name, ...data }));
   }, [orders]);
 
-  if (loading) {
-    return (
-      <div className={`flex items-center justify-center py-24 ${d ? "text-slate-500" : "text-gray-400"}`}>
-        <BarChart3 className="w-6 h-6 animate-pulse mr-2" />
-        Berichte werden geladen...
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className={`flex items-center justify-center py-24 ${d ? "text-slate-500" : "text-gray-400"}`}>
+      <BarChart3 className="w-6 h-6 animate-pulse mr-2" />Laden...
+    </div>
+  );
 
-  const StatCard = ({ title, value, subtitle, icon: Icon, trend, alert }: {
-    title: string; value: string; subtitle: string; icon: any; trend?: number; alert?: boolean;
-  }) => (
+  const Stat = ({ title, value, sub, icon: I, trend, alert }: { title: string; value: string; sub: string; icon: any; trend?: number; alert?: boolean }) => (
     <Card className={`${d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200 shadow-sm"} ${alert ? (d ? "border-amber-500/30" : "border-amber-200") : ""}`}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
           <span className={`text-xs uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>{title}</span>
-          <Icon className={`w-4 h-4 ${alert ? "text-amber-400" : d ? "text-slate-600" : "text-gray-300"}`} />
+          <I className={`w-4 h-4 ${alert ? "text-amber-400" : d ? "text-slate-600" : "text-gray-300"}`} />
         </div>
         <div className={`text-2xl font-bold ${d ? "text-slate-100" : "text-gray-900"}`}>{value}</div>
         <div className="flex items-center gap-1 mt-1">
-          <span className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>{subtitle}</span>
-          {trend != null && trend !== 0 && (
-            <span className={`text-xs flex items-center ${trend > 0 ? "text-emerald-500" : "text-red-500"}`}>
-              {trend > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-              {Math.abs(trend).toFixed(0)}%
-            </span>
-          )}
+          <span className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>{sub}</span>
+          {trend != null && trend !== 0 && <span className={`text-xs flex items-center ${trend > 0 ? "text-emerald-500" : "text-red-500"}`}>
+            {trend > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}{Math.abs(trend).toFixed(0)}%
+          </span>}
         </div>
       </CardContent>
     </Card>
@@ -145,16 +105,16 @@ export function ReportsTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Heute" value={String(stats.todayCount)} subtitle={fmtCur(stats.todayRevenue)} icon={Calendar} />
-        <StatCard title="Diese Woche" value={String(stats.weekCount)} subtitle={fmtCur(stats.weekRevenue)} icon={TrendingUp} />
-        <StatCard title="Diesen Monat" value={String(stats.monthCount)} subtitle={fmtCur(stats.monthRevenue)} icon={Euro} trend={stats.revenueChange} />
-        <StatCard title="Ausstehend" value={String(stats.pendingCount)} subtitle="Zu verarbeiten" icon={Package} alert={stats.pendingCount > 0} />
+        <Stat title="Heute" value={String(stats.todayCount)} sub={fmtCur(stats.todayRevenue)} icon={Calendar} />
+        <Stat title="Diese Woche" value={String(stats.weekCount)} sub={fmtCur(stats.weekRevenue)} icon={TrendingUp} />
+        <Stat title="Diesen Monat" value={String(stats.monthCount)} sub={fmtCur(stats.monthRevenue)} icon={Euro} trend={stats.change} />
+        <Stat title="Ausstehend" value={String(stats.pending)} sub="Zu verarbeiten" icon={Package} alert={stats.pending > 0} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card className={`lg:col-span-2 ${d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200 shadow-sm"}`}>
           <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Bestellungen letzte 14 Tage</CardTitle>
+            <CardTitle className={`text-sm font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Bestellungen 14 Tage</CardTitle>
           </CardHeader>
           <CardContent>
             {chartData.length > 0 ? (
@@ -170,18 +130,16 @@ export function ReportsTab() {
                   <Bar dataKey="orders" fill={d ? "#10b981" : "#059669"} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            ) : (
-              <div className={`flex items-center justify-center h-[240px] text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Keine Daten</div>
-            )}
+            ) : <div className={`flex items-center justify-center h-[240px] text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Keine Daten</div>}
           </CardContent>
         </Card>
 
         <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200 shadow-sm"}>
           <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Produktübersicht</CardTitle>
+            <CardTitle className={`text-sm font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Produkte</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {productBreakdown.map((p) => (
+            {products.map(p => (
               <div key={p.name} className="flex items-center justify-between">
                 <div>
                   <div className={`text-sm ${d ? "text-slate-200" : "text-gray-800"}`}>{p.name}</div>
@@ -213,7 +171,7 @@ export function ReportsTab() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reports.slice(0, 10).map((r) => (
+              {reports.slice(0, 10).map(r => (
                 <TableRow key={r.id} className={d ? "border-slate-800/50" : "border-gray-50"}>
                   <TableCell className={`text-sm ${d ? "text-slate-300" : "text-gray-700"}`}>
                     {new Date(r.report_date).toLocaleDateString("de-AT", { weekday: "short", day: "numeric", month: "short" })}
