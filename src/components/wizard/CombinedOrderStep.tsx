@@ -317,26 +317,26 @@ export function CombinedOrderStep({
                 </div>
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  {/* Row 1: Name + Badge */}
-                  <div className="flex items-center gap-2 flex-wrap">
+                  {/* Row 1: Name + Price on same line */}
+                  <div className="flex items-baseline justify-between gap-2">
                     <span className="text-[14px] sm:text-[15px] font-semibold text-foreground">{product.name}</span>
-                    {product.badge && (
-                      <span className="text-[10px] sm:text-[11px] font-semibold text-primary-foreground bg-primary px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap leading-[16px] sm:leading-[18px]">
-                        {product.badge}
+                    <div className="flex items-baseline gap-1.5 shrink-0">
+                      {product.originalPrice && (
+                        <span className="text-[12px] sm:text-[13px] text-muted-foreground line-through tabular-nums">
+                          € {product.originalPrice.toFixed(2).replace('.', ',')}
+                        </span>
+                      )}
+                      <span className="text-[14px] sm:text-[15px] font-bold text-foreground tabular-nums">
+                        € {product.price.toFixed(2).replace('.', ',')}
                       </span>
-                    )}
+                    </div>
                   </div>
-                  {/* Row 2: Price */}
-                  <div className="flex items-baseline gap-1.5 mt-0.5">
-                    {product.originalPrice && (
-                      <span className="text-[12px] sm:text-[13px] text-muted-foreground line-through tabular-nums">
-                        € {product.originalPrice.toFixed(2).replace('.', ',')}
-                      </span>
-                    )}
-                    <span className="text-[14px] sm:text-[15px] font-bold text-foreground tabular-nums">
-                      € {product.price.toFixed(2).replace('.', ',')}
+                  {/* Badge */}
+                  {product.badge && (
+                    <span className="inline-block text-[10px] sm:text-[11px] font-semibold text-primary-foreground bg-primary px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap leading-[16px] sm:leading-[18px] mt-1">
+                      {product.badge}
                     </span>
-                  </div>
+                  )}
                   {/* Row 3: Description */}
                   <p className="text-[12px] sm:text-[13px] text-muted-foreground mt-1.5 leading-snug">{product.description}</p>
                   {product.savings && (
