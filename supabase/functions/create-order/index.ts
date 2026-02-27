@@ -137,6 +137,33 @@ serve(async (req: Request): Promise<Response> => {
       });
     }
 
+    // If fast_delivery is enabled, automatically process the order (fire-and-forget)
+    if (body.fast_delivery) {
+      try {
+        console.log(`[create-order] fast_delivery enabled, triggering auto-processing for ${order.order_number}`);
+        const processUrl = `${supabaseUrl}/functions/v1/process-order`;
+        fetch(processUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({ order_id: order.id }),
+        }).then(async (res) => {
+          const data = await res.json();
+          if (data.success) {
+            console.log(`[create-order] Auto-processing succeeded for ${order.order_number}`);
+          } else {
+            console.error(`[create-order] Auto-processing failed: ${data.error}`);
+          }
+        }).catch((err) => {
+          console.error(`[create-order] Auto-processing error: ${err.message}`);
+        });
+      } catch (triggerErr: any) {
+        console.error(`[create-order] Failed to trigger auto-processing: ${triggerErr.message}`);
+      }
+    }
+
     return new Response(
       JSON.stringify({ id: order.id, order_number: order.order_number }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } },

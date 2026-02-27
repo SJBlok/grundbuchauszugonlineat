@@ -96,7 +96,7 @@ const GBIcon = () => (
 interface CombinedOrderStepProps {
   initialPropertyData: PropertyData;
   initialApplicantData: ApplicantData;
-  onSubmit: (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string) => void;
+  onSubmit: (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string, fastDelivery?: boolean) => void;
 }
 
 export function CombinedOrderStep({
@@ -223,7 +223,7 @@ export function CombinedOrderStep({
 
       sessionStorage.removeItem("grundbuch_session_id");
       const propertyInfo = [strasse, plz, ort].filter(Boolean).join(', ');
-      onSubmit(orderResult.order_number, formData.email, propertyInfo, total.toFixed(2));
+      onSubmit(orderResult.order_number, formData.email, propertyInfo, total.toFixed(2), fastDelivery);
     } catch (error) {
       console.error("Order submission error:", error);
       toast({

@@ -7,9 +7,10 @@ interface ThankYouStepProps {
   orderNumber: string;
   email: string;
   propertyInfo?: string;
+  fastDelivery?: boolean;
 }
 
-export function ThankYouStep({ orderNumber, email, propertyInfo }: ThankYouStepProps) {
+export function ThankYouStep({ orderNumber, email, propertyInfo, fastDelivery }: ThankYouStepProps) {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} kopiert!`);
@@ -26,7 +27,10 @@ export function ThankYouStep({ orderNumber, email, propertyInfo }: ThankYouStepP
           Anfrage eingegangen!
         </h1>
         <p className="text-muted-foreground mt-2">
-          Ihre Grundbuchauszug-Anfrage wurde erfolgreich übermittelt und wird bearbeitet.
+          {fastDelivery
+            ? "Ihr Grundbuchauszug wird automatisch abgerufen und in wenigen Augenblicken per E-Mail zugestellt."
+            : "Ihre Grundbuchauszug-Anfrage wurde erfolgreich übermittelt und wird bearbeitet."
+          }
         </p>
       </div>
 
@@ -78,7 +82,10 @@ export function ThankYouStep({ orderNumber, email, propertyInfo }: ThankYouStepP
               Bestätigung per E-Mail
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Sie erhalten in Kürze eine Bestätigung an <strong className="text-foreground">{email}</strong>. Bitte überprüfen Sie auch Ihren Spam-Ordner.
+              {fastDelivery
+                ? <>Sie erhalten Ihren Grundbuchauszug in Kürze als PDF an <strong className="text-foreground">{email}</strong>. Bitte überprüfen Sie auch Ihren Spam-Ordner.</>
+                : <>Sie erhalten in Kürze eine Bestätigung an <strong className="text-foreground">{email}</strong>. Bitte überprüfen Sie auch Ihren Spam-Ordner.</>
+              }
             </p>
           </div>
         </div>
