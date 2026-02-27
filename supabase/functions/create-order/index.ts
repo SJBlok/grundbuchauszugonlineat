@@ -10,7 +10,6 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8080",
 ];
 
-// Additional pattern matching for Lovable preview URLs
 function isLovablePreview(origin: string): boolean {
   return (
     /^https:\/\/[a-f0-9-]+\.lovableproject\.com$/.test(origin) ||
@@ -33,19 +32,16 @@ function getCorsHeaders(req: Request): Record<string, string> {
 function isValidOrigin(req: Request): boolean {
   const origin = req.headers.get("origin") || "";
   const referer = req.headers.get("referer") || "";
-
   const isValidOriginHeader =
     ALLOWED_ORIGINS.some((allowed) => origin.includes(new URL(allowed).host)) ||
     isLovablePreview(origin);
   const isValidReferer =
     ALLOWED_ORIGINS.some((allowed) => referer.includes(new URL(allowed).host)) ||
     isLovablePreview(referer);
-
   return isValidOriginHeader || isValidReferer;
 }
 
 type CreateOrderBody = {
-  // property
   katastralgemeinde: string;
   grundstuecksnummer: string;
   grundbuchsgericht: string;
@@ -54,15 +50,11 @@ type CreateOrderBody = {
   adresse?: string | null;
   plz?: string | null;
   ort?: string | null;
-
-  // applicant
   vorname: string;
   nachname: string;
   email: string;
   wohnsitzland: string;
   firma?: string | null;
-
-  // optional
   product_name?: string;
   product_price?: number;
   fast_delivery?: boolean;
@@ -77,7 +69,6 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Validate origin to prevent unauthorized access
     if (!isValidOrigin(req)) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
@@ -87,7 +78,6 @@ serve(async (req: Request): Promise<Response> => {
 
     const body: CreateOrderBody = await req.json();
 
-    // Minimal validation (avoid breaking existing UX)
     if (!body?.email || !body?.vorname || !body?.nachname) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -95,11 +85,11 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Use service role to bypass RLS for order creation
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // ── Step 1: Create order ──
     const { data: order, error } = await supabase
       .from("orders")
       .insert([
@@ -122,7 +112,6 @@ serve(async (req: Request): Promise<Response> => {
           fast_delivery: body.fast_delivery ?? false,
           digital_storage_subscription: body.digital_storage_subscription ?? false,
           amtliche_signatur: body.amtliche_signatur ?? false,
-          // required by schema; overwritten by trigger
           order_number: "PENDING",
         },
       ])
@@ -137,8 +126,11 @@ serve(async (req: Request): Promise<Response> => {
       });
     }
 
-    // If fast_delivery is enabled, automatically process the order (fire-and-forget)
+    console.log(`[create-order] Order created: ${order.order_number}`);
+
     if (body.fast_delivery) {
+      // ── Fast delivery: process-order handles everything ──
+      // process-order → fetches document → sends "Mit Dokument" email + Moneybird invoice
       try {
         console.log(`[create-order] fast_delivery enabled, triggering auto-processing for ${order.order_number}`);
         const processUrl = `${supabaseUrl}/functions/v1/process-order`;
@@ -161,6 +153,34 @@ serve(async (req: Request): Promise<Response> => {
         });
       } catch (triggerErr: any) {
         console.error(`[create-order] Failed to trigger auto-processing: ${triggerErr.message}`);
+      }
+    } else {
+      // ── Manuell: send confirmation email + Moneybird invoice (without document) ──
+      try {
+        console.log(`[create-order] Manuell order, sending confirmation + Moneybird for ${order.order_number}`);
+        const sendDocUrl = `${supabaseUrl}/functions/v1/send-grundbuch-document`;
+        fetch(sendDocUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({
+            order_id: order.id,
+            // No pdf_base64 → "Manuell" template + Moneybird invoice
+          }),
+        }).then(async (res) => {
+          const data = await res.json();
+          if (data.success) {
+            console.log(`[create-order] Confirmation + Moneybird sent for ${order.order_number}`);
+          } else {
+            console.error(`[create-order] Confirmation failed: ${data.error}`);
+          }
+        }).catch((err) => {
+          console.error(`[create-order] Confirmation error: ${err.message}`);
+        });
+      } catch (triggerErr: any) {
+        console.error(`[create-order] Failed to trigger confirmation: ${triggerErr.message}`);
       }
     }
 
