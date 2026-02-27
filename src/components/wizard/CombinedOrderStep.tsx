@@ -301,14 +301,20 @@ export function CombinedOrderStep({
               <label
                 key={product.id}
                 onClick={() => setSelectedProduct(product.id)}
-                className={`flex items-start gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-lg border-[1.5px] cursor-pointer transition-all min-h-[56px] ${
+                className={`relative flex items-start gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-lg border-[1.5px] cursor-pointer transition-all min-h-[56px] ${
                   isSelected
                     ? "border-primary bg-primary/5"
                     : isHighlighted
-                    ? "border-primary/30 bg-primary/[0.02] hover:border-primary/50"
+                    ? "border-primary/40 bg-primary/[0.03] hover:border-primary/60"
                     : "border-border hover:border-muted-foreground/30"
                 }`}
               >
+                {/* Floating badge like Express */}
+                {product.badge && (
+                  <span className="absolute -top-2.5 right-3 text-[10px] font-bold uppercase tracking-wider bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                    {product.badge}
+                  </span>
+                )}
                 {/* Radio */}
                 <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center transition-all ${
                   isSelected ? "border-primary" : "border-muted-foreground/30"
@@ -331,12 +337,6 @@ export function CombinedOrderStep({
                       </span>
                     </div>
                   </div>
-                  {/* Badge */}
-                  {product.badge && (
-                    <span className="inline-block text-[10px] sm:text-[11px] font-semibold text-primary-foreground bg-primary px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap leading-[16px] sm:leading-[18px] mt-1">
-                      {product.badge}
-                    </span>
-                  )}
                   {/* Row 3: Description */}
                   <p className="text-[12px] sm:text-[13px] text-muted-foreground mt-1.5 leading-snug">{product.description}</p>
                   {product.savings && (
