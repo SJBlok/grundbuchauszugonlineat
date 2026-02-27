@@ -18,12 +18,41 @@ export async function validateEinlage(katastralgemeinde: string, einlagezahl: st
   return proxyPost("/api/einlage-validate", { katastralgemeinde, einlagezahl });
 }
 
+/**
+ * Splits "spiegelgasse 7" → { strasse: "Spiegelgasse", hausnummer: "7" }
+ * Handles formats like: "Hauptstraße 12", "Am Graben 3a", "spiegelgasse 7/2/4"
+ */
+function splitAddress(adresse: string): { strasse: string; hausnummer: string } {
+  const trimmed = adresse.trim();
+  const match = trimmed.match(/^(.+?)\s+(\d+\S*)$/);
+  if (match) {
+    return { strasse: titleCase(match[1]), hausnummer: match[2] };
+  }
+  return { strasse: titleCase(trimmed), hausnummer: "" };
+}
+
+/**
+ * Capitalizes first letter of each word for UVST case-sensitive matching.
+ * "spiegelgasse" → "Spiegelgasse", "am graben" → "Am Graben"
+ */
+function titleCase(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/(?:^|\s)\S/g, (char) => char.toUpperCase());
+}
+
 export async function searchAddress(params: {
   bundesland?: string;
   ort?: string;
   strasse: string;
 }) {
-  return proxyPost("/api/address-search", params);
+  const { strasse, hausnummer } = splitAddress(params.strasse);
+  return proxyPost("/api/address-search", {
+    bundesland: params.bundesland,
+    ort: params.ort,
+    strasse,
+    hausnummer: hausnummer || undefined,
+  });
 }
 
 export async function fetchAktuell(katastralgemeinde: string, einlagezahl: string, signiert = false) {
