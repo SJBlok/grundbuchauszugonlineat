@@ -56,9 +56,8 @@ export default function MeineDokumente() {
   };
 
   const documents = order?.documents && Array.isArray(order.documents) ? order.documents : [];
-  const hasDigitalStorage = order?.digital_storage_subscription === true;
   const isVisible = order?.document_visible === true;
-  const canDownload = hasDigitalStorage && isVisible && documents.length > 0;
+  const canDownload = isVisible && documents.length > 0;
 
   return (
     <Layout>
@@ -162,13 +161,7 @@ export default function MeineDokumente() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {!hasDigitalStorage ? (
-                    <div className="text-center py-6">
-                      <Lock className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
-                      <p className="font-medium text-foreground">Digitale Speicherung ist nicht aktiviert</p>
-                      <p className="text-sm text-muted-foreground mt-1">Bei Ihrer Bestellung wurde die Option "Digitale Speicherung" nicht gewählt. Kontaktieren Sie uns, wenn Sie diese nachträglich aktivieren möchten.</p>
-                    </div>
-                  ) : !isVisible ? (
+                  {!isVisible ? (
                     <div className="text-center py-6">
                       <Loader2 className="w-8 h-8 mx-auto mb-2 text-muted-foreground opacity-50" />
                       <p className="font-medium text-foreground">Ihr Dokument wird noch vorbereitet</p>
