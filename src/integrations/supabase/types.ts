@@ -208,6 +208,7 @@ export type Database = {
           bundesland: string
           created_at: string
           digital_storage_subscription: boolean
+          document_visible: boolean | null
           documents: Json | null
           email: string
           fast_delivery: boolean
@@ -238,6 +239,7 @@ export type Database = {
           bundesland: string
           created_at?: string
           digital_storage_subscription?: boolean
+          document_visible?: boolean | null
           documents?: Json | null
           email: string
           fast_delivery?: boolean
@@ -268,6 +270,7 @@ export type Database = {
           bundesland?: string
           created_at?: string
           digital_storage_subscription?: boolean
+          document_visible?: boolean | null
           documents?: Json | null
           email?: string
           fast_delivery?: boolean
