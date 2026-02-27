@@ -44,8 +44,7 @@ export default function Anfordern() {
     email: "",
   });
 
-  const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string) => {
-    // Navigate to confirmation page with order data
+  const handleOrderSubmit = (orderNumber: string, email: string, propertyInfo: string, totalPrice?: string, fastDelivery?: boolean) => {
     const params = new URLSearchParams({
       order: orderNumber,
       email: email,
@@ -53,6 +52,7 @@ export default function Anfordern() {
       variant: "a",
       price: totalPrice || "28.90",
     });
+    if (fastDelivery) params.set("fast", "1");
     navigate(`/bestaetigung?${params.toString()}`);
   };
 

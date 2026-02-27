@@ -273,12 +273,17 @@ serve(async (req: Request): Promise<Response> => {
     const providedPdfBase64 = body.pdf_base64 || null;
     const documentType = body.document_type || "aktuell";
 
-    // Determine auth method: portal API key OR valid origin
+    // Determine auth method: portal API key, valid origin, or internal service-to-service call
     const apiKey = req.headers.get("x-api-key");
     const validApiKey = Deno.env.get("PORTAL_API_KEY");
     const hasValidApiKey = apiKey && validApiKey && apiKey === validApiKey;
 
-    if (!hasValidApiKey && !isValidOrigin(req)) {
+    // Allow internal service-to-service calls (e.g. from process-order)
+    const authHeader = req.headers.get("authorization") || "";
+    const supabaseServiceKeyVal = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const isInternalCall = supabaseServiceKeyVal && authHeader === `Bearer ${supabaseServiceKeyVal}`;
+
+    if (!hasValidApiKey && !isValidOrigin(req) && !isInternalCall) {
       console.warn("Rejected request: no valid API key or origin");
       return new Response(
         JSON.stringify({ error: "Unauthorized: provide x-api-key header or request from allowed origin" }),
@@ -311,7 +316,7 @@ serve(async (req: Request): Promise<Response> => {
     
     // Only block re-processing for internal calls (no API key), not for portal API calls
     // Allow re-processing if PDF is provided (admin sending document)
-    if (orderCheck.status === "processed" && !hasValidApiKey && !providedPdfBase64) {
+    if (orderCheck.status === "processed" && !hasValidApiKey && !isInternalCall && !providedPdfBase64) {
       return new Response(
         JSON.stringify({ error: "Order already processed", order_id: orderCheck.id }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }

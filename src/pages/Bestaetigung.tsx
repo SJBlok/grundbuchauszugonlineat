@@ -16,6 +16,7 @@ export default function Bestaetigung() {
   const propertyInfo = searchParams.get("property") || "";
   const fromVariant = searchParams.get("variant") || "a";
   const priceParam = searchParams.get("price") || "28.90";
+  const isFastDelivery = searchParams.get("fast") === "1";
 
   // Check if we have demo mode (no params but user is directly viewing)
   const isDemoMode = !orderNumber && !email;
@@ -26,12 +27,12 @@ export default function Bestaetigung() {
   const displayPropertyInfo = propertyInfo || "EZ 123, KG Innere Stadt";
 
   const handleConfirm = () => {
-    // Navigate to thank you page with order data
     const params = new URLSearchParams({
       order: displayOrderNumber,
       email: displayEmail,
       property: displayPropertyInfo,
     });
+    if (isFastDelivery) params.set("fast", "1");
     navigate(`/danke?${params.toString()}`);
   };
 

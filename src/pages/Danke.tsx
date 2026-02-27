@@ -14,6 +14,7 @@ export default function Danke() {
   const orderNumber = searchParams.get("order") || "";
   const email = searchParams.get("email") || "";
   const propertyInfo = searchParams.get("property") || "";
+  const isFastDelivery = searchParams.get("fast") === "1";
 
   // Check if we have demo mode (no params but user is directly viewing)
   const isDemoMode = !orderNumber && !email;
@@ -37,6 +38,7 @@ export default function Danke() {
               orderNumber={displayOrderNumber}
               email={displayEmail}
               propertyInfo={displayPropertyInfo}
+              fastDelivery={isFastDelivery}
             />
           </div>
         </div>
