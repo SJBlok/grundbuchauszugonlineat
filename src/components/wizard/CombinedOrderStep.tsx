@@ -63,7 +63,8 @@ const products = [
 ];
 
 const combinedSchema = z.object({
-  strasse: z.string().min(1, "Straße und Hausnummer ist erforderlich").max(200),
+  strasse: z.string().min(1, "Straße ist erforderlich").max(200),
+  hausnummer: z.string().max(20).optional(),
   plz: z.string().min(1, "PLZ ist erforderlich").max(10),
   ort: z.string().min(1, "Ort ist erforderlich").max(100),
   bundesland: z.string().min(1, "Bundesland ist erforderlich"),
@@ -124,12 +125,14 @@ export function CombinedOrderStep({
     defaultValues: {
       ...initialPropertyData,
       ...initialApplicantData,
+      hausnummer: "",
       emailConfirm: initialApplicantData.email,
     },
   });
 
   const bundesland = watch("bundesland");
   const strasse = watch("strasse");
+  const hausnummer = watch("hausnummer");
   const plz = watch("plz");
   const ort = watch("ort");
   const email = watch("email");
@@ -151,7 +154,7 @@ export function CombinedOrderStep({
           nachname,
           bundesland,
           wohnungsHinweis: watch("wohnungsHinweis"),
-          adresse: strasse || "",
+          adresse: [strasse, hausnummer].filter(Boolean).join(" ") || "",
           plz: plz || "",
           ort: ort || "",
           productName: selectedProduct === "historisch" ? "Grundbuchauszug historisch" : "Aktueller Grundbuchauszug",
@@ -199,7 +202,7 @@ export function CombinedOrderStep({
             grundbuchsgericht: formData.grundbuchsgericht || "",
             bundesland: formData.bundesland,
             wohnungs_hinweis: formData.wohnungsHinweis || null,
-            adresse: formData.strasse || null,
+            adresse: [formData.strasse, formData.hausnummer].filter(Boolean).join(" ") || null,
             plz: formData.plz || null,
             ort: formData.ort || null,
             vorname: formData.vorname,
@@ -222,7 +225,7 @@ export function CombinedOrderStep({
       }
 
       sessionStorage.removeItem("grundbuch_session_id");
-      const propertyInfo = [strasse, plz, ort].filter(Boolean).join(', ');
+      const propertyInfo = [[strasse, hausnummer].filter(Boolean).join(" "), plz, ort].filter(Boolean).join(", ");
       onSubmit(orderResult.order_number, formData.email, propertyInfo, total.toFixed(2), fastDelivery);
     } catch (error) {
       console.error("Order submission error:", error);
@@ -365,20 +368,32 @@ export function CombinedOrderStep({
           Adresse des Grundstücks
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="strasse" className="text-sm font-semibold text-foreground">
-            Straße und Hausnummer <span className="text-destructive">*</span>
-          </Label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+        <div className="grid grid-cols-[1fr_100px] sm:grid-cols-[1fr_110px] gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="strasse" className="text-sm font-semibold text-foreground">
+              Straße <span className="text-destructive">*</span>
+            </Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+              <Input
+                id="strasse"
+                {...register("strasse")}
+                placeholder="z.B. Spiegelgasse"
+                className="pl-9"
+              />
+            </div>
+            {errors.strasse && <p className="text-xs text-destructive">{errors.strasse.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="hausnummer" className="text-sm font-semibold text-foreground">
+              Hausnr.
+            </Label>
             <Input
-              id="strasse"
-              {...register("strasse")}
-              placeholder="z.B. Hauptstraße 1"
-              className="pl-9"
+              id="hausnummer"
+              {...register("hausnummer")}
+              placeholder="z.B. 7"
             />
           </div>
-          {errors.strasse && <p className="text-xs text-destructive">{errors.strasse.message}</p>}
         </div>
 
         <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[120px_1fr] gap-3">
