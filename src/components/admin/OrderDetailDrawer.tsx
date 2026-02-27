@@ -19,7 +19,8 @@ interface OrderDetailDrawerProps {
   order: Order | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onStatusChange: (orderId: string, status: string) => void;
+  onUpdateOrder: (orderId: string, updates: Record<string, unknown>) => Promise<void>;
+  onRefresh: () => Promise<void>;
 }
 
 const STATUS_OPTIONS = [
@@ -29,7 +30,7 @@ const STATUS_OPTIONS = [
   { value: "cancelled", label: "Storniert" },
 ];
 
-export function OrderDetailDrawer({ order, open, onOpenChange, onStatusChange }: OrderDetailDrawerProps) {
+export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, onRefresh }: OrderDetailDrawerProps) {
   const [copied, setCopied] = useState<string | null>(null);
 
   if (!order) return null;
@@ -85,7 +86,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onStatusChange }:
               <div className="text-[11px] text-slate-500 uppercase tracking-wider mb-1">Status ändern</div>
               <Select
                 value={order.status}
-                onValueChange={(v) => onStatusChange(order.id, v)}
+                onValueChange={(v) => onUpdateOrder(order.id, { status: v })}
               >
                 <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-200 h-9">
                   <SelectValue />
