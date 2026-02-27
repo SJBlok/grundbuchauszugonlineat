@@ -19,10 +19,10 @@ import {
 import { useAdminTheme } from "@/pages/Admin";
 
 const STATUS_TABS = [
-  { value: "open", label: "Open", icon: Clock, statuses: ["open", "pending"] },
-  { value: "awaiting", label: "Wacht op klant", icon: MessageSquare, statuses: ["awaiting_customer"] },
-  { value: "processed", label: "Verwerkt", icon: CheckCircle2, statuses: ["processed", "completed"] },
-  { value: "cancelled", label: "Geannuleerd", icon: XCircle, statuses: ["cancelled", "deleted", "failed"] },
+  { value: "open", label: "Offen", icon: Clock, statuses: ["open", "pending"] },
+  { value: "awaiting", label: "Warte auf Kunde", icon: MessageSquare, statuses: ["awaiting_customer"] },
+  { value: "processed", label: "Verarbeitet", icon: CheckCircle2, statuses: ["processed", "completed"] },
+  { value: "cancelled", label: "Storniert / Erstattet", icon: XCircle, statuses: ["cancelled", "deleted", "failed"] },
 ];
 
 const PAYMENT_CONFIG: Record<string, { label: string; dark: string; light: string }> = {
@@ -187,7 +187,7 @@ export function OrdersTab() {
                   </TableRow>
                 ) : orders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-12 text-sm">Keine Bestellungen in diesem Tab</TableCell>
+                    <TableCell colSpan={8} className="text-center py-12 text-sm">Keine Bestellungen in dieser Kategorie</TableCell>
                   </TableRow>
                 ) : orders.map((order) => {
                   const pc = PAYMENT_CONFIG[order.payment_status] || PAYMENT_CONFIG.pending;
