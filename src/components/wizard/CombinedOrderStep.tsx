@@ -301,7 +301,7 @@ export function CombinedOrderStep({
               <label
                 key={product.id}
                 onClick={() => setSelectedProduct(product.id)}
-                className={`flex items-start gap-3.5 p-4 sm:p-4 rounded-lg border-[1.5px] cursor-pointer transition-all min-h-[56px] ${
+                className={`flex items-start gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-lg border-[1.5px] cursor-pointer transition-all min-h-[56px] ${
                   isSelected
                     ? "border-primary bg-primary/5"
                     : isHighlighted
@@ -317,29 +317,30 @@ export function CombinedOrderStep({
                 </div>
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-center gap-3 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[15px] font-semibold text-foreground">{product.name}</span>
-                      {product.badge && (
-                        <span className="text-[11px] font-semibold text-primary-foreground bg-primary px-2.5 py-0.5 rounded-full whitespace-nowrap leading-[18px]">
-                          {product.badge}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-baseline gap-1.5">
-                      {product.originalPrice && (
-                        <span className="text-[13px] text-muted-foreground line-through tabular-nums">
-                          € {product.originalPrice.toFixed(2).replace('.', ',')}
-                        </span>
-                      )}
-                      <span className="text-[15px] font-bold text-foreground whitespace-nowrap tabular-nums">
-                        € {product.price.toFixed(2).replace('.', ',')}
+                  {/* Row 1: Name + Badge */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[14px] sm:text-[15px] font-semibold text-foreground">{product.name}</span>
+                    {product.badge && (
+                      <span className="text-[10px] sm:text-[11px] font-semibold text-primary-foreground bg-primary px-2 sm:px-2.5 py-0.5 rounded-full whitespace-nowrap leading-[16px] sm:leading-[18px]">
+                        {product.badge}
                       </span>
-                    </div>
+                    )}
                   </div>
-                  <p className="text-[13px] text-muted-foreground mt-1 leading-snug">{product.description}</p>
+                  {/* Row 2: Price */}
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    {product.originalPrice && (
+                      <span className="text-[12px] sm:text-[13px] text-muted-foreground line-through tabular-nums">
+                        € {product.originalPrice.toFixed(2).replace('.', ',')}
+                      </span>
+                    )}
+                    <span className="text-[14px] sm:text-[15px] font-bold text-foreground tabular-nums">
+                      € {product.price.toFixed(2).replace('.', ',')}
+                    </span>
+                  </div>
+                  {/* Row 3: Description */}
+                  <p className="text-[12px] sm:text-[13px] text-muted-foreground mt-1.5 leading-snug">{product.description}</p>
                   {product.savings && (
-                    <p className="text-[12px] text-primary font-semibold mt-1">
+                    <p className="text-[11px] sm:text-[12px] text-primary font-semibold mt-1">
                       Sie sparen € {product.savings.toFixed(2).replace('.', ',')}
                     </p>
                   )}
