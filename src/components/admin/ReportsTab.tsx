@@ -10,10 +10,7 @@ import {
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from "recharts";
-import { useAdminTheme } from "@/pages/Admin";
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+import { useAdminTheme, useAdminApi } from "@/pages/Admin";
 
 interface Order {
   id: string;
@@ -33,6 +30,7 @@ interface DailyReport {
 
 export function ReportsTab() {
   const { isDark: d } = useAdminTheme();
+  const { apiKey, supabaseUrl: SUPABASE_URL, supabaseKey: SUPABASE_KEY } = useAdminApi();
   const [orders, setOrders] = useState<Order[]>([]);
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +45,7 @@ export function ReportsTab() {
       // Fetch orders via edge function
       const ordersRes = await fetch(
         `${SUPABASE_URL}/functions/v1/get-orders?limit=500`,
-        { headers: { "apikey": SUPABASE_KEY, "x-api-key": SUPABASE_KEY } }
+        { headers: { "apikey": SUPABASE_KEY, "x-api-key": apiKey } }
       );
       const ordersData = await ordersRes.json();
       if (ordersData.orders) setOrders(ordersData.orders);

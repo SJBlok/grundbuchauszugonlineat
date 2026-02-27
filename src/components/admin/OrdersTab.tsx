@@ -14,7 +14,7 @@ import { OrderDetailDrawer } from "./OrderDetailDrawer";
 import {
   Search, RefreshCw, Package, ChevronLeft, ChevronRight, ExternalLink,
 } from "lucide-react";
-import { useAdminTheme } from "@/pages/Admin";
+import { useAdminTheme, useAdminApi } from "@/pages/Admin";
 
 interface Order {
   id: string;
@@ -67,11 +67,10 @@ const PAYMENT_CONFIG: Record<string, { label: string; dark: string; light: strin
 };
 
 const PAGE_SIZE = 25;
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export function OrdersTab() {
   const { isDark: d } = useAdminTheme();
+  const { apiKey, supabaseUrl: SUPABASE_URL, supabaseKey: SUPABASE_KEY } = useAdminApi();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -97,7 +96,7 @@ export function OrdersTab() {
           headers: {
             "Content-Type": "application/json",
             "apikey": SUPABASE_KEY,
-            "x-api-key": SUPABASE_KEY,
+            "x-api-key": apiKey,
           },
         }
       );
@@ -157,7 +156,7 @@ export function OrdersTab() {
           headers: {
             "Content-Type": "application/json",
             "apikey": SUPABASE_KEY,
-            "x-api-key": SUPABASE_KEY,
+            "x-api-key": apiKey,
           },
           body: JSON.stringify(updates),
         }
