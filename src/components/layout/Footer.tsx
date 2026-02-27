@@ -48,10 +48,10 @@ export function Footer() {
             {/* Brand column */}
             <div className="sm:col-span-2 lg:col-span-2">
               <div className="flex items-center gap-3 mb-5">
-                <div className="flex items-center gap-0.5">
-                  <div className="w-1 h-7 bg-[#ED2939] rounded-sm" />
-                  <div className="w-1 h-7 bg-white rounded-sm" />
-                  <div className="w-1 h-7 bg-[#ED2939] rounded-sm" />
+                <div className="w-7 h-5 rounded-sm overflow-hidden border border-white/20 flex flex-col">
+                  <div className="flex-1 bg-[#ED2939]" />
+                  <div className="flex-1 bg-white" />
+                  <div className="flex-1 bg-[#ED2939]" />
                 </div>
                 <div className="flex flex-col">
                   <span className="font-bold text-base">GrundbuchauszugOnline</span>
