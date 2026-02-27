@@ -58,6 +58,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const [uvstLoading, setUvstLoading] = useState(false);
   const [uvstResult, setUvstResult] = useState<any>(null);
   const [uvstError, setUvstError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (order) {
@@ -103,6 +104,44 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     const updated = documents.filter((_: any, i: number) => i !== index);
     setDocuments(updated);
     await onUpdateOrder(order.id, { documents: updated });
+  };
+
+  const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !order) return;
+
+    setUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("order_id", order.id);
+      formData.append("order_number", order.order_number);
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-order-document`,
+        {
+          method: "POST",
+          headers: {
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            "Authorization": `Bearer ${session?.access_token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      setDocuments([...documents, data.document]);
+      toast({ title: "Dokument hochgeladen", description: file.name });
+      onRefresh();
+    } catch (err: any) {
+      toast({ title: "Upload fehlgeschlagen", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   };
 
   // UVST Grundbuch Abfrage
@@ -384,8 +423,29 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                   </Button>
                 </div>
                 <Separator className={d ? "bg-slate-800" : "bg-gray-100"} />
+                {/* Upload zone */}
+                <label className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${
+                  uploading
+                    ? (d ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-200 bg-emerald-50")
+                    : (d ? "border-slate-700 hover:border-slate-600 bg-slate-800/30" : "border-gray-200 hover:border-gray-300 bg-gray-50/50")
+                }`}>
+                  <input type="file" className="hidden" onChange={handleUploadDocument} accept=".pdf,.xml,.html,.doc,.docx,.jpg,.png" disabled={uploading} />
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-6 h-6 animate-spin text-emerald-400 mb-1" />
+                      <span className={`text-xs ${d ? "text-emerald-400" : "text-emerald-600"}`}>Wird hochgeladen...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className={`w-6 h-6 mb-1 ${d ? "text-slate-500" : "text-gray-400"}`} />
+                      <span className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>PDF oder Datei hochladen</span>
+                      <span className={`text-[10px] mt-0.5 ${d ? "text-slate-600" : "text-gray-300"}`}>Klicken oder Datei hierher ziehen</span>
+                    </>
+                  )}
+                </label>
+                {/* Document list */}
                 {documents.length === 0 ? (
-                  <div className={`text-center py-6 text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Noch keine Dokumente</div>
+                  <div className={`text-center py-4 text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Noch keine Dokumente</div>
                 ) : documents.map((doc: any, i: number) => (
                   <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${d ? "bg-slate-800/50" : "bg-gray-50"}`}>
                     <FileText className={`w-4 h-4 shrink-0 ${d ? "text-slate-400" : "text-gray-400"}`} />
