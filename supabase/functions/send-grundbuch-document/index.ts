@@ -364,21 +364,68 @@ serve(async (req: Request): Promise<Response> => {
       console.log(`Marked all abandoned sessions for ${order.email} as completed`);
     }
 
-    // === MONEYBIRD INVOICE CREATION ===
+    // === MONEYBIRD INVOICE ===
     const moneybirdApiKey = Deno.env.get("MONEYBIRD_API_KEY");
+    let moneybirdInvoicePdf: string | null = null;
+    let moneybirdInvoiceId: string | null = null;
     if (moneybirdApiKey) {
-      try {
-        console.log("Creating Moneybird invoice...");
-        const contact = await findOrCreateMoneybirdContact(moneybirdApiKey, order);
-        const invoice = await createMoneybirdInvoice(moneybirdApiKey, contact.id, order);
-        await sendMoneybirdInvoice(moneybirdApiKey, invoice.id, order.email);
-        console.log(`Moneybird invoice ${invoice.id} created and sent successfully`);
-      } catch (moneybirdError: any) {
-        console.error("Moneybird error (non-blocking):", moneybirdError.message);
-        // Continue with document delivery even if Moneybird fails
+      if (!providedPdfBase64) {
+        // First call (no PDF = confirmation email): create invoice + send via Moneybird
+        try {
+          console.log("Creating Moneybird invoice (confirmation)...");
+          const contact = await findOrCreateMoneybirdContact(moneybirdApiKey, order);
+          const invoice = await createMoneybirdInvoice(moneybirdApiKey, contact.id, order);
+          await sendMoneybirdInvoice(moneybirdApiKey, invoice.id, order.email);
+          moneybirdInvoiceId = invoice.id;
+          // Save invoice ID to order for later retrieval
+          await supabase
+            .from("orders")
+            .update({ moneybird_invoice_id: invoice.id })
+            .eq("id", orderId);
+          console.log(`Moneybird invoice ${invoice.id} created, sent and saved`);
+        } catch (moneybirdError: any) {
+          console.error("Moneybird error (non-blocking):", moneybirdError.message);
+        }
+      } else {
+        // Second call (with PDF = document delivery): attach existing invoice PDF as reminder
+        try {
+          const existingInvoiceId = order.moneybird_invoice_id;
+          if (existingInvoiceId) {
+            console.log(`Fetching Moneybird invoice PDF ${existingInvoiceId} as reminder...`);
+            const baseUrl = `https://moneybird.com/api/v2/${MONEYBIRD_ORG_ID}`;
+            const pdfRes = await fetch(
+              `${baseUrl}/sales_invoices/${existingInvoiceId}/download_pdf.json`,
+              {
+                headers: { "Authorization": `Bearer ${moneybirdApiKey}` },
+              }
+            );
+            if (pdfRes.ok) {
+              const pdfData = await pdfRes.json();
+              if (pdfData.download_url) {
+                const downloadRes = await fetch(pdfData.download_url);
+                if (downloadRes.ok) {
+                  const arrayBuffer = await downloadRes.arrayBuffer();
+                  const bytes = new Uint8Array(arrayBuffer);
+                  let binary = "";
+                  for (let i = 0; i < bytes.length; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                  }
+                  moneybirdInvoicePdf = btoa(binary);
+                  console.log(`Moneybird invoice PDF fetched successfully`);
+                }
+              }
+            } else {
+              console.warn(`Could not fetch Moneybird invoice PDF: ${pdfRes.status}`);
+            }
+          } else {
+            console.log("No existing Moneybird invoice ID found on order, skipping PDF attachment");
+          }
+        } catch (mbPdfErr: any) {
+          console.warn("Moneybird PDF fetch error (non-blocking):", mbPdfErr.message);
+        }
       }
     } else {
-      console.warn("MONEYBIRD_API_KEY not configured, skipping invoice creation");
+      console.warn("MONEYBIRD_API_KEY not configured, skipping invoice");
     }
 
     // === GRUNDBUCH DOCUMENT DELIVERY ===
@@ -632,13 +679,23 @@ GrundbuchauszugOnline.at
 
     // Only add attachment if we have the document
     if (hasDocument) {
-      emailPayload.Attachments = [
+      const attachments: Array<{Name: string; Content: string; ContentType: string}> = [
         {
           Name: `Grundbuchauszug_${order.katastralgemeinde}_${order.grundstuecksnummer}_${documentType}.pdf`,
-          Content: pdfBase64,
+          Content: pdfBase64!,
           ContentType: "application/pdf",
         },
       ];
+      // Add Moneybird invoice PDF as reminder
+      if (moneybirdInvoicePdf) {
+        attachments.push({
+          Name: `Rechnung_${order.order_number}.pdf`,
+          Content: moneybirdInvoicePdf,
+          ContentType: "application/pdf",
+        });
+        console.log("Moneybird invoice PDF attached as reminder");
+      }
+      emailPayload.Attachments = attachments;
     }
 
     const emailResponse = await fetch("https://api.postmarkapp.com/email", {
@@ -660,11 +717,14 @@ GrundbuchauszugOnline.at
     const emailResult = await emailResponse.json();
     console.log("Email sent successfully:", emailResult.MessageID);
 
-    // Update order status
-    await supabase
-      .from("orders")
-      .update({ status: "processed" })
-      .eq("id", orderId);
+    // Update order status - only set to "processed" when document is delivered
+    // Without document (confirmation only), keep status as "pending"
+    if (hasDocument) {
+      await supabase
+        .from("orders")
+        .update({ status: "processed" })
+        .eq("id", orderId);
+    }
 
     return new Response(
       JSON.stringify({ 
@@ -673,7 +733,7 @@ GrundbuchauszugOnline.at
         order_number: order.order_number,
         document_sent: hasDocument,
         email_sent_to: order.email,
-        status_updated_to: "processed",
+        status_updated_to: hasDocument ? "processed" : "pending",
       }),
       {
         status: 200,
