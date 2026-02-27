@@ -10,12 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-
-
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { PropertyData, ApplicantData } from "@/pages/Anfordern";
@@ -50,8 +46,22 @@ const bundeslaender = [
   "Burgenland",
 ];
 
+const products = [
+  {
+    id: "aktuell",
+    name: "Grundbuchauszug aktuell",
+    description: "Aktueller, vollständiger Auszug mit A-Blatt, B-Blatt und C-Blatt.",
+    price: 28.90,
+  },
+  {
+    id: "historisch",
+    name: "Grundbuchauszug historisch",
+    description: "Vollständiger Auszug inkl. aller gelöschten Eintragungen seit der Grundbuchs­anlegung.",
+    price: 32.90,
+  },
+];
+
 const combinedSchema = z.object({
-  // Property fields - address
   strasse: z.string().min(1, "Straße und Hausnummer ist erforderlich").max(200),
   plz: z.string().min(1, "PLZ ist erforderlich").max(10),
   ort: z.string().min(1, "Ort ist erforderlich").max(100),
@@ -60,7 +70,6 @@ const combinedSchema = z.object({
   grundstuecksnummer: z.string().max(50).optional(),
   grundbuchsgericht: z.string().max(100).optional(),
   wohnungsHinweis: z.string().max(200).optional(),
-  // Applicant fields
   vorname: z.string().min(1, "Vorname ist erforderlich").max(50),
   nachname: z.string().min(1, "Nachname ist erforderlich").max(50),
   email: z.string().email("Ungültige E-Mail-Adresse").max(100).transform(v => v.toLowerCase()),
@@ -72,6 +81,16 @@ const combinedSchema = z.object({
 
 type FormData = z.infer<typeof combinedSchema>;
 
+const GBIcon = () => (
+  <div className="w-14 h-16 rounded-md border border-border flex flex-col items-center justify-center bg-muted/30 relative overflow-hidden">
+    <div className="absolute top-1 left-1.5 right-1.5">
+      {[0, 1, 2, 3].map(i => (
+        <div key={i} className="h-0.5 bg-border rounded-full mb-0.5" style={{ width: i === 3 ? '60%' : '100%' }} />
+      ))}
+    </div>
+    <span className="text-xl font-bold text-foreground mt-2 font-serif">GB</span>
+  </div>
+);
 
 interface CombinedOrderStepProps {
   initialPropertyData: PropertyData;
@@ -85,12 +104,13 @@ export function CombinedOrderStep({
   onSubmit,
 }: CombinedOrderStepProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState("aktuell");
+  const [signatur, setSignatur] = useState(false);
   const [fastDelivery, setFastDelivery] = useState(false);
   const [digitalStorage, setDigitalStorage] = useState(false);
   const { toast } = useToast();
   const sessionIdRef = useRef<string>(getSessionId());
   const lastTrackedEmailRef = useRef<string>("");
-  
 
   const {
     register,
@@ -133,15 +153,15 @@ export function CombinedOrderStep({
           adresse: strasse || "",
           plz: plz || "",
           ort: ort || "",
-          productName: "Aktueller Grundbuchauszug",
-          productPrice: 28.90,
+          productName: selectedProduct === "historisch" ? "Grundbuchauszug historisch" : "Aktueller Grundbuchauszug",
+          productPrice: basePrice,
           step: 1,
         },
       });
     } catch (error) {
       console.error("Error tracking abandoned session:", error);
     }
-  }, [email, vorname, nachname, bundesland, strasse, plz, ort, watch]);
+  }, [email, vorname, nachname, bundesland, strasse, plz, ort, watch, selectedProduct]);
 
   useEffect(() => {
     if (!email || !email.includes("@")) return;
@@ -151,7 +171,8 @@ export function CombinedOrderStep({
     return () => clearTimeout(timer);
   }, [email, trackAbandonedSession]);
 
-  const allConfirmed = true;
+  const basePrice = products.find(p => p.id === selectedProduct)?.price || 28.90;
+  const total = basePrice + (signatur ? 2.95 : 0) + (fastDelivery ? 9.95 : 0) + (digitalStorage ? 7.95 : 0);
   const hasPropertyData = !!(strasse && plz && ort && bundesland);
 
   const handleFormSubmit = async (formData: FormData) => {
@@ -164,11 +185,10 @@ export function CombinedOrderStep({
       return;
     }
 
-
-
     setIsSubmitting(true);
 
     try {
+      const productName = selectedProduct === "historisch" ? "Grundbuchauszug historisch" : "Aktueller Grundbuchauszug";
       const { data: orderResult, error } = await supabase.functions.invoke(
         "create-order",
         {
@@ -186,8 +206,8 @@ export function CombinedOrderStep({
             email: formData.email,
             wohnsitzland: "Österreich",
             firma: null,
-            product_name: "Aktueller Grundbuchauszug",
-            product_price: (fastDelivery ? 38.85 : 28.90) + (digitalStorage ? 7.95 : 0),
+            product_name: productName,
+            product_price: total,
             fast_delivery: fastDelivery,
             digital_storage_subscription: digitalStorage,
           },
@@ -200,12 +220,8 @@ export function CombinedOrderStep({
       }
 
       sessionStorage.removeItem("grundbuch_session_id");
-      
-      // Build property info string
       const propertyInfo = [strasse, plz, ort].filter(Boolean).join(', ');
-      
-      const totalPrice = ((fastDelivery ? 38.85 : 28.90) + (digitalStorage ? 7.95 : 0)).toFixed(2);
-      onSubmit(orderResult.order_number, formData.email, propertyInfo, totalPrice);
+      onSubmit(orderResult.order_number, formData.email, propertyInfo, total.toFixed(2));
     } catch (error) {
       console.error("Order submission error:", error);
       toast({
@@ -219,365 +235,319 @@ export function CombinedOrderStep({
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 animate-fade-in" data-testid="combined-order-step">
-      {/* Product Header + Address Search Card */}
-      <div className="bg-card rounded shadow-lg overflow-hidden">
-        <div className="px-6 py-5 lg:px-8 lg:py-6 border-b border-border/40 bg-gradient-to-b from-muted/30 to-transparent">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-            <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-foreground tracking-tight font-serif leading-tight">
-                Grundbuchauszug anfordern
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch. Enthält <span className="font-medium text-foreground">A-Blatt</span> (Grundstücke &amp; Flächen), <span className="font-medium text-foreground">B-Blatt</span> (Eigentümer) und <span className="font-medium text-foreground">C-Blatt</span> (Hypotheken &amp; Lasten).
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3 animate-fade-in" data-testid="combined-order-step">
+      
+      {/* ── Header Card ── */}
+      <div className="bg-card rounded-xl border border-border p-6 lg:p-7">
+        <div className="flex gap-5 items-start">
+          <div className="flex-1">
+            <h1 className="text-xl lg:text-[22px] font-bold text-foreground tracking-tight font-serif leading-tight">
+              Grundbuchauszug anfordern
+            </h1>
+            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+              Aktueller, vollständiger Auszug aus dem österreichischen Grundbuch. Enthält{' '}
+              <strong className="text-foreground">A-Blatt</strong> (Grundstücke &amp; Flächen),{' '}
+              <strong className="text-foreground">B-Blatt</strong> (Eigentümer) und{' '}
+              <strong className="text-foreground">C-Blatt</strong> (Hypotheken &amp; Lasten).
+            </p>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button type="button" className="shrink-0 flex flex-col items-center gap-1.5 cursor-pointer group">
+                <GBIcon />
+                <span className="text-[11px] text-primary font-medium group-hover:underline">Beispiel ansehen →</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Beispiel Grundbuchauszug</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                So sieht ein Grundbuchauszug aus. Die gezeigten Daten sind fiktiv.
               </p>
-            </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button type="button" className="shrink-0 group flex sm:flex-col items-center gap-3 sm:gap-0 sm:text-center cursor-pointer rounded-lg border border-border/50 p-2 sm:border-0 sm:p-0 hover:bg-muted/30 sm:hover:bg-transparent transition-colors">
-                  <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <img 
-                        src={grundbuchPreview} 
-                        alt="Beispiel Grundbuchauszug" 
-                        className="w-12 h-16 sm:w-16 sm:h-20 object-cover rounded border border-border shadow-sm group-hover:shadow-md transition-shadow"
-                      />
-                    </div>
-                    <div className="flex sm:hidden items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-serif font-bold text-sm">
-                      GB
-                    </div>
-                    <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-serif font-bold text-lg">
-                      GB
-                    </div>
+              <div className="space-y-4">
+                <img src={grundbuchPage1} alt="Grundbuchauszug Seite 1" className="w-full rounded border border-border" />
+                <img src={grundbuchPage2} alt="Grundbuchauszug Seite 2" className="w-full rounded border border-border" />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* ── Product Selection Card ── */}
+      <div className="bg-card rounded-xl border border-border p-6 lg:p-7">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">
+          Produkt wählen
+        </div>
+        <div className="flex flex-col gap-2.5">
+          {products.map((product) => {
+            const isSelected = selectedProduct === product.id;
+            return (
+              <label
+                key={product.id}
+                onClick={() => setSelectedProduct(product.id)}
+                className={`flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/30"
+                }`}
+              >
+                {/* Radio */}
+                <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center transition-all ${
+                  isSelected ? "border-primary" : "border-muted-foreground/30"
+                }`}>
+                  {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+                </div>
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-baseline gap-3 flex-wrap">
+                    <span className="text-[15px] font-semibold text-foreground">{product.name}</span>
+                    <span className="text-[15px] font-bold text-foreground whitespace-nowrap tabular-nums">
+                      € {product.price.toFixed(2).replace('.', ',')}
+                    </span>
                   </div>
-                  <span className="text-xs sm:text-[10px] text-muted-foreground group-hover:text-primary transition-colors sm:mt-1">Beispiel ansehen →</span>
-                </button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Beispiel Grundbuchauszug</DialogTitle>
-                </DialogHeader>
-                <p className="text-sm text-muted-foreground">
-                  So sieht ein Grundbuchauszug aus. Die gezeigten Daten sind fiktiv.
-                </p>
-                <div className="space-y-4">
-                  <img src={grundbuchPage1} alt="Grundbuchauszug Seite 1" className="w-full rounded border border-border" />
-                  <img src={grundbuchPage2} alt="Grundbuchauszug Seite 2" className="w-full rounded border border-border" />
+                  <p className="text-[13px] text-muted-foreground mt-1 leading-snug">{product.description}</p>
                 </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-
-        {/* Property Address - Manual Input */}
-        <div className="p-6 lg:p-8 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="strasse" className="text-sm font-medium text-foreground">
-              Straße und Hausnummer <span className="text-destructive">*</span>
-            </Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-              <Input
-                id="strasse"
-                {...register("strasse")}
-                placeholder="z.B. Hauptstraße 1"
-                className="pl-9"
-              />
-            </div>
-            {errors.strasse && (
-              <p className="text-xs text-destructive">{errors.strasse.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-[120px_1fr] gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="plz" className="text-sm font-medium text-foreground">
-                PLZ <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="plz"
-                {...register("plz")}
-                placeholder="1010"
-              />
-              {errors.plz && (
-                <p className="text-xs text-destructive">{errors.plz.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="ort" className="text-sm font-medium text-foreground">
-                Ort <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="ort"
-                {...register("ort")}
-                placeholder="Wien"
-              />
-              {errors.ort && (
-                <p className="text-xs text-destructive">{errors.ort.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bundesland" className="text-sm font-medium text-foreground">
-              Bundesland <span className="text-destructive">*</span>
-            </Label>
-            <select
-              id="bundesland"
-              value={bundesland || ""}
-              onChange={(e) =>
-                setValue("bundesland", e.target.value, { shouldValidate: true })
-              }
-              className="flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="" disabled>Bundesland auswählen...</option>
-              {bundeslaender.map((bl) => (
-                <option key={bl} value={bl}>
-                  {bl}
-                </option>
-              ))}
-            </select>
-            {errors.bundesland && (
-              <p className="text-xs text-destructive">{errors.bundesland.message}</p>
-            )}
-          </div>
+              </label>
+            );
+          })}
         </div>
       </div>
 
-      {/* Contact Details Card */}
-      <div className="bg-card border border-border rounded overflow-hidden">
-        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
-          <div className="w-0.5 h-4 bg-primary" />
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Kontaktdaten</h2>
+      {/* ── Address Card ── */}
+      <div className="bg-card rounded-xl border border-border p-6 lg:p-7 space-y-4">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Adresse des Grundstücks
         </div>
 
-        <div className="p-4 lg:p-6 space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Der Grundbuchauszug wird per E-Mail an Sie versendet.
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="vorname" className="text-sm font-medium text-foreground">
-                Vorname <span className="text-destructive">*</span>
-              </Label>
-              <Input 
-                id="vorname" 
-                {...register("vorname")} 
-                placeholder="Max"
-              />
-              {errors.vorname && (
-                <p className="text-xs text-destructive">{errors.vorname.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nachname" className="text-sm font-medium text-foreground">
-                Nachname <span className="text-destructive">*</span>
-              </Label>
-              <Input 
-                id="nachname" 
-                {...register("nachname")} 
-                placeholder="Mustermann"
-              />
-              {errors.nachname && (
-                <p className="text-xs text-destructive">{errors.nachname.message}</p>
-              )}
-            </div>
+        <div className="space-y-2">
+          <Label htmlFor="strasse" className="text-sm font-semibold text-foreground">
+            Straße und Hausnummer <span className="text-destructive">*</span>
+          </Label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+            <Input
+              id="strasse"
+              {...register("strasse")}
+              placeholder="z.B. Hauptstraße 1"
+              className="pl-9"
+            />
           </div>
+          {errors.strasse && <p className="text-xs text-destructive">{errors.strasse.message}</p>}
+        </div>
 
+        <div className="grid grid-cols-[120px_1fr] gap-3">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-foreground">
-              E-Mail-Adresse <span className="text-destructive">*</span>
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-              <Input 
-                id="email" 
-                type="email" 
-                {...register("email")} 
-                placeholder="max.mustermann@email.at"
-                className="pl-9"
-              />
-            </div>
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
+            <Label htmlFor="plz" className="text-sm font-semibold text-foreground">PLZ <span className="text-destructive">*</span></Label>
+            <Input id="plz" {...register("plz")} placeholder="1010" />
+            {errors.plz && <p className="text-xs text-destructive">{errors.plz.message}</p>}
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="emailConfirm" className="text-sm font-medium text-foreground">
-              E-Mail-Adresse bestätigen <span className="text-destructive">*</span>
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
-              <Input 
-                id="emailConfirm" 
-                type="email" 
-                {...register("emailConfirm")} 
-                placeholder="E-Mail-Adresse wiederholen"
-                className="pl-9"
-              />
-            </div>
-            {errors.emailConfirm && (
-              <p className="text-xs text-destructive">{errors.emailConfirm.message}</p>
-            )}
+            <Label htmlFor="ort" className="text-sm font-semibold text-foreground">Ort <span className="text-destructive">*</span></Label>
+            <Input id="ort" {...register("ort")} placeholder="Wien" />
+            {errors.ort && <p className="text-xs text-destructive">{errors.ort.message}</p>}
           </div>
-
-        </div>
-      </div>
-
-      {/* Delivery Options Card */}
-      <div className="bg-card border border-border rounded overflow-hidden">
-        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
-          <div className="w-0.5 h-4 bg-primary" />
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Lieferoption</h2>
         </div>
 
-        <div className="p-4 lg:p-6 space-y-3">
-          <div className="flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-2">
-            <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-sm text-muted-foreground">Standard: Zustellung innerhalb von 24 Stunden per E-Mail</span>
-          </div>
-
-          {/* Express Delivery Upsell Checkbox */}
-          <div
-            onClick={() => setFastDelivery(!fastDelivery)}
-            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer select-none ${
-              fastDelivery
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-muted-foreground/30"
-            }`}
+        <div className="space-y-2">
+          <Label htmlFor="bundesland" className="text-sm font-semibold text-foreground">
+            Bundesland <span className="text-destructive">*</span>
+          </Label>
+          <select
+            id="bundesland"
+            value={bundesland || ""}
+            onChange={(e) => setValue("bundesland", e.target.value, { shouldValidate: true })}
+            className="flex h-11 w-full rounded border-[1.5px] border-input bg-background px-4 py-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/8 transition-all duration-200 hover:border-muted-foreground/30"
           >
-            <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                id="fastDelivery"
-                checked={fastDelivery}
-                readOnly
-                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none accent-[hsl(var(--primary))] rounded"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-sm font-semibold text-foreground">
-                    Express-Zustellung
-                  </span>
-                  <span className="text-sm font-bold text-foreground whitespace-nowrap">+ € 9,95</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Lieferung innerhalb von 1 Stunde per E-Mail</p>
-              </div>
+            <option value="" disabled>Bundesland auswählen...</option>
+            {bundeslaender.map((bl) => (
+              <option key={bl} value={bl}>{bl}</option>
+            ))}
+          </select>
+          {errors.bundesland && <p className="text-xs text-destructive">{errors.bundesland.message}</p>}
+        </div>
+      </div>
+
+      {/* ── Contact Details Card ── */}
+      <div className="bg-card rounded-xl border border-border p-6 lg:p-7 space-y-4">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Kontaktdaten
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Der Grundbuchauszug wird per E-Mail an Sie versendet.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="vorname" className="text-sm font-semibold text-foreground">Vorname <span className="text-destructive">*</span></Label>
+            <Input id="vorname" {...register("vorname")} placeholder="Max" />
+            {errors.vorname && <p className="text-xs text-destructive">{errors.vorname.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="nachname" className="text-sm font-semibold text-foreground">Nachname <span className="text-destructive">*</span></Label>
+            <Input id="nachname" {...register("nachname")} placeholder="Mustermann" />
+            {errors.nachname && <p className="text-xs text-destructive">{errors.nachname.message}</p>}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-semibold text-foreground">E-Mail-Adresse <span className="text-destructive">*</span></Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+            <Input id="email" type="email" {...register("email")} placeholder="max.mustermann@email.at" className="pl-9" />
+          </div>
+          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="emailConfirm" className="text-sm font-semibold text-foreground">E-Mail-Adresse bestätigen <span className="text-destructive">*</span></Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+            <Input id="emailConfirm" type="email" {...register("emailConfirm")} placeholder="E-Mail-Adresse wiederholen" className="pl-9" />
+          </div>
+          {errors.emailConfirm && <p className="text-xs text-destructive">{errors.emailConfirm.message}</p>}
+        </div>
+      </div>
+
+      {/* ── Amtliche Signatur Card ── */}
+      <div
+        onClick={() => setSignatur(!signatur)}
+        className={`bg-card rounded-xl border-[1.5px] p-6 lg:p-7 cursor-pointer transition-all select-none ${
+          signatur ? "border-primary" : "border-border hover:border-muted-foreground/30"
+        }`}
+      >
+        <div className="flex items-start gap-3.5">
+          {/* Checkbox */}
+          <div className={`w-5 h-5 rounded shrink-0 mt-0.5 border-2 flex items-center justify-center transition-all ${
+            signatur ? "border-primary bg-primary" : "border-muted-foreground/30 bg-background"
+          }`}>
+            {signatur && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2.5 7L5.5 10L11.5 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <div className="flex-1">
+            <div className="flex justify-between items-baseline gap-3">
+              <span className="text-[15px] font-semibold text-foreground">Amtliche Signatur</span>
+              <span className="text-sm font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                + € 2,95
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Digital Storage Upsell */}
-          <div
-            onClick={() => setDigitalStorage(!digitalStorage)}
-            className={`block p-4 rounded-lg border-2 transition-all cursor-pointer select-none ${
-              digitalStorage
-                ? "border-primary bg-primary/5"
-                : "border-border hover:border-muted-foreground/30"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                id="digitalStorage"
-                checked={digitalStorage}
-                readOnly
-                className="mt-0.5 h-5 w-5 shrink-0 pointer-events-none accent-[hsl(var(--primary))] rounded"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-sm font-semibold text-foreground">
-                    Digitale Speicherung
-                  </span>
-                  <span className="text-sm font-bold text-foreground whitespace-nowrap">+ € 7,95 <span className="text-xs font-normal text-muted-foreground">/ Monat</span></span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">Sichere Online-Speicherung mit digitalem Zugriff · <span className="font-medium text-foreground">Jederzeit kündbar</span></p>
+        <div className="mt-3.5 ml-[34px] pt-3.5 border-t border-border/50">
+          <div className="flex flex-col gap-2">
+            {[
+              "Der Auszug kann elektronisch signiert werden.",
+              "Auch ein Ausdruck dieses Dokuments hat in Folge die Beweiskraft einer öffentlichen Urkunde.",
+              <>Informationen zur Prüfung der elektronischen Signatur finden Sie unter: <a href="https://kundmachungen.justiz.gv.at/justizsignatur" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>kundmachungen.justiz.gv.at/justizsignatur</a></>,
+            ].map((text, i) => (
+              <div key={i} className="flex gap-2 items-start">
+                <Info className="h-4 w-4 text-muted-foreground/60 shrink-0 mt-0.5" />
+                <span className="text-[13px] text-muted-foreground leading-relaxed">{text}</span>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
-      {/* Payment & Confirmation Card */}
-      <div className="bg-card border border-border rounded overflow-hidden">
-        <div className="bg-muted/50 px-4 py-2.5 border-b border-border flex items-center gap-2.5">
-          <div className="w-0.5 h-4 bg-primary" />
-          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wide">Zahlung & Bestätigung</h2>
+
+      {/* ── Delivery Options Card ── */}
+      <div className="bg-card rounded-xl border border-border p-6 lg:p-7 space-y-3">
+        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
+          Lieferoption
+        </div>
+        <div className="flex items-center gap-2 bg-muted/30 rounded-lg px-3 py-2">
+          <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground">Standard: Zustellung innerhalb von 24 Stunden per E-Mail</span>
         </div>
 
-        <div className="p-4 lg:p-6 space-y-4">
-          {/* Payment Info - Clean minimal style */}
-          <div className="space-y-2 py-3 border-b border-border">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Grundbuchauszug</span>
-              <span className="text-sm text-foreground">€28,90</span>
-            </div>
+        {/* Express */}
+        <div
+          onClick={() => setFastDelivery(!fastDelivery)}
+          className={`flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none ${
+            fastDelivery ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
+          }`}
+        >
+          <div className={`w-5 h-5 rounded shrink-0 mt-0.5 border-2 flex items-center justify-center transition-all ${
+            fastDelivery ? "border-primary bg-primary" : "border-muted-foreground/30 bg-background"
+          }`}>
             {fastDelivery && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Express-Zustellung</span>
-                <span className="text-sm text-foreground">€9,95</span>
-              </div>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2.5 7L5.5 10L11.5 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             )}
-            {digitalStorage && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Digitale Speicherung (monatl.)</span>
-                <span className="text-sm text-foreground">€7,95</span>
-              </div>
-            )}
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-              <div>
-                <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  inkl. 20% MwSt.
-                </p>
-              </div>
-              <span className="text-xl font-bold text-foreground">€{((fastDelivery ? 38.85 : 28.90) + (digitalStorage ? 7.95 : 0)).toFixed(2).replace('.', ',')}</span>
-            </div>
           </div>
-          
-
-          {/* Legal Notice */}
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">Bei Bestellung akzeptieren Sie:</p>
-            <div className="flex items-start gap-2 px-3 py-2 rounded bg-muted/30">
-              <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline">Datenschutzerklärung</a>. Die Bestellung wird sofort bearbeitet. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr.
-              </p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-sm font-semibold text-foreground">Express-Zustellung</span>
+              <span className="text-sm font-bold text-foreground whitespace-nowrap">+ € 9,95</span>
             </div>
-          </div>
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full h-14 text-base font-semibold shadow-lg"
-            disabled={isSubmitting || !allConfirmed || !hasPropertyData}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Wird verarbeitet...</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Check className="h-5 w-5 shrink-0" />
-                <span className="hidden sm:inline">Kostenpflichtig bestellen</span>
-                <span className="sm:hidden">Bestellen</span>
-              </span>
-            )}
-          </Button>
-
-          {/* Trust Badge */}
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4" />
-            <span>Sichere Bestellung • SSL-verschlüsselt</span>
+            <p className="text-xs text-muted-foreground mt-1">Lieferung innerhalb von 1 Stunde per E-Mail</p>
           </div>
         </div>
+
+        {/* Digital Storage */}
+        <div
+          onClick={() => setDigitalStorage(!digitalStorage)}
+          className={`flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none ${
+            digitalStorage ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
+          }`}
+        >
+          <div className={`w-5 h-5 rounded shrink-0 mt-0.5 border-2 flex items-center justify-center transition-all ${
+            digitalStorage ? "border-primary bg-primary" : "border-muted-foreground/30 bg-background"
+          }`}>
+            {digitalStorage && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2.5 7L5.5 10L11.5 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-sm font-semibold text-foreground">Digitale Speicherung</span>
+              <span className="text-sm font-bold text-foreground whitespace-nowrap">+ € 7,95 <span className="text-xs font-normal text-muted-foreground">/ Monat</span></span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Sichere Online-Speicherung mit digitalem Zugriff · <span className="font-medium text-foreground">Jederzeit kündbar</span></p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Legal Notice ── */}
+      <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-muted/40">
+        <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Bei Bestellung akzeptieren Sie die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline">Datenschutzerklärung</a>. Die Bestellung wird sofort bearbeitet. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr.
+        </p>
+      </div>
+
+      {/* ── Dark Total + CTA Bar ── */}
+      <div className="bg-foreground rounded-xl p-5 flex items-center justify-between">
+        <div>
+          <div className="text-xs text-muted-foreground/70 font-medium mb-0.5">Gesamtpreis</div>
+          <div className="text-2xl font-bold text-background tabular-nums">
+            € {total.toFixed(2).replace('.', ',')}
+          </div>
+        </div>
+        <Button
+          type="submit"
+          disabled={isSubmitting || !hasPropertyData}
+          className="h-12 px-8 text-[15px] font-semibold rounded-lg shadow-lg"
+        >
+          {isSubmitting ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Wird verarbeitet...
+            </span>
+          ) : (
+            "Auszug anfordern →"
+          )}
+        </Button>
       </div>
 
       {/* Trust indicators */}
-      <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground pt-2">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded bg-primary/10 flex items-center justify-center">
             <Shield className="h-3.5 w-3.5 text-primary" />
@@ -598,26 +568,20 @@ export function CombinedOrderStep({
         </div>
       </div>
 
-
       {/* Loading Overlay */}
       {isSubmitting && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-card border rounded p-8 shadow-xl max-w-sm mx-4 text-center">
+          <div className="bg-card border rounded-xl p-8 shadow-xl max-w-sm mx-4 text-center">
             <div className="relative mx-auto w-16 h-16 mb-5">
               <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
               <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
               <FileText className="absolute inset-0 m-auto h-6 w-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              Bestellung wird verarbeitet
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Ihr Grundbuchauszug wird angefordert. Bitte warten Sie einen Moment...
-            </p>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Bestellung wird verarbeitet</h3>
+            <p className="text-sm text-muted-foreground">Ihr Grundbuchauszug wird angefordert. Bitte warten Sie einen Moment...</p>
           </div>
         </div>
       )}
-
     </form>
   );
 }
