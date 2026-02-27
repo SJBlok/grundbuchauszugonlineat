@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -332,25 +333,26 @@ export function CombinedOrderStep({
             <div className="flex-1">
               <div className="flex justify-between items-baseline gap-3">
                 <span className="text-[15px] font-semibold text-foreground">Amtliche Signatur</span>
-                <span className="text-sm font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                  + € 2,95
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 ml-[34px] pt-3 border-t border-border/30">
-            <div className="flex flex-col gap-2">
-              {[
-                "Der Auszug kann elektronisch signiert werden.",
-                "Auch ein Ausdruck dieses Dokuments hat in Folge die Beweiskraft einer öffentlichen Urkunde.",
-                <>Informationen zur Prüfung der elektronischen Signatur finden Sie unter: <a href="https://kundmachungen.justiz.gv.at/justizsignatur" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>kundmachungen.justiz.gv.at/justizsignatur</a></>,
-              ].map((text, i) => (
-                <div key={i} className="flex gap-2 items-start">
-                  <Info className="h-4 w-4 text-muted-foreground/60 shrink-0 mt-0.5" />
-                  <span className="text-[13px] text-muted-foreground leading-relaxed">{text}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                    + € 2,95
+                  </span>
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button type="button" onClick={(e) => e.stopPropagation()} className="text-muted-foreground/60 hover:text-muted-foreground transition-colors">
+                          <Info className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" align="end" className="max-w-xs p-3 space-y-2">
+                        <p className="text-xs leading-relaxed">Der Auszug kann elektronisch signiert werden.</p>
+                        <p className="text-xs leading-relaxed">Auch ein Ausdruck dieses Dokuments hat in Folge die Beweiskraft einer öffentlichen Urkunde.</p>
+                        <p className="text-xs leading-relaxed">Informationen zur Prüfung der elektronischen Signatur finden Sie unter: <a href="https://kundmachungen.justiz.gv.at/justizsignatur" target="_blank" rel="noopener noreferrer" className="text-primary font-medium hover:underline" onClick={(e) => e.stopPropagation()}>kundmachungen.justiz.gv.at/justizsignatur</a></p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
