@@ -193,10 +193,10 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
   // ── Helpers ──
   const InfoRow = ({ label, value, copyable, mono }: { label: string; value?: string | null; copyable?: boolean; mono?: boolean }) => (
-    <div className={`flex items-start justify-between py-2 ${d ? "border-slate-800/50" : "border-border/30"}`}>
-      <span className={`text-xs uppercase tracking-wider font-medium shrink-0 pt-0.5 ${d ? "text-slate-500" : "text-muted-foreground/60"}`}>{label}</span>
-      <div className="flex items-center gap-1.5 text-right">
-        <span className={`text-sm ${mono ? "font-mono" : ""} ${d ? "text-slate-200" : "text-foreground"}`}>{value || "—"}</span>
+    <div className={`flex items-start justify-between py-2.5 border-b last:border-b-0 ${d ? "border-slate-800/40" : "border-border/20"}`}>
+      <span className={`text-[13px] font-medium tracking-wide shrink-0 pt-0.5 ${d ? "text-slate-400" : "text-muted-foreground"}`}>{label}</span>
+      <div className="flex items-center gap-1.5 text-right pl-4">
+        <span className={`text-[14px] ${mono ? "font-mono" : ""} ${d ? "text-slate-100" : "text-foreground"}`}>{value || "—"}</span>
         {copyable && value && (
           <button onClick={() => copyText(value, label)} className="opacity-40 hover:opacity-80 transition-opacity">
             {copied === label ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
@@ -291,20 +291,26 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
           {/* ─── H. Extras ─── */}
           <div>
             <SectionTitle>Extras</SectionTitle>
-            <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
               {order.fast_delivery && (
-                <div className="flex items-center gap-2 text-sm"><Zap className="w-3.5 h-3.5 text-amber-500" /> Express-Lieferung</div>
+                <Badge className="gap-1.5 py-1.5 px-3 text-xs font-medium bg-amber-500/15 text-amber-600 border-amber-500/30 hover:bg-amber-500/20">
+                  <Zap className="w-3.5 h-3.5" /> Express-Lieferung
+                </Badge>
               )}
               {order.digital_storage_subscription && (
-                <div className="flex items-center gap-2 text-sm"><HardDrive className="w-3.5 h-3.5 text-blue-500" /> Digitale Speicherung</div>
+                <Badge className="gap-1.5 py-1.5 px-3 text-xs font-medium bg-blue-500/15 text-blue-500 border-blue-500/30 hover:bg-blue-500/20">
+                  <HardDrive className="w-3.5 h-3.5" /> Digitale Speicherung
+                </Badge>
               )}
               {!order.fast_delivery && !order.digital_storage_subscription && (
                 <span className={`text-sm ${d ? "text-slate-500" : "text-muted-foreground"}`}>Keine Extras</span>
               )}
-              {order.moneybird_invoice_id && (
-                <InfoRow label="Moneybird" value={order.moneybird_invoice_id} mono />
-              )}
             </div>
+            {order.moneybird_invoice_id && (
+              <div className="mt-3">
+                <InfoRow label="Moneybird" value={order.moneybird_invoice_id} mono />
+              </div>
+            )}
           </div>
 
           {sep}
