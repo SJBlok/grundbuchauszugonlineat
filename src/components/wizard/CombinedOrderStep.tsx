@@ -59,7 +59,7 @@ const products = [
     id: "historisch",
     name: "Grundbuchauszug historisch",
     description: "Vollständiger Auszug inkl. aller gelöschten Eintragungen seit der Grundbuchsanlegung. Zeigt frühere Eigentümer, alte Hypotheken und historische Änderungen.",
-    price: 19.80,
+    price: 28.80,
   },
   {
     id: "kombi",
