@@ -270,6 +270,8 @@ serve(async (req: Request): Promise<Response> => {
     // Support both camelCase (internal use) and snake_case (portal API)
     const orderId = body.orderId || body.order_id;
     const sessionId = body.sessionId || body.session_id;
+    const providedPdfBase64 = body.pdf_base64 || null;
+    const documentType = body.document_type || "aktuell";
 
     // Determine auth method: portal API key OR valid origin
     const apiKey = req.headers.get("x-api-key");
@@ -308,7 +310,8 @@ serve(async (req: Request): Promise<Response> => {
     }
     
     // Only block re-processing for internal calls (no API key), not for portal API calls
-    if (orderCheck.status === "processed" && !hasValidApiKey) {
+    // Allow re-processing if PDF is provided (admin sending document)
+    if (orderCheck.status === "processed" && !hasValidApiKey && !providedPdfBase64) {
       return new Response(
         JSON.stringify({ error: "Order already processed", order_id: orderCheck.id }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -374,85 +377,12 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // === GRUNDBUCH DOCUMENT DELIVERY ===
-    // Try to fetch Grundbuchauszug PDF from Wirtschafts-Compass API
-    let pdfBase64: string | null = null;
+    let pdfBase64: string | null = providedPdfBase64;
     let documentFetchError: string | null = null;
-    
-    const wirtschaftsCompassApiKey = Deno.env.get("WIRTSCHAFTSCOMPASS_API_KEY");
-    if (!wirtschaftsCompassApiKey) {
-      console.warn("WIRTSCHAFTSCOMPASS_API_KEY not configured, skipping document fetch");
-      documentFetchError = "API key not configured";
-    } else {
-      try {
-        const baseUrl = "https://api.wirtschaftscompass.at/landregister";
-        const authHeaders = {
-          "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        };
 
-        // Parse the grundstuecksnummer - it contains KG number and EZ
-        const kgNumber = order.katastralgemeinde.match(/\d+/)?.[0] || order.katastralgemeinde;
-        const ezNumber = order.grundstuecksnummer;
-
-        console.log(`Fetching Grundbuchauszug for KG: ${kgNumber}, EZ: ${ezNumber}`);
-
-        // Step 1: Create/retrieve a document reference via POST /v1/excerpts/land-register-excerpt
-        const excerptResponse = await fetch(
-          `${baseUrl}/v1/excerpts/land-register-excerpt`,
-          {
-            method: "POST",
-            headers: authHeaders,
-            body: JSON.stringify({
-              kg: kgNumber,
-              ez: ezNumber,
-              validity: "FETCH_IF_NOT_AVAILABLE",
-            }),
-          }
-        );
-
-        if (!excerptResponse.ok) {
-          const errorText = await excerptResponse.text();
-          console.error("Wirtschafts-Compass excerpt creation error:", errorText);
-          throw new Error(`Failed to create excerpt: ${excerptResponse.status}`);
-        }
-
-        const excerptData = await excerptResponse.json();
-        const documentReference = excerptData.documentReference || excerptData.document_reference || excerptData.id;
-        
-        if (!documentReference) {
-          console.error("Wirtschafts-Compass response:", JSON.stringify(excerptData));
-          throw new Error("No document reference returned");
-        }
-
-        console.log(`Got document reference: ${documentReference}`);
-
-        // Step 2: Download the PDF
-        const pdfResponse = await fetch(
-          `${baseUrl}/v1/excerpts/${documentReference}/land-register-excerpt/pdf`,
-          {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${wirtschaftsCompassApiKey}`,
-              "Accept": "application/pdf",
-            },
-          }
-        );
-
-        if (!pdfResponse.ok) {
-          const errorText = await pdfResponse.text();
-          console.error("Wirtschafts-Compass PDF download error:", errorText);
-          throw new Error(`Failed to download PDF: ${pdfResponse.status}`);
-        }
-
-        // Get the PDF as base64
-        const pdfBuffer = await pdfResponse.arrayBuffer();
-        pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBuffer)));
-        console.log(`Retrieved Grundbuchauszug PDF (${pdfBuffer.byteLength} bytes)`);
-      } catch (docError: any) {
-        console.error("Document fetch error (non-blocking):", docError.message);
-        documentFetchError = docError.message;
-      }
+    if (!pdfBase64) {
+      console.warn("No PDF provided in request body, email will be sent without attachment");
+      documentFetchError = "Kein PDF bereitgestellt";
     }
 
     // Send email via Postmark
@@ -699,7 +629,7 @@ GrundbuchauszugOnline.at
     if (hasDocument) {
       emailPayload.Attachments = [
         {
-          Name: `Grundbuchauszug_${order.katastralgemeinde}_${order.grundstuecksnummer}.pdf`,
+          Name: `Grundbuchauszug_${order.katastralgemeinde}_${order.grundstuecksnummer}_${documentType}.pdf`,
           Content: pdfBase64,
           ContentType: "application/pdf",
         },

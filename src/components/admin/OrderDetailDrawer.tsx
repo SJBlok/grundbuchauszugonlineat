@@ -154,12 +154,18 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const handlePurchase = async (type: "aktuell" | "historisch") => {
     if (!selectedKgEz) return;
     const useSignatur = overrideSignatur ?? wantsSignatur;
-    setGbStep("purchasing"); setGbError(null);
+    setGbStep("purchasing");
+    setGbError(null);
+
     try {
+      // 1. Abruf bij UVST via proxy
       const result = type === "aktuell"
         ? await fetchAktuell(selectedKgEz.kg, selectedKgEz.ez, useSignatur)
         : await fetchHistorisch(selectedKgEz.kg, selectedKgEz.ez, useSignatur);
+
       const kosten = result.data.ergebnis?.kosten?.gesamtKostenInklUst || 0;
+
+      // 2. Extract PDF
       let pdfBase64 = "";
       if (type === "historisch") {
         const match = result.data.responseDecoded?.match(/<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/);
@@ -169,11 +175,13 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       }
       if (!pdfBase64) throw new Error("Kein PDF in der Antwort gefunden");
 
-      // Auto-upload document
+      // 3. Maak PDF bestand
       const fileName = `grundbuch_${selectedKgEz.kg}_${selectedKgEz.ez}_${type}${useSignatur ? "_signiert" : ""}.pdf`;
       const bytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
       const blob = new Blob([bytes], { type: "application/pdf" });
       const file = new File([blob], fileName, { type: "application/pdf" });
+
+      // 4. Upload naar Supabase Storage
       const { data: { session } } = await supabase.auth.getSession();
       const uploadFormData = new FormData();
       uploadFormData.append("file", file);
@@ -181,24 +189,73 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       uploadFormData.append("order_number", order.order_number);
       const uploadRes = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-order-document`,
-        { method: "POST", headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${session?.access_token}` }, body: uploadFormData }
+        {
+          method: "POST",
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: uploadFormData,
+        }
       );
       const uploadData = await uploadRes.json();
       if (uploadData.error) throw new Error(uploadData.error);
       setDocuments(prev => [...prev, uploadData.document]);
 
-      // Auto-update status + log cost
+      // 5. Lokale download
+      const downloadUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = downloadUrl;
+      downloadLink.download = fileName;
+      downloadLink.click();
+      URL.revokeObjectURL(downloadUrl);
+
+      // 6. Status + notities updaten
       const timestamp = new Date().toLocaleString("de-AT");
       const costNote = `[${timestamp}] UVST ${type === "historisch" ? "GT_GBP" : "GT_GBA"} abgerufen — KG ${selectedKgEz.kg} / EZ ${selectedKgEz.ez}${useSignatur ? " (signiert)" : ""} — Kosten: €${kosten.toFixed(2)}`;
       const updatedNotes = notes ? `${notes}\n${costNote}` : costNote;
       setNotes(updatedNotes);
       await onUpdateOrder(order.id, { status: "processed", processing_notes: updatedNotes });
 
+      // 7. Email naar klant met PDF bijlage
+      try {
+        const emailRes = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-grundbuch-document`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${session?.access_token}`,
+            },
+            body: JSON.stringify({
+              order_id: order.id,
+              pdf_base64: pdfBase64,
+              document_type: type,
+            }),
+          }
+        );
+        const emailData = await emailRes.json();
+        if (emailData.error) {
+          console.error("Email error:", emailData.error);
+          toast({ title: "Email-Versand fehlgeschlagen", description: emailData.error, variant: "destructive" });
+        } else {
+          toast({ title: "Email versendet", description: `Grundbuchauszug an ${order.email} gesendet` });
+        }
+      } catch (emailErr: any) {
+        console.error("Email send error:", emailErr);
+        toast({ title: "Email-Versand fehlgeschlagen", description: emailErr.message, variant: "destructive" });
+      }
+
+      // 8. Done
       setPurchasedPdf({ type, base64: pdfBase64, kosten });
       setGbStep("done");
-      toast({ title: "Grundbuchauszug erfolgreich", description: `${fileName} wurde gespeichert und Status auf "Verarbeitet" gesetzt.` });
+      toast({ title: "Grundbuchauszug erfolgreich", description: `${fileName} wurde gespeichert, heruntergeladen und per Email versendet.` });
       onRefresh();
-    } catch (err: any) { setGbError(err.message || "Abruf fehlgeschlagen"); setGbStep("found"); }
+    } catch (err: any) {
+      setGbError(err.message || "Abruf fehlgeschlagen");
+      setGbStep("found");
+    }
   };
 
   const handleDownloadPdf = () => {
@@ -493,6 +550,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
               </div>
               <div className={`p-3 rounded-lg text-xs space-y-1 ${d ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700"}`}>
                 <p>✓ PDF automatisch als Dokument hinzugefügt</p>
+                <p>✓ PDF lokal heruntergeladen</p>
+                <p>✓ Email mit PDF an {order.email} gesendet</p>
                 <p>✓ Status auf „Verarbeitet" gesetzt</p>
                 <p>✓ Kosten in Notizen protokolliert</p>
                 {order.digital_storage_subscription && order.document_visible && (
