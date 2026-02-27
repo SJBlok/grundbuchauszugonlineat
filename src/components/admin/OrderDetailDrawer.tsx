@@ -68,6 +68,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const [addressResults, setAddressResults] = useState<any[]>([]);
   const [selectedKgEz, setSelectedKgEz] = useState<{ kg: string; ez: string } | null>(null);
   const [purchasedPdf, setPurchasedPdf] = useState<{ type: string; base64: string; kosten: number } | null>(null);
+  const [overrideType, setOverrideType] = useState<"aktuell" | "historisch" | null>(null);
+  const [overrideSignatur, setOverrideSignatur] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (order) {
@@ -75,6 +77,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       try { setDocuments(Array.isArray(order.documents) ? order.documents : []); } catch { setDocuments([]); }
       setGbStep("idle"); setGbError(null); setValidationFailed(false);
       setAddressResults([]); setSelectedKgEz(null); setPurchasedPdf(null);
+      setOverrideType(null); setOverrideSignatur(null);
     }
   }, [order]);
 
@@ -150,11 +153,12 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
   const handlePurchase = async (type: "aktuell" | "historisch") => {
     if (!selectedKgEz) return;
+    const useSignatur = overrideSignatur ?? wantsSignatur;
     setGbStep("purchasing"); setGbError(null);
     try {
       const result = type === "aktuell"
-        ? await fetchAktuell(selectedKgEz.kg, selectedKgEz.ez, wantsSignatur)
-        : await fetchHistorisch(selectedKgEz.kg, selectedKgEz.ez, wantsSignatur);
+        ? await fetchAktuell(selectedKgEz.kg, selectedKgEz.ez, useSignatur)
+        : await fetchHistorisch(selectedKgEz.kg, selectedKgEz.ez, useSignatur);
       const kosten = result.data.ergebnis?.kosten?.gesamtKostenInklUst || 0;
       let pdfBase64 = "";
       if (type === "historisch") {
@@ -166,7 +170,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       if (!pdfBase64) throw new Error("Kein PDF in der Antwort gefunden");
 
       // Auto-upload document
-      const fileName = `grundbuch_${selectedKgEz.kg}_${selectedKgEz.ez}_${type}${wantsSignatur ? "_signiert" : ""}.pdf`;
+      const fileName = `grundbuch_${selectedKgEz.kg}_${selectedKgEz.ez}_${type}${useSignatur ? "_signiert" : ""}.pdf`;
       const bytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
       const blob = new Blob([bytes], { type: "application/pdf" });
       const file = new File([blob], fileName, { type: "application/pdf" });
@@ -185,7 +189,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
       // Auto-update status + log cost
       const timestamp = new Date().toLocaleString("de-AT");
-      const costNote = `[${timestamp}] UVST ${type === "historisch" ? "GT_GBP" : "GT_GBA"} abgerufen — KG ${selectedKgEz.kg} / EZ ${selectedKgEz.ez}${wantsSignatur ? " (signiert)" : ""} — Kosten: €${kosten.toFixed(2)}`;
+      const costNote = `[${timestamp}] UVST ${type === "historisch" ? "GT_GBP" : "GT_GBA"} abgerufen — KG ${selectedKgEz.kg} / EZ ${selectedKgEz.ez}${useSignatur ? " (signiert)" : ""} — Kosten: €${kosten.toFixed(2)}`;
       const updatedNotes = notes ? `${notes}\n${costNote}` : costNote;
       setNotes(updatedNotes);
       await onUpdateOrder(order.id, { status: "processed", processing_notes: updatedNotes });
@@ -388,52 +392,75 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
             </>
           )}
 
-          {gbStep === "found" && selectedKgEz && (
-            <div className="space-y-3">
-              <div className={`flex items-center gap-2 text-sm ${d ? "text-emerald-400" : "text-emerald-600"}`}>
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Einlage gefunden — KG <span className="font-mono">{selectedKgEz.kg}</span> / EZ <span className="font-mono">{selectedKgEz.ez}</span></span>
-              </div>
+          {gbStep === "found" && selectedKgEz && (() => {
+            const selectedType = overrideType ?? (isHistorisch ? "historisch" : "aktuell");
+            const selectedSignatur = overrideSignatur ?? wantsSignatur;
+            const label = selectedType === "historisch" ? "Historischer Grundbuchauszug" : "Aktueller Grundbuchauszug";
+            const cost = selectedType === "historisch" ? "~€2,72" : "~€5,04";
 
-              <div className={`p-3 rounded-lg text-sm ${d ? "bg-slate-900/60 text-slate-300" : "bg-gray-50 text-gray-700"}`}>
-                <div className="flex justify-between">
-                  <span>{productLabel}</span>
-                  <span className={d ? "text-slate-400" : "text-gray-500"}>{estimatedCost}</span>
+            return (
+              <div className="space-y-3">
+                <div className={`flex items-center gap-2 text-sm ${d ? "text-emerald-400" : "text-emerald-600"}`}>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Einlage gefunden — KG <span className="font-mono">{selectedKgEz.kg}</span> / EZ <span className="font-mono">{selectedKgEz.ez}</span></span>
                 </div>
-                {wantsSignatur && (
-                  <div className="flex justify-between mt-1">
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Amtliche Signatur
-                    </span>
-                    <span className={d ? "text-slate-400" : "text-gray-500"}>inklusive</span>
-                  </div>
-                )}
-              </div>
 
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="default" className="w-full gap-2">
-                    <Download className="w-4 h-4" /> {productLabel} abrufen
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className={d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Kostenpflichtig abrufen?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {productLabel} wird abgerufen{wantsSignatur ? " (mit amtlicher Signatur)" : ""}.
-                      Kosten: {estimatedCost}. Das Dokument wird automatisch zur Bestellung hinzugefügt.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className={d ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>Abbrechen</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handlePurchase(isHistorisch ? "historisch" : "aktuell")}>
-                      Abrufen & speichern
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          )}
+                {/* Product keuze */}
+                <div className={`p-3 rounded-lg space-y-2 ${d ? "bg-slate-900/60" : "bg-gray-50"}`}>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={selectedType === "aktuell" ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1 text-xs"
+                      onClick={() => setOverrideType("aktuell")}
+                    >
+                      Aktuell ~€5,04
+                    </Button>
+                    <Button
+                      variant={selectedType === "historisch" ? "default" : "outline"}
+                      size="sm"
+                      className="flex-1 text-xs"
+                      onClick={() => setOverrideType("historisch")}
+                    >
+                      Historisch ~€2,72
+                    </Button>
+                  </div>
+
+                  <label className={`flex items-center gap-2 cursor-pointer py-1 ${d ? "text-slate-300" : "text-gray-700"}`}>
+                    <input
+                      type="checkbox"
+                      checked={selectedSignatur}
+                      onChange={(e) => setOverrideSignatur(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span className="text-xs">Amtliche Signatur hinzufügen</span>
+                  </label>
+                </div>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="default" className="w-full gap-2">
+                      <Download className="w-4 h-4" /> {label} abrufen
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className={d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Kostenpflichtig abrufen?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {label} wird abgerufen{selectedSignatur ? " (mit amtlicher Signatur)" : ""}. Kosten: {cost}. Das Dokument wird automatisch zur Bestellung hinzugefügt.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className={d ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>Abbrechen</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handlePurchase(selectedType)}>
+                        Abrufen & speichern
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            );
+          })()}
 
           {gbStep === "purchasing" && (
             <Button disabled variant="outline" className="w-full gap-2">
