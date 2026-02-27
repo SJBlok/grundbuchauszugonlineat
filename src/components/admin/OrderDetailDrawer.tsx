@@ -32,7 +32,7 @@ interface Props {
 }
 
 const STATUS_OPTIONS = [
-  { value: "pending", label: "Ausstehend" },
+  { value: "pending", label: "Neu / Ausstehend" },
   { value: "open", label: "Offen" },
   { value: "processing", label: "In Bearbeitung" },
   { value: "awaiting_customer", label: "Warte auf Kunde" },

@@ -19,7 +19,7 @@ import {
 import { useAdminTheme } from "@/pages/Admin";
 
 const STATUS_TABS = [
-  { value: "open", label: "Offen", icon: Clock, statuses: ["open", "pending"] },
+  { value: "open", label: "Offen", icon: Clock, statuses: ["open", "pending", "processing"] },
   { value: "awaiting", label: "Warte auf Kunde", icon: MessageSquare, statuses: ["awaiting_customer"] },
   { value: "processed", label: "Verarbeitet", icon: CheckCircle2, statuses: ["processed", "completed"] },
   { value: "cancelled", label: "Storniert / Erstattet", icon: XCircle, statuses: ["cancelled", "deleted", "failed"] },
