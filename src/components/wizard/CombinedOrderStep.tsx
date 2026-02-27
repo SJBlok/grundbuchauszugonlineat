@@ -324,21 +324,21 @@ export function CombinedOrderStep({
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   {/* Row 1: Name + Price on same line */}
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-[14px] sm:text-[15px] font-semibold text-foreground">{product.name}</span>
-                    <div className="flex items-baseline gap-1.5 shrink-0">
+                  <div className="flex items-baseline justify-between gap-1">
+                    <span className="text-[13px] sm:text-[15px] font-semibold text-foreground leading-tight">{product.name}</span>
+                    <div className="flex items-baseline gap-1 shrink-0">
                       {product.originalPrice && (
-                        <span className="text-[12px] sm:text-[13px] text-muted-foreground line-through tabular-nums">
-                          € {product.originalPrice.toFixed(2).replace('.', ',')}
+                        <span className="text-[11px] sm:text-[13px] text-muted-foreground line-through tabular-nums">
+                          €&thinsp;{product.originalPrice.toFixed(2).replace('.', ',')}
                         </span>
                       )}
-                      <span className="text-[14px] sm:text-[15px] font-bold text-foreground tabular-nums">
-                        € {product.price.toFixed(2).replace('.', ',')}
+                      <span className="text-[13px] sm:text-[15px] font-bold text-foreground tabular-nums whitespace-nowrap">
+                        €&thinsp;{product.price.toFixed(2).replace('.', ',')}
                       </span>
                     </div>
                   </div>
-                  {/* Row 3: Description */}
-                  <p className="text-[12px] sm:text-[13px] text-muted-foreground mt-1.5 leading-snug">{product.description}</p>
+                  {/* Description */}
+                  <p className="text-[11px] sm:text-[13px] text-muted-foreground mt-1 leading-snug">{product.description}</p>
                   {product.savings && (
                     <p className="text-[11px] sm:text-[12px] text-primary font-semibold mt-1">
                       Sie sparen € {product.savings.toFixed(2).replace('.', ',')}
