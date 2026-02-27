@@ -237,10 +237,10 @@ export function CombinedOrderStep({
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3 animate-fade-in" data-testid="combined-order-step">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3 sm:space-y-3 animate-fade-in" data-testid="combined-order-step">
       
       {/* ── Header Card ── */}
-      <div className="bg-card rounded-xl border border-border p-6 lg:p-7">
+      <div className="bg-card rounded-xl border border-border p-5 sm:p-6 lg:p-7">
         <div className="flex gap-5 items-start">
           <div className="flex-1">
             <h1 className="text-xl lg:text-[22px] font-bold text-foreground tracking-tight leading-tight">
@@ -277,7 +277,7 @@ export function CombinedOrderStep({
       </div>
 
       {/* ── Product Selection Card ── */}
-      <div className="bg-card rounded-xl border border-border p-6 lg:p-7">
+      <div className="bg-card rounded-xl border border-border p-5 sm:p-6 lg:p-7">
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">
           Produkt wählen
         </div>
@@ -288,7 +288,7 @@ export function CombinedOrderStep({
               <label
                 key={product.id}
                 onClick={() => setSelectedProduct(product.id)}
-                className={`flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all ${
+                className={`flex items-start gap-3.5 p-4 sm:p-4 rounded-lg border-[1.5px] cursor-pointer transition-all min-h-[56px] ${
                   isSelected
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/30"
@@ -360,7 +360,7 @@ export function CombinedOrderStep({
       </div>
 
       {/* ── Address Card ── */}
-      <div className="bg-card rounded-xl border border-border p-6 lg:p-7 space-y-4">
+      <div className="bg-card rounded-xl border border-border p-5 sm:p-6 lg:p-7 space-y-4">
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Adresse des Grundstücks
         </div>
@@ -381,7 +381,7 @@ export function CombinedOrderStep({
           {errors.strasse && <p className="text-xs text-destructive">{errors.strasse.message}</p>}
         </div>
 
-        <div className="grid grid-cols-[120px_1fr] gap-3">
+        <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[120px_1fr] gap-3">
           <div className="space-y-2">
             <Label htmlFor="plz" className="text-sm font-semibold text-foreground">PLZ <span className="text-destructive">*</span></Label>
             <Input id="plz" {...register("plz")} placeholder="1010" />
@@ -402,7 +402,7 @@ export function CombinedOrderStep({
             id="bundesland"
             value={bundesland || ""}
             onChange={(e) => setValue("bundesland", e.target.value, { shouldValidate: true })}
-            className="flex h-11 w-full rounded border-[1.5px] border-input bg-background px-4 py-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/8 transition-all duration-200 hover:border-muted-foreground/30"
+            className="flex h-12 sm:h-11 w-full rounded border-[1.5px] border-input bg-background px-4 py-3 text-base sm:text-sm ring-offset-background focus-visible:outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/8 transition-all duration-200 hover:border-muted-foreground/30"
           >
             <option value="" disabled>Bundesland auswählen...</option>
             {bundeslaender.map((bl) => (
@@ -414,7 +414,7 @@ export function CombinedOrderStep({
       </div>
 
       {/* ── Contact Details Card ── */}
-      <div className="bg-card rounded-xl border border-border p-6 lg:p-7 space-y-4">
+      <div className="bg-card rounded-xl border border-border p-5 sm:p-6 lg:p-7 space-y-4">
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Kontaktdaten
         </div>
@@ -456,7 +456,7 @@ export function CombinedOrderStep({
 
 
       {/* ── Delivery Options Card ── */}
-      <div className="bg-card rounded-xl border border-border p-6 lg:p-7 space-y-3">
+      <div className="bg-card rounded-xl border border-border p-5 sm:p-6 lg:p-7 space-y-3">
         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Lieferoption
         </div>
@@ -468,7 +468,7 @@ export function CombinedOrderStep({
         {/* Express – highlighted */}
         <div
           onClick={() => setFastDelivery(!fastDelivery)}
-          className={`relative flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none ${
+          className={`relative flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none min-h-[56px] ${
             fastDelivery ? "border-primary bg-primary/5" : "border-primary/40 bg-primary/[0.03] hover:border-primary/60"
           }`}
         >
@@ -496,7 +496,7 @@ export function CombinedOrderStep({
         {/* Digital Storage */}
         <div
           onClick={() => setDigitalStorage(!digitalStorage)}
-          className={`flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none ${
+          className={`flex items-start gap-3.5 p-4 rounded-lg border-[1.5px] cursor-pointer transition-all select-none min-h-[56px] ${
             digitalStorage ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/30"
           }`}
         >
@@ -578,7 +578,7 @@ export function CombinedOrderStep({
           {/* Submit */}
           <Button
             type="submit"
-            className="w-full h-13 text-[15px] font-semibold shadow-lg"
+            className="w-full h-14 sm:h-13 text-base sm:text-[15px] font-semibold shadow-lg"
             disabled={isSubmitting || !hasPropertyData}
           >
             {isSubmitting ? (
