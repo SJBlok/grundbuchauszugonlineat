@@ -49,13 +49,13 @@ interface Order {
 
 const STATUS_CONFIG: Record<string, { label: string; dark: string; light: string }> = {
   pending: { label: "Ausstehend", dark: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", light: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+  open: { label: "Offen", dark: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", light: "bg-yellow-50 text-yellow-700 border-yellow-200" },
   processing: { label: "In Bearbeitung", dark: "bg-blue-500/15 text-blue-400 border-blue-500/30", light: "bg-blue-50 text-blue-700 border-blue-200" },
+  awaiting_customer: { label: "Warte auf Kunde", dark: "bg-orange-500/15 text-orange-400 border-orange-500/30", light: "bg-orange-50 text-orange-700 border-orange-200" },
+  processed: { label: "Verarbeitet", dark: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", light: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   completed: { label: "Abgeschlossen", dark: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", light: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   cancelled: { label: "Storniert", dark: "bg-red-500/15 text-red-400 border-red-500/30", light: "bg-red-50 text-red-700 border-red-200" },
   failed: { label: "Fehlgeschlagen", dark: "bg-red-500/15 text-red-400 border-red-500/30", light: "bg-red-50 text-red-700 border-red-200" },
-  open: { label: "Offen", dark: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", light: "bg-yellow-50 text-yellow-700 border-yellow-200" },
-  awaiting_customer: { label: "Warte auf Kunde", dark: "bg-orange-500/15 text-orange-400 border-orange-500/30", light: "bg-orange-50 text-orange-700 border-orange-200" },
-  processed: { label: "Verarbeitet", dark: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", light: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   deleted: { label: "Gelöscht", dark: "bg-slate-500/15 text-slate-400 border-slate-500/30", light: "bg-gray-50 text-gray-500 border-gray-200" },
 };
 
@@ -92,13 +92,13 @@ export function OrdersTab() {
       if (statusFilter !== "all") query = query.eq("status", statusFilter);
       if (paymentFilter !== "all") query = query.eq("payment_status", paymentFilter);
       if (search.trim()) {
-        const q = `%${search.trim()}%`;
-        query = query.or(`order_number.ilike.${q},email.ilike.${q},nachname.ilike.${q},vorname.ilike.${q}`);
+        query = query.or(
+          `order_number.ilike.%${search}%,email.ilike.%${search}%,nachname.ilike.%${search}%,vorname.ilike.%${search}%`
+        );
       }
 
-      const { data, count, error } = await query;
+      const { data, error, count } = await query;
       if (error) throw error;
-
       setOrders((data as Order[]) || []);
       setTotalCount(count || 0);
     } catch (err) {
@@ -108,46 +108,29 @@ export function OrdersTab() {
     }
   }, [page, statusFilter, paymentFilter, search]);
 
-  // Auto-load on mount and filter changes
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
-  // Realtime subscription for auto-refresh
+  // Realtime
   useEffect(() => {
     const channel = supabase
       .channel("admin-orders-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
-        fetchOrders();
-      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => fetchOrders())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [fetchOrders]);
 
-  const stats = useMemo(() => ({
-    total: totalCount,
-    pageCount: Math.ceil(totalCount / PAGE_SIZE),
-  }), [totalCount]);
+  const pageCount = Math.ceil(totalCount / PAGE_SIZE);
 
   const updateOrder = async (orderId: string, updates: Record<string, unknown>) => {
-    try {
-      const { data, error } = await supabase
-        .from("orders")
-        .update(updates)
-        .eq("id", orderId)
-        .select()
-        .single();
-      if (error) throw error;
-      if (data) setSelectedOrder(data as Order);
+    const { error } = await supabase.from("orders").update(updates).eq("id", orderId);
+    if (error) console.error("Update error:", error);
+    else {
       fetchOrders();
-    } catch (err) {
-      console.error("Error updating order:", err);
+      if (selectedOrder?.id === orderId) {
+        const { data } = await supabase.from("orders").select("*").eq("id", orderId).single();
+        if (data) setSelectedOrder(data as Order);
+      }
     }
-  };
-
-  const openDetail = (order: Order) => {
-    setSelectedOrder(order);
-    setDrawerOpen(true);
   };
 
   const fmt = {
@@ -165,7 +148,7 @@ export function OrdersTab() {
           <Input
             placeholder="Suche: Bestellnr., E-Mail, Name..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             className={`pl-9 ${d ? "bg-slate-900 border-slate-700 text-slate-200 placeholder:text-slate-500" : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400"}`}
           />
         </div>
@@ -176,8 +159,8 @@ export function OrdersTab() {
           </SelectTrigger>
           <SelectContent className={d ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"}>
             <SelectItem value="all">Alle Status</SelectItem>
-            {Object.entries(STATUS_CONFIG).map(([key, { label }]) => (
-              <SelectItem key={key} value={key}>{label}</SelectItem>
+            {Object.entries(STATUS_CONFIG).map(([k, v]) => (
+              <SelectItem key={k} value={k}>{v.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -188,8 +171,8 @@ export function OrdersTab() {
           </SelectTrigger>
           <SelectContent className={d ? "bg-slate-900 border-slate-700" : "bg-white border-gray-200"}>
             <SelectItem value="all">Alle Zahlungen</SelectItem>
-            {Object.entries(PAYMENT_CONFIG).map(([key, { label }]) => (
-              <SelectItem key={key} value={key}>{label}</SelectItem>
+            {Object.entries(PAYMENT_CONFIG).map(([k, v]) => (
+              <SelectItem key={k} value={k}>{v.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -227,57 +210,55 @@ export function OrdersTab() {
                       Keine Bestellungen gefunden
                     </TableCell>
                   </TableRow>
-                ) : (
-                  orders.map((order) => {
-                    const sc = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
-                    const pc = PAYMENT_CONFIG[order.payment_status] || PAYMENT_CONFIG.pending;
-                    return (
-                      <TableRow
-                        key={order.id}
-                        className={`cursor-pointer transition-colors ${d ? "border-slate-800/50 hover:bg-slate-800/30" : "border-gray-50 hover:bg-gray-50"}`}
-                        onClick={() => openDetail(order)}
-                      >
-                        <TableCell className={`font-mono text-xs ${d ? "text-slate-300" : "text-gray-700"}`}>
-                          {order.order_number}
-                        </TableCell>
-                        <TableCell className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>
-                          <div>{fmt.date(order.created_at)}</div>
-                          <div className={d ? "text-slate-500" : "text-gray-400"}>{fmt.time(order.created_at)}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className={`text-sm ${d ? "text-slate-200" : "text-gray-800"}`}>
-                            {order.vorname} {order.nachname}
-                          </div>
-                          <div className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{order.email}</div>
-                        </TableCell>
-                        <TableCell className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>
-                          {order.product_name}
-                          {order.fast_delivery && (
-                            <Badge variant="outline" className={`ml-1 text-[10px] px-1 py-0 ${d ? "border-amber-500/30 text-amber-400" : "border-amber-200 text-amber-600"}`}>
-                              Express
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className={`text-xs font-mono ${d ? "text-slate-400" : "text-gray-500"}`}>
-                          <div>{order.katastralgemeinde}</div>
-                          <div className={d ? "text-slate-500" : "text-gray-400"}>EZ {order.grundstuecksnummer}</div>
-                        </TableCell>
-                        <TableCell className={`text-right text-sm font-medium ${d ? "text-slate-200" : "text-gray-800"}`}>
-                          {fmt.eur(order.product_price)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={`text-[11px] ${d ? sc.dark : sc.light}`}>{sc.label}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={`text-[11px] ${d ? pc.dark : pc.light}`}>{pc.label}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <ExternalLink className={`w-3.5 h-3.5 ${d ? "text-slate-600" : "text-gray-300"}`} />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
+                ) : orders.map((order) => {
+                  const sc = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
+                  const pc = PAYMENT_CONFIG[order.payment_status] || PAYMENT_CONFIG.pending;
+                  return (
+                    <TableRow
+                      key={order.id}
+                      onClick={() => { setSelectedOrder(order); setDrawerOpen(true); }}
+                      className={`cursor-pointer transition-colors ${d ? "border-slate-800/50 hover:bg-slate-800/30" : "border-gray-50 hover:bg-gray-50"}`}
+                    >
+                      <TableCell className={`font-mono text-xs ${d ? "text-slate-300" : "text-gray-700"}`}>
+                        {order.order_number}
+                      </TableCell>
+                      <TableCell className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>
+                        <div>{fmt.date(order.created_at)}</div>
+                        <div className={d ? "text-slate-500" : "text-gray-400"}>{fmt.time(order.created_at)}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div className={`text-sm ${d ? "text-slate-200" : "text-gray-800"}`}>
+                          {order.vorname} {order.nachname}
+                        </div>
+                        <div className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{order.email}</div>
+                      </TableCell>
+                      <TableCell className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>
+                        {order.product_name}
+                        {order.fast_delivery && (
+                          <Badge variant="outline" className={`ml-1 text-[10px] px-1 py-0 ${d ? "border-amber-500/30 text-amber-400" : "border-amber-200 text-amber-600"}`}>
+                            Express
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className={`text-xs font-mono ${d ? "text-slate-400" : "text-gray-500"}`}>
+                        <div>{order.katastralgemeinde}</div>
+                        <div className={d ? "text-slate-500" : "text-gray-400"}>EZ {order.grundstuecksnummer}</div>
+                      </TableCell>
+                      <TableCell className={`text-right text-sm font-medium ${d ? "text-slate-200" : "text-gray-800"}`}>
+                        {fmt.eur(order.product_price)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-[11px] ${d ? sc.dark : sc.light}`}>{sc.label}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-[11px] ${d ? pc.dark : pc.light}`}>{pc.label}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <ExternalLink className={`w-3.5 h-3.5 ${d ? "text-slate-600" : "text-gray-300"}`} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -285,20 +266,20 @@ export function OrdersTab() {
       </Card>
 
       {/* Pagination */}
-      {stats.pageCount > 1 && (
+      {pageCount > 1 && (
         <div className="flex items-center justify-between">
           <span className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>
-            Seite {page + 1} von {stats.pageCount}
+            Seite {page + 1} von {pageCount}
           </span>
           <div className="flex gap-1">
-            {[{ icon: ChevronLeft, dis: page === 0, fn: () => setPage(page - 1) },
-              { icon: ChevronRight, dis: page >= stats.pageCount - 1, fn: () => setPage(page + 1) }]
-              .map(({ icon: I, dis, fn }, i) => (
-                <Button key={i} variant="outline" size="sm" disabled={dis} onClick={fn}
-                  className={`h-8 w-8 p-0 ${d ? "border-slate-700 text-slate-400 hover:bg-slate-800" : "border-gray-200 text-gray-500 hover:bg-gray-100"}`}>
-                  <I className="w-4 h-4" />
-                </Button>
-              ))}
+            <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}
+              className={`h-8 w-8 p-0 ${d ? "border-slate-700 text-slate-400" : "border-gray-200 text-gray-500"}`}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="sm" disabled={page >= pageCount - 1} onClick={() => setPage(page + 1)}
+              className={`h-8 w-8 p-0 ${d ? "border-slate-700 text-slate-400" : "border-gray-200 text-gray-500"}`}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       )}
