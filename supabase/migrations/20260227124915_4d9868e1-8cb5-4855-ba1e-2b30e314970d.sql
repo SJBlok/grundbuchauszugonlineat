@@ -1,0 +1,1 @@
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS amtliche_signatur boolean NOT NULL DEFAULT false;
