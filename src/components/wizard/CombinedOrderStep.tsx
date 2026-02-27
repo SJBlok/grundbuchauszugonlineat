@@ -211,6 +211,7 @@ export function CombinedOrderStep({
             product_price: total,
             fast_delivery: fastDelivery,
             digital_storage_subscription: digitalStorage,
+            amtliche_signatur: signatur,
           },
         }
       );

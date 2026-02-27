@@ -205,6 +205,7 @@ export type Database = {
       orders: {
         Row: {
           adresse: string | null
+          amtliche_signatur: boolean
           bundesland: string
           created_at: string
           digital_storage_subscription: boolean
@@ -236,6 +237,7 @@ export type Database = {
         }
         Insert: {
           adresse?: string | null
+          amtliche_signatur?: boolean
           bundesland: string
           created_at?: string
           digital_storage_subscription?: boolean
@@ -267,6 +269,7 @@ export type Database = {
         }
         Update: {
           adresse?: string | null
+          amtliche_signatur?: boolean
           bundesland?: string
           created_at?: string
           digital_storage_subscription?: boolean

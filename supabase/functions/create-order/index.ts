@@ -67,6 +67,7 @@ type CreateOrderBody = {
   product_price?: number;
   fast_delivery?: boolean;
   digital_storage_subscription?: boolean;
+  amtliche_signatur?: boolean;
 };
 
 serve(async (req: Request): Promise<Response> => {
@@ -120,6 +121,7 @@ serve(async (req: Request): Promise<Response> => {
           product_price: body.product_price ?? 28.90,
           fast_delivery: body.fast_delivery ?? false,
           digital_storage_subscription: body.digital_storage_subscription ?? false,
+          amtliche_signatur: body.amtliche_signatur ?? false,
           // required by schema; overwritten by trigger
           order_number: "PENDING",
         },

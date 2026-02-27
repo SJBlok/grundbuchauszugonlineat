@@ -26,19 +26,21 @@ export async function searchAddress(params: {
   return proxyPost("/api/address-search", params);
 }
 
-export async function fetchAktuell(katastralgemeinde: string, einlagezahl: string) {
+export async function fetchAktuell(katastralgemeinde: string, einlagezahl: string, signiert = false) {
   return proxyPost("/api/property-extract", {
     katastralgemeinde,
     einlagezahl,
     historisch: false,
+    signiert,
   });
 }
 
-export async function fetchHistorisch(katastralgemeinde: string, einlagezahl: string) {
+export async function fetchHistorisch(katastralgemeinde: string, einlagezahl: string, signiert = false) {
   return proxyPost("/api/property-extract", {
     katastralgemeinde,
     einlagezahl,
     historisch: true,
+    signiert,
   });
 }
 

@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Copy, Check, Save, Upload, Trash2, ExternalLink,
   Loader2, CheckCircle2, AlertTriangle, Download, Lock, FileText,
-  Zap, HardDrive, Search, MoreVertical,
+  Zap, HardDrive, Search, MoreVertical, ShieldCheck,
 } from "lucide-react";
 import { useAdminTheme } from "@/pages/Admin";
 import { useToast } from "@/hooks/use-toast";
@@ -83,6 +83,10 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const fmtDate = (s: string) => new Date(s).toLocaleDateString("de-AT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
   const fmtCur = (n: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR" }).format(n);
   const hasKgEz = !!(order.katastralgemeinde?.trim() && order.grundstuecksnummer?.trim());
+  const isHistorisch = order.product_name?.toLowerCase().includes("historisch");
+  const wantsSignatur = order.amtliche_signatur === true;
+  const productLabel = isHistorisch ? "Historischer Grundbuchauszug" : "Aktueller Grundbuchauszug";
+  const estimatedCost = isHistorisch ? "~€2,72" : "~€5,04";
   const sc = STATUS_COLORS[order.status] || STATUS_COLORS.open;
   const statusLabel = STATUS_OPTIONS.find(s => s.value === order.status)?.label || order.status;
 
@@ -149,8 +153,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     setGbStep("purchasing"); setGbError(null);
     try {
       const result = type === "aktuell"
-        ? await fetchAktuell(selectedKgEz.kg, selectedKgEz.ez)
-        : await fetchHistorisch(selectedKgEz.kg, selectedKgEz.ez);
+        ? await fetchAktuell(selectedKgEz.kg, selectedKgEz.ez, wantsSignatur)
+        : await fetchHistorisch(selectedKgEz.kg, selectedKgEz.ez, wantsSignatur);
       const kosten = result.data.ergebnis?.kosten?.gesamtKostenInklUst || 0;
       let pdfBase64 = "";
       if (type === "historisch") {
@@ -159,8 +163,37 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       } else {
         pdfBase64 = result.data.response || "";
       }
+      if (!pdfBase64) throw new Error("Kein PDF in der Antwort gefunden");
+
+      // Auto-upload document
+      const fileName = `grundbuch_${selectedKgEz.kg}_${selectedKgEz.ez}_${type}${wantsSignatur ? "_signiert" : ""}.pdf`;
+      const bytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const file = new File([blob], fileName, { type: "application/pdf" });
+      const { data: { session } } = await supabase.auth.getSession();
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("order_id", order.id);
+      uploadFormData.append("order_number", order.order_number);
+      const uploadRes = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-order-document`,
+        { method: "POST", headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${session?.access_token}` }, body: uploadFormData }
+      );
+      const uploadData = await uploadRes.json();
+      if (uploadData.error) throw new Error(uploadData.error);
+      setDocuments(prev => [...prev, uploadData.document]);
+
+      // Auto-update status + log cost
+      const timestamp = new Date().toLocaleString("de-AT");
+      const costNote = `[${timestamp}] UVST ${type === "historisch" ? "GT_GBP" : "GT_GBA"} abgerufen — KG ${selectedKgEz.kg} / EZ ${selectedKgEz.ez}${wantsSignatur ? " (signiert)" : ""} — Kosten: €${kosten.toFixed(2)}`;
+      const updatedNotes = notes ? `${notes}\n${costNote}` : costNote;
+      setNotes(updatedNotes);
+      await onUpdateOrder(order.id, { status: "processed", processing_notes: updatedNotes });
+
       setPurchasedPdf({ type, base64: pdfBase64, kosten });
       setGbStep("done");
+      toast({ title: "Grundbuchauszug erfolgreich", description: `${fileName} wurde gespeichert und Status auf "Verarbeitet" gesetzt.` });
+      onRefresh();
     } catch (err: any) { setGbError(err.message || "Abruf fehlgeschlagen"); setGbStep("found"); }
   };
 
@@ -258,6 +291,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
           <InfoRow label="Katastralgemeinde" value={order.katastralgemeinde} copyable mono />
           <InfoRow label="Grundstücksnr. / EZ" value={order.grundstuecksnummer} copyable mono />
           {order.wohnungs_hinweis && <InfoRow label="Wohnungshinweis" value={order.wohnungs_hinweis} />}
+          <InfoRow label="Amtliche Signatur" value={order.amtliche_signatur ? "Ja" : "Nein"} />
 
           {hasExtras && (
             <div className="flex flex-wrap gap-2 pt-3">
@@ -361,40 +395,40 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                 <span>Einlage gefunden — KG <span className="font-mono">{selectedKgEz.kg}</span> / EZ <span className="font-mono">{selectedKgEz.ez}</span></span>
               </div>
 
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="w-full flex justify-between h-auto py-3 px-4">
-                    <span className="text-sm font-medium">Aktueller Grundbuchauszug</span>
-                    <span className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>~€5,04</span>
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className={d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Kostenpflichtig abrufen?</AlertDialogTitle>
-                    <AlertDialogDescription>Aktueller Grundbuchauszug wird abgerufen. Kosten: ~€5,04</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className={d ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>Abbrechen</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handlePurchase("aktuell")}>Abrufen</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <div className={`p-3 rounded-lg text-sm ${d ? "bg-slate-900/60 text-slate-300" : "bg-gray-50 text-gray-700"}`}>
+                <div className="flex justify-between">
+                  <span>{productLabel}</span>
+                  <span className={d ? "text-slate-400" : "text-gray-500"}>{estimatedCost}</span>
+                </div>
+                {wantsSignatur && (
+                  <div className="flex justify-between mt-1">
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Amtliche Signatur
+                    </span>
+                    <span className={d ? "text-slate-400" : "text-gray-500"}>inklusive</span>
+                  </div>
+                )}
+              </div>
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="w-full flex justify-between h-auto py-3 px-4">
-                    <span className="text-sm font-medium">Historischer Grundbuchauszug</span>
-                    <span className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>~€2,72</span>
+                  <Button variant="default" className="w-full gap-2">
+                    <Download className="w-4 h-4" /> {productLabel} abrufen
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className={d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Kostenpflichtig abrufen?</AlertDialogTitle>
-                    <AlertDialogDescription>Historischer Grundbuchauszug wird abgerufen. Kosten: ~€2,72</AlertDialogDescription>
+                    <AlertDialogDescription>
+                      {productLabel} wird abgerufen{wantsSignatur ? " (mit amtlicher Signatur)" : ""}.
+                      Kosten: {estimatedCost}. Das Dokument wird automatisch zur Bestellung hinzugefügt.
+                    </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel className={d ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>Abbrechen</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handlePurchase("historisch")}>Abrufen</AlertDialogAction>
+                    <AlertDialogAction onClick={() => handlePurchase(isHistorisch ? "historisch" : "aktuell")}>
+                      Abrufen & speichern
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -411,10 +445,18 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
             <div className="space-y-3">
               <div className={`flex items-center gap-2 text-sm ${d ? "text-emerald-400" : "text-emerald-600"}`}>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>✓ Grundbuchauszug abgerufen — €{purchasedPdf.kosten}</span>
+                <span>Grundbuchauszug abgerufen & gespeichert — €{purchasedPdf.kosten.toFixed(2)}</span>
               </div>
-              <Button onClick={handleDownloadPdf} className="w-full gap-2">
-                <Download className="w-4 h-4" /> PDF herunterladen
+              <div className={`p-3 rounded-lg text-xs space-y-1 ${d ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700"}`}>
+                <p>✓ PDF automatisch als Dokument hinzugefügt</p>
+                <p>✓ Status auf „Verarbeitet" gesetzt</p>
+                <p>✓ Kosten in Notizen protokolliert</p>
+                {order.digital_storage_subscription && order.document_visible && (
+                  <p>✓ Kunde kann das Dokument unter „Meine Dokumente" einsehen</p>
+                )}
+              </div>
+              <Button onClick={handleDownloadPdf} variant="outline" className="w-full gap-2">
+                <Download className="w-4 h-4" /> PDF auch lokal herunterladen
               </Button>
               <Button variant="ghost" size="sm" className="w-full" onClick={() => { setPurchasedPdf(null); setGbStep("found"); }}>
                 Weiteren Auszug anfordern
