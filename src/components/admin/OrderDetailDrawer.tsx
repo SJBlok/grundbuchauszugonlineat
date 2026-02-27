@@ -216,53 +216,44 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`max-w-2xl max-h-[90vh] overflow-y-auto p-0 gap-0 rounded-xl ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-white border-border text-foreground"}`}>
 
-        {/* ─── A. Header ─── */}
-        <div className={`sticky top-0 z-10 px-6 py-4 border-b ${d ? "bg-slate-950/95 border-slate-800 backdrop-blur" : "bg-white/95 border-border/50 backdrop-blur"}`}>
-          <div className="flex items-center justify-between">
+        {/* ─── Header + Status ─── */}
+        <div className={`sticky top-0 z-10 px-6 pt-4 pb-4 border-b ${d ? "bg-slate-950/95 border-slate-800 backdrop-blur" : "bg-white/95 border-border/50 backdrop-blur"}`}>
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <button onClick={() => onOpenChange(false)}
                 className={`h-8 w-8 rounded-full flex items-center justify-center border transition-colors ${d ? "border-slate-700 hover:bg-slate-800 text-slate-400" : "border-border hover:bg-accent text-muted-foreground"}`}>
                 <ArrowLeft className="w-3.5 h-3.5" />
               </button>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className={`font-mono text-lg font-bold tracking-tight ${d ? "text-slate-50" : "text-foreground"}`}>{order.order_number}</span>
-                  <Badge variant="outline" className={`text-[10px] font-medium ${d ? sc.dark : sc.light}`}>
-                    {STATUS_OPTIONS.find(s => s.value === order.status)?.label || order.status}
-                  </Badge>
-                </div>
-                <span className={`text-[12px] ${d ? "text-slate-500" : "text-muted-foreground"}`}>{fmtDate(order.created_at)}</span>
+                <span className={`font-mono text-lg font-bold tracking-tight ${d ? "text-slate-50" : "text-foreground"}`}>{order.order_number}</span>
+                <span className={`block text-[12px] ${d ? "text-slate-500" : "text-muted-foreground"}`}>{fmtDate(order.created_at)}</span>
               </div>
             </div>
             <span className={`text-xl font-bold tracking-tight ${d ? "text-slate-50" : "text-foreground"}`}>{fmtCur(order.product_price)}</span>
           </div>
-        </div>
-
-        <div className="px-6 py-5 space-y-5">
-
-          {/* ─── B. Status ─── */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div>
-              <label className={`text-[11px] uppercase tracking-wider font-medium ${d ? "text-slate-500" : "text-muted-foreground/60"}`}>Status</label>
+              <label className={`text-[10px] uppercase tracking-wider font-medium ${d ? "text-slate-500" : "text-muted-foreground/50"}`}>Status</label>
               <Select value={order.status} onValueChange={handleStatusChange} disabled={saving}>
-                <SelectTrigger className={`w-full mt-1 ${d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}`}><SelectValue /></SelectTrigger>
+                <SelectTrigger className={`w-full mt-0.5 h-9 ${d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}`}><SelectValue /></SelectTrigger>
                 <SelectContent className={d ? "bg-slate-900 border-slate-700" : ""}>
                   {STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <label className={`text-[11px] uppercase tracking-wider font-medium ${d ? "text-slate-500" : "text-muted-foreground/60"}`}>Zahlung</label>
+              <label className={`text-[10px] uppercase tracking-wider font-medium ${d ? "text-slate-500" : "text-muted-foreground/50"}`}>Zahlung</label>
               <Select value={order.payment_status} onValueChange={handlePaymentChange} disabled={saving}>
-                <SelectTrigger className={`w-full mt-1 ${d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}`}><SelectValue /></SelectTrigger>
+                <SelectTrigger className={`w-full mt-0.5 h-9 ${d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}`}><SelectValue /></SelectTrigger>
                 <SelectContent className={d ? "bg-slate-900 border-slate-700" : ""}>
                   {PAYMENT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
+        </div>
 
-          {sep}
+        <div className="px-6 py-5 space-y-5">
 
           {/* ─── D. Kunde ─── */}
           <div>
