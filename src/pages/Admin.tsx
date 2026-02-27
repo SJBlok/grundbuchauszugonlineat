@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OrdersTab } from "@/components/admin/OrdersTab";
 import { ReportsTab } from "@/components/admin/ReportsTab";
-import { Package, BarChart3, Shield, Sun, Moon, LogOut, Loader2 } from "lucide-react";
+import { UsersTab } from "@/components/admin/UsersTab";
+import { Package, BarChart3, Users, Shield, Sun, Moon, LogOut, Loader2 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 type Theme = "dark" | "light";
@@ -184,9 +185,15 @@ export default function Admin() {
                 <BarChart3 className="w-4 h-4" />
                 Berichte
               </TabsTrigger>
+              <TabsTrigger value="users"
+                className={`gap-2 px-4 py-2 ${d ? "data-[state=active]:bg-slate-800 data-[state=active]:text-slate-100 text-slate-400" : "data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 text-gray-500"}`}>
+                <Users className="w-4 h-4" />
+                Benutzer
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="orders"><OrdersTab /></TabsContent>
             <TabsContent value="reports"><ReportsTab /></TabsContent>
+            <TabsContent value="users"><UsersTab /></TabsContent>
           </Tabs>
         </main>
       </div>
