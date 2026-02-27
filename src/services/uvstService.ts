@@ -1,5 +1,5 @@
-const PROXY_URL = import.meta.env.VITE_UVST_PROXY_URL || "";
-const API_KEY = import.meta.env.VITE_UVST_PROXY_API_KEY || "";
+const PROXY_URL = import.meta.env.VITE_UVST_PROXY_URL || "https://uvst-proxy-production.up.railway.app";
+const API_KEY = import.meta.env.VITE_UVST_PROXY_API_KEY || "no-key";
 
 async function proxyPost(endpoint: string, body: Record<string, unknown>) {
   const res = await fetch(`${PROXY_URL}${endpoint}`, {
