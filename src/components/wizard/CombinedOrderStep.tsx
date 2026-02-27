@@ -316,10 +316,10 @@ export function CombinedOrderStep({
                   </span>
                 )}
                 {/* Radio */}
-                <div className={`w-5 h-5 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center transition-all ${
+                <div className={`w-[18px] h-[18px] rounded-full border-2 shrink-0 mt-[3px] flex items-center justify-center transition-all ${
                   isSelected ? "border-primary" : "border-muted-foreground/30"
                 }`}>
-                  {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+                  {isSelected && <div className="w-[10px] h-[10px] rounded-full bg-primary" />}
                 </div>
                 {/* Content */}
                 <div className="flex-1 min-w-0">
