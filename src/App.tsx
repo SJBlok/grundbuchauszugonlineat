@@ -23,6 +23,7 @@ import EmailTemplates from "./pages/EmailTemplates";
 import GrundbuchPreview from "./pages/GrundbuchPreview";
 import DailyReports from "./pages/DailyReports";
 import ApiDocs from "./pages/ApiDocs";
+import Admin from "./pages/Admin";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/grundbuch-preview" element={<GrundbuchPreview />} />
           <Route path="/daily-reports" element={<DailyReports />} />
           <Route path="/api-docs" element={<ApiDocs />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
