@@ -199,15 +199,6 @@ export function CombinedOrderStep({
         throw new Error("Order creation failed");
       }
 
-      const { error: deliveryError } = await supabase.functions.invoke(
-        "send-grundbuch-document",
-        { body: { orderId: orderResult.id, sessionId: sessionIdRef.current } }
-      );
-
-      if (deliveryError) {
-        console.error("Document delivery error:", deliveryError);
-      }
-
       sessionStorage.removeItem("grundbuch_session_id");
       
       // Build property info string
