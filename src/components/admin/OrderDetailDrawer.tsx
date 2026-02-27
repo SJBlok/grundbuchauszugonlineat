@@ -462,11 +462,16 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                   <FileText className={`w-3.5 h-3.5 shrink-0 ${d ? "text-slate-400" : "text-gray-400"}`} />
                   <span className={`text-sm truncate flex-1 ${d ? "text-slate-200" : "text-foreground"}`}>{doc.name}</span>
                   {doc.url && (
-                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className={`p-1 rounded ${d ? "text-slate-500 hover:text-slate-300" : "text-gray-400 hover:text-foreground"}`}>
+                    <a href={doc.url} download={doc.name} className={`p-1 rounded ${d ? "text-emerald-400 hover:text-emerald-300" : "text-emerald-600 hover:text-emerald-700"}`} title="Herunterladen">
+                      <Download className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  {doc.url && (
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className={`p-1 rounded ${d ? "text-slate-500 hover:text-slate-300" : "text-gray-400 hover:text-foreground"}`} title="In neuem Tab öffnen">
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
-                  <button onClick={() => handleRemoveDocument(i)} className="p-1 rounded text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                  <button onClick={() => handleRemoveDocument(i)} className="p-1 rounded text-red-400 hover:text-red-300 hover:bg-red-500/10" title="Entfernen">
                     <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
