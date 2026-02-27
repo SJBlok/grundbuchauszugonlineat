@@ -18,6 +18,27 @@ export default function MeineDokumente() {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<any>(null);
   const [searched, setSearched] = useState(false);
+  const [downloading, setDownloading] = useState<number | null>(null);
+
+  const handleDownload = async (doc: any, index: number) => {
+    setDownloading(index);
+    try {
+      const response = await fetch(doc.url);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = doc.name || "dokument.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed:", err);
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,12 +205,10 @@ export default function MeineDokumente() {
                             </p>
                           </div>
                           {doc.url && (
-                            <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                              <Button size="sm" className="gap-1.5">
-                                <Download className="w-3.5 h-3.5" />
-                                Herunterladen
-                              </Button>
-                            </a>
+                            <Button size="sm" className="gap-1.5" disabled={downloading === i} onClick={() => handleDownload(doc, i)}>
+                              {downloading === i ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                              Herunterladen
+                            </Button>
                           )}
                         </div>
                       ))}
