@@ -60,6 +60,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const [notes, setNotes] = useState("");
   const [documents, setDocuments] = useState<any[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Grundbuch state
   const [gbStep, setGbStep] = useState<"idle" | "validating" | "found" | "searching" | "select" | "purchasing" | "done">("idle");
@@ -101,6 +103,36 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
   const handleStatusChange = async (v: string) => { setSaving(true); await onUpdateOrder(order.id, { status: v }); setSaving(false); };
   const handleSaveNotes = async () => { setSaving(true); await onUpdateOrder(order.id, { processing_notes: notes }); setSaving(false); toast({ title: "Notizen gespeichert" }); };
+
+  const handleHardDelete = async () => {
+    if (!order) return;
+    setIsDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-order`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ order_id: order.id }),
+        }
+      );
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      toast({ title: "Order gelöscht", description: `${order.order_number} wurde endgültig gelöscht.` });
+      setShowDeleteConfirm(false);
+      onOpenChange(false);
+      onRefresh();
+    } catch (err: any) {
+      toast({ title: "Fehler", description: err.message, variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleRemoveDocument = async (index: number) => {
     const updated = documents.filter((_: any, i: number) => i !== index);
@@ -648,7 +680,38 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
           </Button>
         </div>
 
+        {sep}
+
+        {/* ─── J. Gefahrenzone ─── */}
+        <div className="px-6 py-4 pb-6">
+          <SectionTitle>Gefahrenzone</SectionTitle>
+          <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(true)}
+            className="w-full gap-1.5 border-red-500/30 text-red-500 hover:bg-red-500/10 hover:text-red-400">
+            <Trash2 className="w-3.5 h-3.5" />
+            Order endgültig löschen
+          </Button>
+        </div>
+
       </DialogContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className={d ? "bg-slate-900 border-slate-700" : ""}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className={d ? "text-slate-100" : ""}>Order endgültig löschen?</AlertDialogTitle>
+            <AlertDialogDescription className={d ? "text-slate-400" : ""}>
+              Die Order <span className="font-mono font-semibold">{order?.order_number}</span> und alle zugehörigen Dokumente werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className={d ? "bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700" : ""}>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleHardDelete} disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white">
+              {isDeleting ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Wird gelöscht...</> : "Endgültig löschen"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

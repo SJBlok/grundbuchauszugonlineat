@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.nominatim-lookup]
 verify_jwt = false
+
+[functions.delete-order]
+verify_jwt = false
