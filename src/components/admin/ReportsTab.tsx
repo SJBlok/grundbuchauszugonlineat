@@ -2,8 +2,13 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Package, Euro, TrendingUp, Calendar, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Package, Euro, TrendingUp, Calendar, BarChart3, ArrowUpRight, ArrowDownRight,
+  CheckCircle, Clock, Mail, ArrowLeft,
+} from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { useAdminTheme } from "@/pages/Admin";
 
@@ -20,7 +25,9 @@ interface DailyReport {
   report_date: string;
   orders_count: number;
   total_revenue: number;
+  orders_data: any[];
   email_sent: boolean;
+  sent_at: string | null;
 }
 
 export function ReportsTab() {
@@ -28,6 +35,7 @@ export function ReportsTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -37,13 +45,15 @@ export function ReportsTab() {
         supabase.from("daily_order_reports").select("*").order("report_date", { ascending: false }).limit(30),
       ]);
       if (o.data) setOrders(o.data);
-      if (r.data) setReports(r.data);
+      if (r.data) setReports(r.data as any);
       setLoading(false);
     };
     load();
   }, []);
 
   const fmtCur = (n: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR" }).format(n);
+  const fmtDate = (s: string) => new Date(s).toLocaleDateString("de-AT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const fmtTime = (s: string) => new Date(s).toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" });
 
   const stats = useMemo(() => {
     const now = new Date();
@@ -156,6 +166,7 @@ export function ReportsTab() {
         </Card>
       </div>
 
+      {/* Daily Reports Table */}
       <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200 shadow-sm"}>
         <CardHeader className="pb-2">
           <CardTitle className={`text-sm font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Tägliche Berichte</CardTitle>
@@ -171,8 +182,12 @@ export function ReportsTab() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reports.slice(0, 10).map(r => (
-                <TableRow key={r.id} className={d ? "border-slate-800/50" : "border-gray-50"}>
+              {reports.slice(0, 14).map(r => (
+                <TableRow
+                  key={r.id}
+                  className={`cursor-pointer transition-colors ${d ? "border-slate-800/50 hover:bg-slate-800/30" : "border-gray-50 hover:bg-gray-50"}`}
+                  onClick={() => setSelectedReport(r)}
+                >
                   <TableCell className={`text-sm ${d ? "text-slate-300" : "text-gray-700"}`}>
                     {new Date(r.report_date).toLocaleDateString("de-AT", { weekday: "short", day: "numeric", month: "short" })}
                   </TableCell>
@@ -191,6 +206,121 @@ export function ReportsTab() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Report Detail Dialog */}
+      <Dialog open={!!selectedReport} onOpenChange={(open) => { if (!open) setSelectedReport(null); }}>
+        <DialogContent className={`max-w-3xl max-h-[85vh] overflow-y-auto p-0 gap-0 ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-white border-gray-200 text-gray-900"}`}>
+          {selectedReport && (() => {
+            const ordersData = selectedReport.orders_data || [];
+            const priorityCount = ordersData.filter((o: any) => o.fast_delivery === true).length;
+            const digitalCount = ordersData.filter((o: any) => o.digital_storage_subscription === true).length;
+            const basisRevenue = ordersData.length * 28.90;
+            const priorityRevenue = priorityCount * 9.95;
+            const digitalRevenue = digitalCount * 7.95;
+
+            return (
+              <>
+                {/* Header */}
+                <div className={`sticky top-0 z-10 px-6 py-4 border-b ${d ? "bg-slate-950 border-slate-800" : "bg-white border-gray-200"}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedReport(null)}
+                        className={`h-8 w-8 p-0 ${d ? "text-slate-400 hover:bg-slate-800" : "text-gray-500 hover:bg-gray-100"}`}>
+                        <ArrowLeft className="w-4 h-4" />
+                      </Button>
+                      <div>
+                        <h2 className={`text-lg font-semibold ${d ? "text-slate-100" : "text-gray-900"}`}>{fmtDate(selectedReport.report_date)}</h2>
+                        {selectedReport.email_sent && selectedReport.sent_at && (
+                          <span className={`text-xs flex items-center gap-1 ${d ? "text-slate-500" : "text-gray-400"}`}>
+                            <Mail className="w-3 h-3" /> Gesendet um {fmtTime(selectedReport.sent_at)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={`text-xs ${selectedReport.email_sent
+                      ? (d ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-emerald-50 text-emerald-700 border-emerald-200")
+                      : (d ? "bg-slate-500/15 text-slate-400 border-slate-500/30" : "bg-gray-50 text-gray-500 border-gray-200")}`}>
+                      {selectedReport.email_sent ? <><CheckCircle className="w-3 h-3 mr-1" />Gesendet</> : <><Clock className="w-3 h-3 mr-1" />Ausstehend</>}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-5">
+                  {/* Summary cards */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
+                      <p className={`text-3xl font-bold ${d ? "text-slate-100" : "text-gray-900"}`}>{selectedReport.orders_count}</p>
+                      <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>Bestellungen</p>
+                    </div>
+                    <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
+                      <p className={`text-3xl font-bold ${d ? "text-slate-100" : "text-gray-900"}`}>{fmtCur(selectedReport.total_revenue)}</p>
+                      <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>Umsatz</p>
+                    </div>
+                  </div>
+
+                  {/* Revenue breakdown */}
+                  <Card className={d ? "bg-slate-900/50 border-slate-800" : "border-gray-200"}>
+                    <CardContent className="p-0 text-sm">
+                      <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
+                        <span>{ordersData.length}× Grundbuchauszug à € 28,90</span>
+                        <span className="font-medium">{fmtCur(basisRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-amber-400" : "border-gray-100 text-amber-600"}`}>
+                        <span>{priorityCount}× Priority Delivery à € 9,95</span>
+                        <span className="font-medium">{fmtCur(priorityRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-blue-400" : "border-gray-100 text-blue-600"}`}>
+                        <span>{digitalCount}× Digitale Speicherung à € 7,95</span>
+                        <span className="font-medium">{fmtCur(digitalRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t font-semibold ${d ? "border-slate-800 bg-slate-800/50 text-slate-100" : "border-gray-100 bg-gray-50 text-gray-900"}`}>
+                        <span>Gesamt</span>
+                        <span className="text-emerald-500">{fmtCur(selectedReport.total_revenue)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Orders table */}
+                  {ordersData.length > 0 ? (
+                    <Card className={d ? "bg-slate-900/50 border-slate-800" : "border-gray-200"}>
+                      <CardContent className="p-0">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className={d ? "border-slate-800 hover:bg-transparent" : "border-gray-100 hover:bg-transparent"}>
+                              <TableHead className={d ? "text-slate-400" : "text-gray-500"}>Bestellnr.</TableHead>
+                              <TableHead className={d ? "text-slate-400" : "text-gray-500"}>Kunde</TableHead>
+                              <TableHead className={d ? "text-slate-400" : "text-gray-500"}>KG</TableHead>
+                              <TableHead className={d ? "text-slate-400" : "text-gray-500"}>EZ</TableHead>
+                              <TableHead className={`text-right ${d ? "text-slate-400" : "text-gray-500"}`}>Betrag</TableHead>
+                              <TableHead className={d ? "text-slate-400" : "text-gray-500"}>Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {ordersData.map((order: any) => (
+                              <TableRow key={order.id} className={d ? "border-slate-800/50" : "border-gray-50"}>
+                                <TableCell className={`font-mono text-sm ${d ? "text-slate-300" : "text-gray-700"}`}>{order.order_number}</TableCell>
+                                <TableCell className={`text-sm ${d ? "text-slate-300" : "text-gray-700"}`}>{order.vorname} {order.nachname}</TableCell>
+                                <TableCell className={`text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>{order.katastralgemeinde}</TableCell>
+                                <TableCell className={`text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>{order.grundstuecksnummer}</TableCell>
+                                <TableCell className={`text-sm text-right font-medium ${d ? "text-slate-200" : "text-gray-800"}`}>{fmtCur(order.product_price)}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={`text-[11px] ${d ? "text-slate-400 border-slate-700" : "text-gray-500 border-gray-200"}`}>{order.status}</Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className={`text-center py-8 text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Keine Bestellungen an diesem Tag</div>
+                  )}
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
