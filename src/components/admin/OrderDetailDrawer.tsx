@@ -1,55 +1,22 @@
 import { useState, useEffect } from "react";
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle,
-} from "@/components/ui/sheet";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 import {
   User, Mail, MapPin, FileText, Euro, Clock, Building, Zap, HardDrive,
-  Copy, Check, Save, X, Pencil, Upload, Trash2, ExternalLink, StickyNote,
+  Copy, Check, Save, Upload, Trash2, ExternalLink, ArrowLeft, Play,
+  Loader2, CheckCircle2, AlertCircle, Download,
 } from "lucide-react";
 import { useAdminTheme } from "@/pages/Admin";
-
-interface Order {
-  id: string;
-  order_number: string;
-  vorname: string;
-  nachname: string;
-  email: string;
-  firma: string | null;
-  adresse: string | null;
-  plz: string | null;
-  ort: string | null;
-  wohnsitzland: string;
-  bundesland: string;
-  grundbuchsgericht: string;
-  katastralgemeinde: string;
-  grundstuecksnummer: string;
-  wohnungs_hinweis: string | null;
-  product_name: string;
-  product_price: number;
-  status: string;
-  payment_status: string;
-  processing_status: string | null;
-  processing_notes: string | null;
-  fast_delivery: boolean;
-  digital_storage_subscription: boolean;
-  documents: any;
-  moneybird_invoice_id: string | null;
-  moneybird_invoice_status: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
-  order: Order | null;
+  order: any | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdateOrder: (orderId: string, updates: Record<string, unknown>) => Promise<void>;
@@ -57,14 +24,10 @@ interface Props {
 }
 
 const STATUS_OPTIONS = [
-  { value: "pending", label: "Ausstehend" },
-  { value: "open", label: "Offen" },
-  { value: "processing", label: "In Bearbeitung" },
-  { value: "awaiting_customer", label: "Warte auf Kunde" },
-  { value: "processed", label: "Verarbeitet" },
-  { value: "completed", label: "Abgeschlossen" },
-  { value: "cancelled", label: "Storniert" },
-  { value: "deleted", label: "Gelöscht" },
+  { value: "open", label: "Offen", description: "Neue Bestellung, noch nicht bearbeitet" },
+  { value: "awaiting_customer", label: "Warte auf Kunde", description: "Rückfrage an den Kunden gesendet" },
+  { value: "processed", label: "Verarbeitet", description: "Grundbuchauszug erstellt und versendet" },
+  { value: "cancelled", label: "Storniert", description: "Bestellung wurde storniert" },
 ];
 
 const PAYMENT_OPTIONS = [
@@ -74,34 +37,41 @@ const PAYMENT_OPTIONS = [
   { value: "refunded", label: "Erstattet" },
 ];
 
+const STATUS_COLORS: Record<string, { dark: string; light: string }> = {
+  open: { dark: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", light: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+  pending: { dark: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30", light: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+  awaiting_customer: { dark: "bg-orange-500/15 text-orange-400 border-orange-500/30", light: "bg-orange-50 text-orange-700 border-orange-200" },
+  processed: { dark: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", light: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  completed: { dark: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", light: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  cancelled: { dark: "bg-red-500/15 text-red-400 border-red-500/30", light: "bg-red-50 text-red-700 border-red-200" },
+};
+
 export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, onRefresh }: Props) {
   const { isDark: d } = useAdminTheme();
+  const { toast } = useToast();
   const [copied, setCopied] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [notes, setNotes] = useState("");
-  const [activeTab, setActiveTab] = useState("details");
+  const [documents, setDocuments] = useState<any[]>([]);
 
-  // Docs stored as JSON array in order.documents
-  const [documents, setDocuments] = useState<Array<{ name: string; url: string; type: string; added_at: string }>>([]);
+  // UVST state
+  const [uvstLoading, setUvstLoading] = useState(false);
+  const [uvstResult, setUvstResult] = useState<any>(null);
+  const [uvstError, setUvstError] = useState<string | null>(null);
 
   useEffect(() => {
     if (order) {
       setNotes(order.processing_notes || "");
-      try {
-        setDocuments(Array.isArray(order.documents) ? order.documents : []);
-      } catch {
-        setDocuments([]);
-      }
+      try { setDocuments(Array.isArray(order.documents) ? order.documents : []); } catch { setDocuments([]); }
+      setUvstResult(null);
+      setUvstError(null);
     }
   }, [order]);
 
   if (!order) return null;
 
-  const fmtDate = (s: string) =>
-    new Date(s).toLocaleDateString("de-AT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
-
-  const fmtCur = (n: number) =>
-    new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR" }).format(n);
+  const fmtDate = (s: string) => new Date(s).toLocaleDateString("de-AT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const fmtCur = (n: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR" }).format(n);
 
   const copyText = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -113,6 +83,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     setSaving(true);
     await onUpdateOrder(order.id, { status: newStatus });
     setSaving(false);
+    toast({ title: "Status geändert", description: STATUS_OPTIONS.find(s => s.value === newStatus)?.label });
   };
 
   const handlePaymentChange = async (newStatus: string) => {
@@ -125,218 +96,293 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     setSaving(true);
     await onUpdateOrder(order.id, { processing_notes: notes });
     setSaving(false);
-  };
-
-  const handleAddDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // For now, create a local URL reference — in production this would upload to Supabase Storage
-    const newDoc = {
-      name: file.name,
-      url: URL.createObjectURL(file),
-      type: file.type,
-      added_at: new Date().toISOString(),
-    };
-    const updated = [...documents, newDoc];
-    setDocuments(updated);
-    await onUpdateOrder(order.id, { documents: updated });
-    e.target.value = "";
+    toast({ title: "Notizen gespeichert" });
   };
 
   const handleRemoveDocument = async (index: number) => {
-    const updated = documents.filter((_, i) => i !== index);
+    const updated = documents.filter((_: any, i: number) => i !== index);
     setDocuments(updated);
     await onUpdateOrder(order.id, { documents: updated });
   };
 
-  // Reusable info row
-  const InfoRow = ({ icon: Icon, label, value, copyable }: {
-    icon: any; label: string; value: string | null | undefined; copyable?: boolean;
-  }) => (
-    <div className="flex items-start gap-3 py-2">
-      <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${d ? "text-slate-500" : "text-gray-400"}`} />
-      <div className="flex-1 min-w-0">
-        <div className={`text-[11px] uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>{label}</div>
-        <div className={`text-sm break-all ${d ? "text-slate-200" : "text-gray-800"}`}>{value || "—"}</div>
+  // UVST Grundbuch Abfrage
+  const handleUvstAbfrage = async () => {
+    setUvstLoading(true);
+    setUvstError(null);
+    setUvstResult(null);
+    try {
+      // Step 1: Authenticate
+      const authRes = await supabase.functions.invoke("uvst-proxy", {
+        body: { action: "authenticate", environment: "prod" },
+      });
+      if (authRes.error || !authRes.data?.success) {
+        throw new Error(authRes.error?.message || "UVST Authentifizierung fehlgeschlagen");
+      }
+      const token = authRes.data.data.accessToken;
+
+      // Step 2: Grundbuch Abfrage
+      const abfrageRes = await supabase.functions.invoke("uvst-proxy", {
+        body: {
+          action: "grundbuchAbfrage",
+          environment: "prod",
+          data: {
+            token,
+            kgNummer: order.katastralgemeinde,
+            einlagezahl: order.grundstuecksnummer,
+            format: "pdf",
+            historisch: false,
+            signiert: false,
+            linked: true,
+            produkt: "GT_GBA",
+          },
+        },
+      });
+
+      if (abfrageRes.error || !abfrageRes.data?.success) {
+        throw new Error(abfrageRes.error?.message || "Grundbuch Abfrage fehlgeschlagen");
+      }
+
+      setUvstResult(abfrageRes.data.data);
+      toast({ title: "Grundbuchauszug erfolgreich abgerufen" });
+
+      // Auto-update status to processed
+      await onUpdateOrder(order.id, { status: "processed" });
+    } catch (err: any) {
+      setUvstError(err.message);
+      toast({ title: "UVST Fehler", description: err.message, variant: "destructive" });
+    } finally {
+      setUvstLoading(false);
+    }
+  };
+
+  const sc = STATUS_COLORS[order.status] || STATUS_COLORS.open;
+
+  const InfoItem = ({ label, value, copyable, mono }: { label: string; value: string | null | undefined; copyable?: boolean; mono?: boolean }) => (
+    <div className="space-y-0.5">
+      <div className={`text-[11px] uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>{label}</div>
+      <div className="flex items-center gap-1.5">
+        <span className={`text-sm ${mono ? "font-mono" : ""} ${d ? "text-slate-200" : "text-gray-800"}`}>{value || "—"}</span>
+        {copyable && value && (
+          <button onClick={() => copyText(value, label)} className={`${d ? "text-slate-600 hover:text-slate-400" : "text-gray-300 hover:text-gray-500"}`}>
+            {copied === label ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+          </button>
+        )}
       </div>
-      {copyable && value && (
-        <button onClick={() => copyText(value, label)} className={`mt-1 transition-colors ${d ? "text-slate-600 hover:text-slate-400" : "text-gray-300 hover:text-gray-500"}`}>
-          {copied === label ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-        </button>
-      )}
     </div>
   );
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className={`w-[520px] sm:max-w-[520px] overflow-y-auto ${d ? "bg-slate-900 border-slate-800 text-slate-200" : "bg-white border-gray-200 text-gray-900"}`}>
-        <SheetHeader className="pb-2">
-          <SheetTitle className={d ? "text-slate-100" : "text-gray-900"}>
-            <span className="font-mono text-base">{order.order_number}</span>
-          </SheetTitle>
-          <div className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{fmtDate(order.created_at)}</div>
-        </SheetHeader>
-
-        {/* Status + Price row */}
-        <div className="flex items-end gap-3 py-4">
-          <div className="flex-1 space-y-2">
-            <div className={`text-[11px] uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>Status</div>
-            <Select value={order.status} onValueChange={handleStatusChange} disabled={saving}>
-              <SelectTrigger className={`h-9 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800"}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
-                {STATUS_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex-1 space-y-2">
-            <div className={`text-[11px] uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>Zahlung</div>
-            <Select value={order.payment_status} onValueChange={handlePaymentChange} disabled={saving}>
-              <SelectTrigger className={`h-9 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800"}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
-                {PAYMENT_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="text-right pb-0.5">
-            <div className={`text-2xl font-semibold ${d ? "text-slate-100" : "text-gray-900"}`}>{fmtCur(order.product_price)}</div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={`max-w-5xl max-h-[90vh] overflow-y-auto p-0 gap-0 ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-900"}`}>
+        {/* Header */}
+        <div className={`sticky top-0 z-10 px-6 py-4 border-b ${d ? "bg-slate-950 border-slate-800" : "bg-white border-gray-200"}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}
+                className={`h-8 w-8 p-0 ${d ? "text-slate-400 hover:bg-slate-800" : "text-gray-500 hover:bg-gray-100"}`}>
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className={`font-mono text-lg font-semibold ${d ? "text-slate-100" : "text-gray-900"}`}>{order.order_number}</span>
+                  <Badge variant="outline" className={d ? sc.dark : sc.light}>
+                    {STATUS_OPTIONS.find(s => s.value === order.status)?.label || order.status}
+                  </Badge>
+                </div>
+                <span className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{fmtDate(order.created_at)}</span>
+              </div>
+            </div>
+            <span className={`text-2xl font-semibold ${d ? "text-slate-100" : "text-gray-900"}`}>{fmtCur(order.product_price)}</span>
           </div>
         </div>
 
-        <Separator className={d ? "bg-slate-800" : "bg-gray-100"} />
+        <div className="p-6 space-y-5">
+          {/* Row 1: Status + Payment controls */}
+          <div className="grid grid-cols-3 gap-4">
+            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+              <CardContent className="pt-4 pb-4 space-y-2">
+                <p className={`text-xs font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Status ändern</p>
+                <Select value={order.status} onValueChange={handleStatusChange} disabled={saving}>
+                  <SelectTrigger className={`h-9 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200"}`}><SelectValue /></SelectTrigger>
+                  <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
+                    {STATUS_OPTIONS.map(o => (
+                      <SelectItem key={o.value} value={o.value}>
+                        <div>
+                          <p className="text-sm font-medium">{o.label}</p>
+                          <p className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{o.description}</p>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+              <CardContent className="pt-4 pb-4 space-y-2">
+                <p className={`text-xs font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Zahlungsstatus</p>
+                <Select value={order.payment_status} onValueChange={handlePaymentChange} disabled={saving}>
+                  <SelectTrigger className={`h-9 ${d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200"}`}><SelectValue /></SelectTrigger>
+                  <SelectContent className={d ? "bg-slate-800 border-slate-700" : ""}>
+                    {PAYMENT_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+              <CardContent className="pt-4 pb-4 space-y-2">
+                <p className={`text-xs font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Extras</p>
+                <div className="space-y-1">
+                  {order.fast_delivery && <p className="text-sm flex items-center gap-1.5"><Zap className="w-3.5 h-3.5 text-amber-400" />Express-Lieferung</p>}
+                  {order.digital_storage_subscription && <p className="text-sm flex items-center gap-1.5"><HardDrive className="w-3.5 h-3.5 text-blue-400" />Digitale Speicherung</p>}
+                  {!order.fast_delivery && !order.digital_storage_subscription && <span className={`text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Keine Extras</span>}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Tabs: Details | Notizen | Dokumente */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-          <TabsList className={`w-full ${d ? "bg-slate-800" : "bg-gray-100"}`}>
-            <TabsTrigger value="details" className="flex-1 text-xs">Details</TabsTrigger>
-            <TabsTrigger value="notes" className="flex-1 text-xs">Notizen</TabsTrigger>
-            <TabsTrigger value="documents" className="flex-1 text-xs">Dokumente</TabsTrigger>
-          </TabsList>
+          {/* Row 2: Customer + Property info side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+              <CardHeader className="pb-3">
+                <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
+                  <User className="w-4 h-4" /> Kundendaten
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <InfoItem label="Name" value={`${order.vorname} ${order.nachname}`} />
+                <InfoItem label="E-Mail" value={order.email} copyable />
+                {order.firma && <InfoItem label="Firma" value={order.firma} />}
+                <InfoItem label="Adresse" value={[order.adresse, [order.plz, order.ort].filter(Boolean).join(" "), order.wohnsitzland].filter(Boolean).join(", ")} />
+              </CardContent>
+            </Card>
 
-          {/* DETAILS TAB */}
-          <TabsContent value="details" className="space-y-0 mt-4">
-            <h3 className={`text-xs font-medium uppercase tracking-wider mb-2 ${d ? "text-slate-400" : "text-gray-500"}`}>Kunde</h3>
-            <InfoRow icon={User} label="Name" value={`${order.vorname} ${order.nachname}`} />
-            <InfoRow icon={Mail} label="E-Mail" value={order.email} copyable />
-            {order.firma && <InfoRow icon={Building} label="Firma" value={order.firma} />}
-            <InfoRow icon={MapPin} label="Adresse"
-              value={[order.adresse, [order.plz, order.ort].filter(Boolean).join(" "), order.wohnsitzland].filter(Boolean).join(", ")} />
+            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+              <CardHeader className="pb-3">
+                <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
+                  <MapPin className="w-4 h-4" /> Grundstückdaten
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <InfoItem label="Produkt" value={order.product_name} />
+                <InfoItem label="Bundesland" value={order.bundesland} />
+                <InfoItem label="Grundbuchsgericht" value={order.grundbuchsgericht} />
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoItem label="KG-Nummer" value={order.katastralgemeinde} copyable mono />
+                  <InfoItem label="Einlagezahl (EZ)" value={order.grundstuecksnummer} copyable mono />
+                </div>
+                {order.wohnungs_hinweis && <InfoItem label="Wohnungshinweis" value={order.wohnungs_hinweis} />}
+              </CardContent>
+            </Card>
+          </div>
 
-            <Separator className={`my-3 ${d ? "bg-slate-800" : "bg-gray-100"}`} />
+          {/* Row 3: UVST Grundbuch Verarbeitung */}
+          <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+            <CardHeader className="pb-3">
+              <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
+                <Play className="w-4 h-4" /> Grundbuch Verarbeitung (UVST)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>
+                Grundbuchauszug über die UVST Schnittstelle abrufen. Verwendet KG-Nr. <span className="font-mono">{order.katastralgemeinde}</span> und EZ <span className="font-mono">{order.grundstuecksnummer}</span>.
+              </p>
 
-            <h3 className={`text-xs font-medium uppercase tracking-wider mb-2 ${d ? "text-slate-400" : "text-gray-500"}`}>Grundstück</h3>
-            <InfoRow icon={FileText} label="Produkt" value={order.product_name} />
-            <InfoRow icon={MapPin} label="Bundesland" value={order.bundesland} />
-            <InfoRow icon={Building} label="Grundbuchsgericht" value={order.grundbuchsgericht} />
-            <InfoRow icon={MapPin} label="Katastralgemeinde" value={order.katastralgemeinde} copyable />
-            <InfoRow icon={FileText} label="Grundstücksnr. / EZ" value={order.grundstuecksnummer} copyable />
-            {order.wohnungs_hinweis && <InfoRow icon={FileText} label="Wohnungshinweis" value={order.wohnungs_hinweis} />}
-
-            <Separator className={`my-3 ${d ? "bg-slate-800" : "bg-gray-100"}`} />
-
-            <h3 className={`text-xs font-medium uppercase tracking-wider mb-2 ${d ? "text-slate-400" : "text-gray-500"}`}>Extras</h3>
-            {order.fast_delivery && (
-              <div className="flex items-center gap-2 py-2">
-                <Zap className="w-4 h-4 text-amber-400" />
-                <span className="text-sm text-amber-400">Express-Lieferung</span>
-              </div>
-            )}
-            {order.digital_storage_subscription && (
-              <div className="flex items-center gap-2 py-2">
-                <HardDrive className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-blue-400">Digitale Speicherung</span>
-              </div>
-            )}
-            {order.moneybird_invoice_id && (
-              <InfoRow icon={FileText} label="Moneybird Rechnungs-ID" value={order.moneybird_invoice_id} copyable />
-            )}
-
-            <Separator className={`my-3 ${d ? "bg-slate-800" : "bg-gray-100"}`} />
-            <InfoRow icon={Clock} label="Erstellt" value={fmtDate(order.created_at)} />
-            <InfoRow icon={Clock} label="Aktualisiert" value={fmtDate(order.updated_at)} />
-          </TabsContent>
-
-          {/* NOTES TAB */}
-          <TabsContent value="notes" className="mt-4 space-y-3">
-            <div className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>
-              Verarbeitungsnotizen für diese Bestellung
-            </div>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Notizen zur Bearbeitung..."
-              rows={8}
-              className={d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800"}
-            />
-            <Button
-              onClick={handleSaveNotes}
-              disabled={saving || notes === (order.processing_notes || "")}
-              size="sm"
-              className="gap-1"
-            >
-              <Save className="w-3.5 h-3.5" />
-              Notizen speichern
-            </Button>
-          </TabsContent>
-
-          {/* DOCUMENTS TAB */}
-          <TabsContent value="documents" className="mt-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className={`text-xs ${d ? "text-slate-400" : "text-gray-500"}`}>
-                {documents.length} Dokument{documents.length !== 1 ? "e" : ""}
-              </span>
-              <label>
-                <input type="file" className="hidden" onChange={handleAddDocument} accept=".pdf,.xml,.html,.doc,.docx,.jpg,.png" />
-                <Button variant="outline" size="sm" className="gap-1 cursor-pointer" asChild>
-                  <span>
-                    <Upload className="w-3.5 h-3.5" />
-                    Hochladen
-                  </span>
+              <div className="flex items-center gap-3">
+                <Button onClick={handleUvstAbfrage} disabled={uvstLoading} size="sm" className="gap-1.5">
+                  {uvstLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                  Grundbuchauszug abrufen
                 </Button>
-              </label>
-            </div>
-
-            {documents.length === 0 ? (
-              <div className={`text-center py-8 text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>
-                <FileText className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                Noch keine Dokumente
+                {order.status === "processed" && (
+                  <span className="flex items-center gap-1 text-xs text-emerald-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Bereits verarbeitet
+                  </span>
+                )}
               </div>
-            ) : (
-              <div className="space-y-2">
-                {documents.map((doc, i) => (
-                  <div key={i} className={`flex items-center gap-3 p-3 rounded-lg ${d ? "bg-slate-800/50" : "bg-gray-50"}`}>
+
+              {uvstError && (
+                <div className={`flex items-start gap-2 p-3 rounded-lg ${d ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200"}`}>
+                  <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-red-400">UVST Fehler</p>
+                    <p className={`text-xs ${d ? "text-red-400/70" : "text-red-600"}`}>{uvstError}</p>
+                  </div>
+                </div>
+              )}
+
+              {uvstResult && (
+                <div className={`flex items-center justify-between p-3 rounded-lg ${d ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-200"}`}>
+                  <div className="flex items-center gap-2 text-emerald-400">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span className="text-sm">Grundbuchauszug erfolgreich abgerufen</span>
+                  </div>
+                  {uvstResult.pdfBase64 && (
+                    <Button size="sm" variant="outline" className="gap-1" onClick={() => {
+                      const link = document.createElement("a");
+                      link.href = `data:application/pdf;base64,${uvstResult.pdfBase64}`;
+                      link.download = `Grundbuchauszug_${order.order_number}.pdf`;
+                      link.click();
+                    }}>
+                      <Download className="w-3.5 h-3.5" />
+                      PDF herunterladen
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Row 4: Notes + Documents side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+              <CardHeader className="pb-3">
+                <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
+                  <Save className="w-4 h-4" /> Verarbeitungsnotizen
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notizen zur Bearbeitung..." rows={5}
+                  className={d ? "bg-slate-800 border-slate-700 text-slate-200" : "bg-gray-50 border-gray-200"} />
+                <Button onClick={handleSaveNotes} disabled={saving || notes === (order.processing_notes || "")} size="sm" className="gap-1">
+                  <Save className="w-3.5 h-3.5" />Speichern
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className={d ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className={`text-sm font-medium flex items-center gap-2 ${d ? "text-slate-300" : "text-gray-600"}`}>
+                    <Upload className="w-4 h-4" /> Dokumente
+                  </CardTitle>
+                  <span className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{documents.length} Datei{documents.length !== 1 ? "en" : ""}</span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {documents.length === 0 ? (
+                  <div className={`text-center py-6 text-sm ${d ? "text-slate-500" : "text-gray-400"}`}>Noch keine Dokumente</div>
+                ) : documents.map((doc: any, i: number) => (
+                  <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${d ? "bg-slate-800/50" : "bg-gray-50"}`}>
                     <FileText className={`w-4 h-4 shrink-0 ${d ? "text-slate-400" : "text-gray-400"}`} />
                     <div className="flex-1 min-w-0">
                       <div className={`text-sm truncate ${d ? "text-slate-200" : "text-gray-800"}`}>{doc.name}</div>
-                      <div className={`text-[11px] ${d ? "text-slate-500" : "text-gray-400"}`}>
-                        {doc.type} • {new Date(doc.added_at).toLocaleDateString("de-AT")}
-                      </div>
                     </div>
-                    {doc.url && (
-                      <a href={doc.url} target="_blank" rel="noopener noreferrer"
-                        className={`${d ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}`}>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    )}
-                    <button onClick={() => handleRemoveDocument(i)}
-                      className="text-red-400 hover:text-red-300 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {doc.url && <a href={doc.url} target="_blank" rel="noopener noreferrer" className={d ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}><ExternalLink className="w-3.5 h-3.5" /></a>}
+                    <button onClick={() => handleRemoveDocument(i)} className="text-red-400 hover:text-red-300"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 ))}
-              </div>
-            )}
+              </CardContent>
+            </Card>
+          </div>
 
-            <div className={`text-[11px] mt-2 ${d ? "text-slate-600" : "text-gray-300"}`}>
-              Tipp: UVST Grundbuch-Dokumente können später automatisch hier verknüpft werden.
-            </div>
-          </TabsContent>
-        </Tabs>
-      </SheetContent>
-    </Sheet>
+          {/* Row 5: Metadata */}
+          <div className={`flex items-center gap-6 text-xs px-1 ${d ? "text-slate-500" : "text-gray-400"}`}>
+            <span>Erstellt: {fmtDate(order.created_at)}</span>
+            <span>Aktualisiert: {fmtDate(order.updated_at)}</span>
+            {order.moneybird_invoice_id && <span>Moneybird: {order.moneybird_invoice_id}</span>}
+            <span className="font-mono">{order.id}</span>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
