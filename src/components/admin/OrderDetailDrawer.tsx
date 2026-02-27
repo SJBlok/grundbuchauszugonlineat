@@ -446,7 +446,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
             </div>
             <Button size="sm" variant={order.document_visible ? "default" : "outline"}
               onClick={async () => { await onUpdateOrder(order.id, { document_visible: !order.document_visible }); }}
-              disabled={!order.digital_storage_subscription} className="gap-1 text-xs h-7">
+              className="gap-1 text-xs h-7">
               {order.document_visible ? <><CheckCircle2 className="w-3 h-3" /> Sichtbar</> : <><Lock className="w-3 h-3" /> Verborgen</>}
             </Button>
           </div>
