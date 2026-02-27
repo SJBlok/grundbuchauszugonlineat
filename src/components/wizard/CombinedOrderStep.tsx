@@ -513,57 +513,86 @@ export function CombinedOrderStep({
         </div>
       </div>
 
-      {/* ── Legal Notice ── */}
-      <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-muted/40">
-        <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Bei Bestellung akzeptieren Sie die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline">Datenschutzerklärung</a>. Die Bestellung wird sofort bearbeitet. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr.
-        </p>
-      </div>
+      {/* ── Zahlung & Bestätigung Card ── */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="bg-muted/50 px-6 py-2.5 border-b border-border flex items-center gap-2.5">
+          <div className="w-0.5 h-4 bg-primary" />
+          <h2 className="text-xs font-semibold text-foreground uppercase tracking-widest">Zahlung & Bestätigung</h2>
+        </div>
 
-      {/* ── Dark Total + CTA Bar ── */}
-      <div className="bg-foreground rounded-xl p-5 flex items-center justify-between">
-        <div>
-          <div className="text-xs text-muted-foreground/70 font-medium mb-0.5">Gesamtpreis</div>
-          <div className="text-2xl font-bold text-background tabular-nums">
-            € {total.toFixed(2).replace('.', ',')}
+        <div className="p-6 lg:p-7 space-y-4">
+          {/* Price breakdown */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {selectedProduct === "historisch" ? "Grundbuchauszug historisch" : "Grundbuchauszug"}
+              </span>
+              <span className="text-sm text-foreground tabular-nums">€{basePrice.toFixed(2).replace('.', ',')}</span>
+            </div>
+            {signatur && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Amtliche Signatur</span>
+                <span className="text-sm text-foreground tabular-nums">€2,95</span>
+              </div>
+            )}
+            {fastDelivery && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Express-Zustellung</span>
+                <span className="text-sm text-foreground tabular-nums">€9,95</span>
+              </div>
+            )}
+            {digitalStorage && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Digitale Speicherung (monatl.)</span>
+                <span className="text-sm text-foreground tabular-nums">€7,95</span>
+              </div>
+            )}
           </div>
-        </div>
-        <Button
-          type="submit"
-          disabled={isSubmitting || !hasPropertyData}
-          className="h-12 px-8 text-[15px] font-semibold rounded-lg shadow-lg"
-        >
-          {isSubmitting ? (
-            <span className="flex items-center gap-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Wird verarbeitet...
-            </span>
-          ) : (
-            "Auszug anfordern →"
-          )}
-        </Button>
-      </div>
 
-      {/* Trust indicators */}
-      <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground pt-2">
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded bg-primary/10 flex items-center justify-center">
-            <Shield className="h-3.5 w-3.5 text-primary" />
+          {/* Total */}
+          <div className="flex items-baseline justify-between pt-3 border-t border-border">
+            <div>
+              <p className="text-sm font-medium text-foreground">Zahlung auf Rechnung</p>
+              <p className="text-xs text-muted-foreground mt-0.5">inkl. 20% MwSt.</p>
+            </div>
+            <span className="text-xl font-bold text-foreground tabular-nums">€{total.toFixed(2).replace('.', ',')}</span>
           </div>
-          <span>SSL-verschlüsselt</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded bg-primary/10 flex items-center justify-center">
-            <Clock className="h-3.5 w-3.5 text-primary" />
+
+          {/* Legal */}
+          <div className="space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground">Bei Bestellung akzeptieren Sie:</p>
+            <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-muted/30">
+              <Info className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                die <a href="/agb" target="_blank" className="text-primary font-medium hover:underline">AGB</a> und <a href="/datenschutz" target="_blank" className="text-primary font-medium hover:underline">Datenschutzerklärung</a>. Die Bestellung wird sofort bearbeitet. Nach Zustellung besteht gemäß § 18 Abs. 1 Z 11 FAGG kein Widerrufsrecht mehr.
+              </p>
+            </div>
           </div>
-          <span>Sofortige Zustellung</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded bg-primary/10 flex items-center justify-center">
-            <BadgeCheck className="h-3.5 w-3.5 text-primary" />
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            className="w-full h-13 text-[15px] font-semibold shadow-lg"
+            disabled={isSubmitting || !hasPropertyData}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Wird verarbeitet...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Check className="h-5 w-5 shrink-0" />
+                Kostenpflichtig bestellen
+              </span>
+            )}
+          </Button>
+
+          {/* Trust */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Shield className="h-3.5 w-3.5" />
+            <span>Sichere Bestellung · SSL-verschlüsselt</span>
           </div>
-          <span>Amtlich beglaubigt</span>
         </div>
       </div>
 
