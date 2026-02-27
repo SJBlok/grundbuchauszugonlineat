@@ -252,7 +252,6 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                 <InfoItem label="Name" value={`${order.vorname} ${order.nachname}`} />
                 <InfoItem label="E-Mail" value={order.email} copyable />
                 {order.firma && <InfoItem label="Firma" value={order.firma} />}
-                <InfoItem label="Adresse" value={[order.adresse, [order.plz, order.ort].filter(Boolean).join(" "), order.wohnsitzland].filter(Boolean).join(", ")} />
               </CardContent>
             </Card>
 
@@ -271,6 +270,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                   <InfoItem label="Einlagezahl (EZ)" value={order.grundstuecksnummer} copyable mono />
                 </div>
                 {order.wohnungs_hinweis && <InfoItem label="Wohnungshinweis" value={order.wohnungs_hinweis} />}
+                <InfoItem label="Adresse" value={[order.adresse, [order.plz, order.ort].filter(Boolean).join(" "), order.wohnsitzland].filter(Boolean).join(", ")} />
               </CardContent>
             </Card>
           </div>
