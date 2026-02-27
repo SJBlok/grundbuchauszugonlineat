@@ -207,7 +207,7 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
           <p style="margin: 0; color: ${BRAND_COLORS.text}; font-size: 14px; font-weight: 500;">Digitale Speicherung aktiviert</p>
           <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textSecondary}; font-size: 14px; line-height: 1.6;">
             Ihr Grundbuchauszug wird innerhalb von 24 Stunden in unserem sicheren Portal bereitgestellt: 
-            <a href="https://grundbuchauszugonline-portal.at/" style="color: ${BRAND_COLORS.primary}; font-weight: 500;">grundbuchauszugonline-portal.at</a>
+            <a href="https://grundbuchauszugonline.at/meine-dokumente" style="color: ${BRAND_COLORS.primary}; font-weight: 500;">grundbuchauszugonline.at/meine-dokumente</a>
           </p>
           <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textMuted}; font-size: 13px;">Sie erhalten dazu eine separate E-Mail mit Ihren Zugangsdaten.</p>
         </div>
@@ -263,7 +263,7 @@ function getOrderConfirmationTemplate(hasDocument: boolean) {
         <p style="margin: 0; color: ${BRAND_COLORS.text}; font-size: 14px; font-weight: 500;">Digitale Speicherung aktiviert</p>
         <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textSecondary}; font-size: 14px; line-height: 1.6;">
           Ihr Grundbuchauszug wird innerhalb von 24 Stunden in unserem sicheren Portal bereitgestellt: 
-          <a href="https://grundbuchauszugonline-portal.at/" style="color: ${BRAND_COLORS.primary}; font-weight: 500;">grundbuchauszugonline-portal.at</a>
+          <a href="https://grundbuchauszugonline.at/meine-dokumente" style="color: ${BRAND_COLORS.primary}; font-weight: 500;">grundbuchauszugonline.at/meine-dokumente</a>
         </p>
         <p style="margin: 8px 0 0 0; color: ${BRAND_COLORS.textMuted}; font-size: 13px;">Sie erhalten dazu eine separate E-Mail mit Ihren Zugangsdaten.</p>
       </div>
