@@ -23,6 +23,41 @@ function splitAddress(adresse: string): { strasse: string; hausnummer: string } 
   return { strasse: titleCase(trimmed), hausnummer: "" };
 }
 
+async function normalizeWithNominatim(
+  strasse: string,
+  hausnummer?: string,
+  plz?: string,
+  ort?: string
+): Promise<{ strasse: string; hausnummer: string; ort: string; bundesland: string; isOrtschaft: boolean } | null> {
+  try {
+    const query = [strasse, hausnummer, plz, ort, "Austria"].filter(Boolean).join(", ");
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?${new URLSearchParams({
+        q: query,
+        format: "json",
+        addressdetails: "1",
+        limit: "1",
+        countrycodes: "at",
+      })}`,
+      { headers: { "User-Agent": "GrundbuchauszugOnline/1.0" } }
+    );
+    if (!res.ok) return null;
+    const results = await res.json();
+    if (!results.length) return null;
+    const addr = results[0].address;
+    const hasRoad = !!addr.road;
+    return {
+      strasse: titleCase(addr.road || addr.locality || strasse),
+      hausnummer: addr.house_number || hausnummer || "",
+      ort: addr.town || addr.city || ort || "",
+      bundesland: addr.state || "",
+      isOrtschaft: !hasRoad && !!addr.locality,
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function proxyPost(endpoint: string, body: Record<string, unknown>) {
   const res = await fetch(`${PROXY_URL}${endpoint}`, {
     method: "POST",
@@ -106,12 +141,39 @@ serve(async (req: Request): Promise<Response> => {
 
       console.log(`[process-order] Searching address: ${adresse}, ${order.plz} ${order.ort}`);
       const { strasse, hausnummer } = splitAddress(adresse);
-      const searchResult = await proxyPost("/api/address-search", {
-        bundesland: order.bundesland || undefined,
-        ort: order.ort || undefined,
-        strasse,
-        hausnummer: hausnummer || undefined,
-      });
+
+      // Nominatim pre-processing
+      const normalized = await normalizeWithNominatim(strasse, hausnummer, order.plz || undefined, order.ort || undefined);
+
+      let searchResult;
+      if (normalized) {
+        console.log(`[process-order] Nominatim result: isOrtschaft=${normalized.isOrtschaft}, strasse=${normalized.strasse}`);
+        if (normalized.isOrtschaft) {
+          console.log(`[process-order] Ortschaft detected, using erweiterte Suche`);
+          searchResult = await proxyPost("/api/address-search", {
+            strasse: normalized.strasse,
+            hausnummer: normalized.hausnummer || undefined,
+            ort: normalized.strasse,
+            bundesland: normalized.bundesland || order.bundesland || undefined,
+            sucheErweitert: true,
+          });
+        } else {
+          searchResult = await proxyPost("/api/address-search", {
+            strasse: normalized.strasse,
+            hausnummer: normalized.hausnummer || undefined,
+            ort: normalized.ort || order.ort || undefined,
+            bundesland: normalized.bundesland || order.bundesland || undefined,
+          });
+        }
+      } else {
+        console.warn(`[process-order] Nominatim unavailable, falling back to direct search`);
+        searchResult = await proxyPost("/api/address-search", {
+          bundesland: order.bundesland || undefined,
+          ort: order.ort || undefined,
+          strasse,
+          hausnummer: hausnummer || undefined,
+        });
+      }
 
       const results = parseAddressResults(searchResult.data?.responseDecoded || "");
       if (results.length === 0) {
