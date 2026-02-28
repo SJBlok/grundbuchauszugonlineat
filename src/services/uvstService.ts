@@ -77,9 +77,12 @@ export async function searchAddress(params: {
   hausnummer?: string;
 }) {
   // Stap 1: Normaliseer via Nominatim
+  // Sanitize hausnummer VOOR Nominatim call
+  const cleanHausnummer = params.hausnummer ? sanitizeHausnummer(params.hausnummer) : undefined;
+
   const normalized = await normalizeWithNominatim(
     params.strasse,
-    params.hausnummer,
+    cleanHausnummer,
     params.plz,
     params.ort
   );
@@ -95,6 +98,7 @@ export async function searchAddress(params: {
       searchParams = {
         strasse: normalized.strasse,
         hausnummer: normalized.hausnummer || undefined,
+        plz: params.plz || undefined,
         ort: normalized.strasse,
         bundesland: normalized.bundesland || params.bundesland || undefined,
         sucheErweitert: true,
@@ -104,6 +108,7 @@ export async function searchAddress(params: {
       searchParams = {
         strasse: normalized.strasse,
         hausnummer: normalized.hausnummer || undefined,
+        plz: params.plz || undefined,
         ort: normalized.ort || params.ort || undefined,
         bundesland: normalized.bundesland || params.bundesland || undefined,
         sucheErweitert: false,
@@ -117,6 +122,7 @@ export async function searchAddress(params: {
     searchParams = {
       strasse: titleCase(params.strasse),
       hausnummer: fallbackHausnummer || undefined,
+      plz: params.plz || undefined,
       ort: params.ort || undefined,
       bundesland: params.bundesland || undefined,
       sucheErweitert: false,
