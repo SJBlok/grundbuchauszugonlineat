@@ -326,14 +326,9 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
       const kosten = result.data.ergebnis?.kosten?.gesamtKostenInklUst || 0;
 
-      // 2. Extract PDF
-      let pdfBase64 = "";
-      if (type === "historisch") {
-        const match = result.data.responseDecoded?.match(/<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/);
-        pdfBase64 = match?.[1]?.trim() || "";
-      } else {
-        pdfBase64 = result.data.response || "";
-      }
+      // 2. Extract PDF uit PDFOutStream (identiek voor aktuell en historisch)
+      const pdfMatch = result.data.responseDecoded?.match(/<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/);
+      const pdfBase64 = pdfMatch?.[1]?.trim() || "";
       if (!pdfBase64) throw new Error("Kein PDF in der Antwort gefunden");
 
       // 3. Maak PDF bestand
