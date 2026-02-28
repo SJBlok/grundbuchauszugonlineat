@@ -230,6 +230,8 @@ export type Database = {
           product_name: string
           product_price: number
           status: string
+          stiege: string | null
+          tuer: string | null
           updated_at: string
           vorname: string
           wohnsitzland: string
@@ -262,6 +264,8 @@ export type Database = {
           product_name?: string
           product_price?: number
           status?: string
+          stiege?: string | null
+          tuer?: string | null
           updated_at?: string
           vorname: string
           wohnsitzland: string
@@ -294,6 +298,8 @@ export type Database = {
           product_name?: string
           product_price?: number
           status?: string
+          stiege?: string | null
+          tuer?: string | null
           updated_at?: string
           vorname?: string
           wohnsitzland?: string

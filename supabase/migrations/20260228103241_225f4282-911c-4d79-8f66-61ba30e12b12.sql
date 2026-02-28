@@ -1,0 +1,3 @@
+ALTER TABLE public.orders
+ADD COLUMN IF NOT EXISTS stiege text,
+ADD COLUMN IF NOT EXISTS tuer text;

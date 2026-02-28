@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Copy, Check, Save, Upload, Trash2, ExternalLink,
   Loader2, CheckCircle2, AlertTriangle, Download, Lock, FileText,
-  Zap, HardDrive, Search, MoreVertical, ShieldCheck,
+  Zap, HardDrive, Search, MoreVertical, ShieldCheck, Pencil,
 } from "lucide-react";
 import { useAdminTheme } from "@/pages/Admin";
 import { useToast } from "@/hooks/use-toast";
@@ -63,6 +63,21 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Edit mode state
+  const [editMode, setEditMode] = useState(false);
+  const [editFields, setEditFields] = useState({
+    adresse: "",
+    hausnummer: "",
+    stiege: "",
+    tuer: "",
+    plz: "",
+    ort: "",
+    bundesland: "",
+    katastralgemeinde: "",
+    grundstuecksnummer: "",
+    wohnungs_hinweis: "",
+  });
+
   // Grundbuch state
   const [gbStep, setGbStep] = useState<"idle" | "validating" | "found" | "searching" | "select" | "purchasing" | "done">("idle");
   const [gbError, setGbError] = useState<string | null>(null);
@@ -81,6 +96,19 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       setGbStep("idle"); setGbError(null); setValidationFailed(false);
       setAddressResults([]); setSelectedKgEz(null); setPurchasedPdf(null);
       setOverrideType(null); setOverrideSignatur(null);
+      setEditMode(false);
+      setEditFields({
+        adresse: order.adresse || "",
+        hausnummer: order.hausnummer || "",
+        stiege: order.stiege || "",
+        tuer: order.tuer || "",
+        plz: order.plz || "",
+        ort: order.ort || "",
+        bundesland: order.bundesland || "",
+        katastralgemeinde: order.katastralgemeinde || "",
+        grundstuecksnummer: order.grundstuecksnummer || "",
+        wohnungs_hinweis: order.wohnungs_hinweis || "",
+      });
     }
   }, [order]);
 
@@ -104,6 +132,50 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
   const handleStatusChange = async (v: string) => { setSaving(true); await onUpdateOrder(order.id, { status: v }); setSaving(false); };
   const handleSaveNotes = async () => { setSaving(true); await onUpdateOrder(order.id, { processing_notes: notes }); setSaving(false); toast({ title: "Notizen gespeichert" }); };
+
+  const handleEditField = (field: string, value: string) => {
+    setEditFields(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveEdit = async () => {
+    setSaving(true);
+    try {
+      await onUpdateOrder(order.id, {
+        adresse: editFields.adresse,
+        hausnummer: editFields.hausnummer,
+        stiege: editFields.stiege,
+        tuer: editFields.tuer,
+        plz: editFields.plz,
+        ort: editFields.ort,
+        bundesland: editFields.bundesland,
+        katastralgemeinde: editFields.katastralgemeinde,
+        grundstuecksnummer: editFields.grundstuecksnummer,
+        wohnungs_hinweis: editFields.wohnungs_hinweis,
+      });
+      setEditMode(false);
+      onRefresh();
+      toast({ title: "Änderungen gespeichert" });
+    } catch (err: any) {
+      toast({ title: "Fehler beim Speichern", description: err.message, variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setEditFields({
+      adresse: order.adresse || "",
+      hausnummer: order.hausnummer || "",
+      stiege: order.stiege || "",
+      tuer: order.tuer || "",
+      plz: order.plz || "",
+      ort: order.ort || "",
+      bundesland: order.bundesland || "",
+      katastralgemeinde: order.katastralgemeinde || "",
+      grundstuecksnummer: order.grundstuecksnummer || "",
+      wohnungs_hinweis: order.wohnungs_hinweis || "",
+    });
+  };
 
   const handleHardDelete = async () => {
     if (!order) return;
@@ -178,10 +250,18 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const handleSearch = async () => {
     setGbStep("searching"); setGbError(null); setNominatimResult(null);
     try {
-      const adressParts = (order.adresse || "").trim().split(/\s+/);
-      const hausnr = adressParts.length > 1 ? adressParts.pop() : undefined;
-      const strOnly = adressParts.join(" ");
-      const result = await searchAddress({ bundesland: order.bundesland || undefined, ort: order.ort || undefined, plz: order.plz || undefined, strasse: strOnly || order.adresse || "", hausnummer: hausnr });
+      const strasse = editMode ? editFields.adresse : (order.adresse || "");
+      const hausnummer = editMode ? editFields.hausnummer : (order.hausnummer || "");
+      const plzVal = editMode ? editFields.plz : (order.plz || "");
+      const ortVal = editMode ? editFields.ort : (order.ort || "");
+      const blVal = editMode ? editFields.bundesland : (order.bundesland || "");
+      const result = await searchAddress({
+        bundesland: blVal || undefined,
+        ort: ortVal || undefined,
+        plz: plzVal || undefined,
+        strasse: strasse,
+        hausnummer: hausnummer || undefined,
+      });
       setNominatimResult(result._nominatim || null);
       setAddressResults(parseAddressResults(result.data.responseDecoded));
       setGbStep("select");
@@ -325,6 +405,28 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     );
   };
 
+  const EditableRow = ({ label, field, mono }: { label: string; field: string; mono?: boolean }) => {
+    const value = editFields[field as keyof typeof editFields] || "";
+    if (!editMode) {
+      return <InfoRow label={label} value={value || (order as any)[field]} copyable={!!value} mono={mono} />;
+    }
+    return (
+      <div className={`flex items-center justify-between py-1.5 ${d ? "border-slate-800/30" : "border-border/15"}`}>
+        <span className={`text-[13px] shrink-0 ${d ? "text-slate-400" : "text-gray-500"}`}>{label}</span>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => handleEditField(field, e.target.value)}
+          className={`ml-4 text-right text-[13px] px-2 py-1 rounded border w-48 ${mono ? "font-mono" : ""} ${
+            d
+              ? "bg-slate-900 border-slate-700 text-slate-100 focus:border-blue-500"
+              : "bg-white border-gray-200 text-gray-900 focus:border-blue-500"
+          } outline-none transition-colors`}
+        />
+      </div>
+    );
+  };
+
   const SectionTitle = ({ children, right }: { children: string; right?: React.ReactNode }) => (
     <div className="flex items-center justify-between mb-3">
       <p className={`text-xs font-medium uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>{children}</p>
@@ -377,25 +479,56 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
         {/* ─── C. Bestelldetails ─── */}
         <div className="px-6 py-4 space-y-0.5">
+          <div className="flex items-center justify-between mb-3">
+            <p className={`text-xs font-medium uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>
+              Bestelldetails
+            </p>
+            {!editMode ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditMode(true)}
+                className={`h-7 text-xs gap-1 ${d ? "text-slate-400 hover:text-slate-200" : "text-gray-500 hover:text-gray-700"}`}
+              >
+                <Pencil className="w-3 h-3" /> Bearbeiten
+              </Button>
+            ) : (
+              <div className="flex gap-1.5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCancelEdit}
+                  className={`h-7 text-xs ${d ? "text-slate-400 hover:text-slate-200" : "text-gray-500 hover:text-gray-700"}`}
+                >
+                  Abbrechen
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSaveEdit}
+                  disabled={saving}
+                  className="h-7 text-xs gap-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                  Speichern
+                </Button>
+              </div>
+            )}
+          </div>
           <InfoRow label="Name" value={`${order.vorname} ${order.nachname}`} />
           <InfoRow label="E-Mail" value={order.email} copyable />
           {order.firma && <InfoRow label="Firma" value={order.firma} />}
-          <InfoRow
-            label="Straße"
-            value={order.adresse ? order.adresse.replace(/\s+\S*$/, "").trim() || order.adresse : ""}
-          />
-          <InfoRow
-            label="Hausnr."
-            value={order.adresse ? (order.adresse.match(/\s(\S+)$/) || [])[1] || "" : ""}
-          />
-          <InfoRow label="PLZ" value={order.plz} />
-          <InfoRow label="Ort" value={order.ort} />
-          <InfoRow label="Bundesland" value={order.bundesland} />
+          <EditableRow label="Straße" field="adresse" />
+          <EditableRow label="Hausnr." field="hausnummer" mono />
+          <EditableRow label="Stiege" field="stiege" mono />
+          <EditableRow label="Top/Tür" field="tuer" mono />
+          <EditableRow label="PLZ" field="plz" />
+          <EditableRow label="Ort" field="ort" />
+          <EditableRow label="Bundesland" field="bundesland" />
           <InfoRow label="Produkt" value={order.product_name} />
           <InfoRow label="Grundbuchsgericht" value={order.grundbuchsgericht} />
-          <InfoRow label="Katastralgemeinde" value={order.katastralgemeinde} copyable mono />
-          <InfoRow label="Grundstücksnr. / EZ" value={order.grundstuecksnummer} copyable mono />
-          {order.wohnungs_hinweis && <InfoRow label="Wohnungshinweis" value={order.wohnungs_hinweis} />}
+          <EditableRow label="Katastralgemeinde" field="katastralgemeinde" mono />
+          <EditableRow label="Grundstücksnr. / EZ" field="grundstuecksnummer" mono />
+          <EditableRow label="Wohnungshinweis" field="wohnungs_hinweis" />
           <InfoRow label="Amtliche Signatur" value={order.amtliche_signatur ? "Ja" : "Nein"} />
 
           {hasExtras && (
@@ -406,8 +539,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                 </Badge>
               )}
               {order.digital_storage_subscription && (
-                <Badge className="gap-1.5 py-1 px-2.5 text-[11px] font-medium bg-blue-500/15 text-blue-500 border-blue-500/30 hover:bg-blue-500/20">
-                  <HardDrive className="w-3 h-3" /> Digitale Speicherung
+                <Badge className="gap-1.5 py-1 px-2.5 text-[11px] font-medium bg-violet-500/15 text-violet-600 border-violet-500/30 hover:bg-violet-500/20">
+                  <HardDrive className="w-3 h-3" /> Digitale Aufbewahrung
                 </Badge>
               )}
             </div>
