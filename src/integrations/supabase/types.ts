@@ -216,6 +216,7 @@ export type Database = {
           firma: string | null
           grundbuchsgericht: string
           grundstuecksnummer: string
+          hausnummer: string | null
           id: string
           katastralgemeinde: string
           moneybird_invoice_id: string | null
@@ -250,6 +251,7 @@ export type Database = {
           firma?: string | null
           grundbuchsgericht: string
           grundstuecksnummer: string
+          hausnummer?: string | null
           id?: string
           katastralgemeinde: string
           moneybird_invoice_id?: string | null
@@ -284,6 +286,7 @@ export type Database = {
           firma?: string | null
           grundbuchsgericht?: string
           grundstuecksnummer?: string
+          hausnummer?: string | null
           id?: string
           katastralgemeinde?: string
           moneybird_invoice_id?: string | null
