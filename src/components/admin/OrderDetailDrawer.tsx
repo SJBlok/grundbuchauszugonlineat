@@ -282,11 +282,13 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const handleSearch = async () => {
     setGbStep("searching"); setGbError(null); setNominatimResult(null); setSearchDebug(null);
     try {
-      const strasse = editMode ? editFields.adresse : (order.adresse || "");
-      const hausnummer = editMode ? editFields.hausnummer : (order.hausnummer || "");
-      const plzVal = editMode ? editFields.plz : (order.plz || "");
-      const ortVal = editMode ? editFields.ort : (order.ort || "");
-      const blVal = editMode ? editFields.bundesland : (order.bundesland || "");
+      // Gebruik ALTIJD editFields — deze zijn al correct afgeleid in useEffect
+      // (bij oude orders wordt order.adresse gesplitst in strasse + hausnummer)
+      const strasse = editFields.adresse;
+      const hausnummer = editFields.hausnummer;
+      const plzVal = editFields.plz;
+      const ortVal = editFields.ort;
+      const blVal = editFields.bundesland;
       const result = await searchAddress({
         bundesland: blVal || undefined,
         ort: ortVal || undefined,
