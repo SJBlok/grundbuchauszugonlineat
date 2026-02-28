@@ -79,12 +79,13 @@ export async function searchAddress(params: {
     params.ort
   );
 
+  let uvstResult;
   if (normalized) {
     console.log("Nominatim result:", normalized);
 
     if (normalized.isOrtschaft) {
       console.log("Ortschaft detected, using erweiterte Suche (GT_ADR02)");
-      return proxyPost("/api/address-search", {
+      uvstResult = await proxyPost("/api/address-search", {
         strasse: normalized.strasse,
         hausnummer: normalized.hausnummer || undefined,
         ort: normalized.strasse,
@@ -93,23 +94,27 @@ export async function searchAddress(params: {
       });
     } else {
       console.log("Street address detected, using standard search (GT_ADR)");
-      return proxyPost("/api/address-search", {
+      uvstResult = await proxyPost("/api/address-search", {
         strasse: normalized.strasse,
         hausnummer: normalized.hausnummer || undefined,
         ort: normalized.ort || params.ort || undefined,
         bundesland: normalized.bundesland || params.bundesland || undefined,
       });
     }
+  } else {
+    // Fallback: Nominatim niet beschikbaar
+    console.warn("Nominatim unavailable, falling back to direct UVST search");
+    uvstResult = await proxyPost("/api/address-search", {
+      strasse: titleCase(params.strasse),
+      hausnummer: params.hausnummer || undefined,
+      ort: params.ort || undefined,
+      bundesland: params.bundesland || undefined,
+    });
   }
 
-  // Fallback: Nominatim niet beschikbaar
-  console.warn("Nominatim unavailable, falling back to direct UVST search");
-  return proxyPost("/api/address-search", {
-    strasse: titleCase(params.strasse),
-    hausnummer: params.hausnummer || undefined,
-    ort: params.ort || undefined,
-    bundesland: params.bundesland || undefined,
-  });
+  // Voeg Nominatim info toe aan het resultaat
+  uvstResult._nominatim = normalized || null;
+  return uvstResult;
 }
 
 export async function fetchAktuell(katastralgemeinde: string, einlagezahl: string, signiert = false) {

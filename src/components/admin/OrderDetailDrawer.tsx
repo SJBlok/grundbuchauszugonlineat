@@ -72,6 +72,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const [purchasedPdf, setPurchasedPdf] = useState<{ type: string; base64: string; kosten: number } | null>(null);
   const [overrideType, setOverrideType] = useState<"aktuell" | "historisch" | null>(null);
   const [overrideSignatur, setOverrideSignatur] = useState<boolean | null>(null);
+  const [nominatimResult, setNominatimResult] = useState<any>(null);
 
   useEffect(() => {
     if (order) {
@@ -175,13 +176,13 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   };
 
   const handleSearch = async () => {
-    setGbStep("searching"); setGbError(null);
+    setGbStep("searching"); setGbError(null); setNominatimResult(null);
     try {
-      // Split adresse terug in strasse + hausnummer voor Nominatim
       const adressParts = (order.adresse || "").trim().split(/\s+/);
       const hausnr = adressParts.length > 1 ? adressParts.pop() : undefined;
       const strOnly = adressParts.join(" ");
       const result = await searchAddress({ bundesland: order.bundesland || undefined, ort: order.ort || undefined, plz: order.plz || undefined, strasse: strOnly || order.adresse || "", hausnummer: hausnr });
+      setNominatimResult(result._nominatim || null);
       setAddressResults(parseAddressResults(result.data.responseDecoded));
       setGbStep("select");
     } catch (err: any) { setGbError(err.message || "Suche fehlgeschlagen"); setGbStep("idle"); }
@@ -468,6 +469,21 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
           {gbStep === "select" && (
             <>
+              {/* Nominatim debug info */}
+              {nominatimResult && (
+                <div className={`text-xs rounded-md border p-3 mb-3 font-mono space-y-1 ${d ? "bg-slate-800/50 border-slate-700 text-slate-300" : "bg-slate-50 border-slate-200 text-slate-600"}`}>
+                  <p className="font-sans font-medium text-[11px] uppercase tracking-wide mb-1.5" style={{ color: nominatimResult.isOrtschaft ? "#f59e0b" : "#10b981" }}>
+                    {nominatimResult.isOrtschaft ? "⚡ Ortschaft → Erweiterte Suche (GT_ADR02)" : "✓ Straße → Standard Suche (GT_ADR)"}
+                  </p>
+                  <p>Straße: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.strasse}</span></p>
+                  {nominatimResult.hausnummer && <p>Hausnr: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.hausnummer}</span></p>}
+                  <p>Ort: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.ort}</span></p>
+                  {nominatimResult.bundesland && <p>Bundesland: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.bundesland}</span></p>}
+                </div>
+              )}
+              {!nominatimResult && (
+                <p className={`text-xs italic mb-2 ${d ? "text-slate-500" : "text-gray-400"}`}>Nominatim: keine Normalisierung (Fallback)</p>
+              )}
               {addressResults.length > 0 ? (
                 <div className="space-y-2">
                   <p className={`text-sm ${d ? "text-slate-300" : "text-foreground"}`}>{addressResults.length} Treffer gefunden:</p>
