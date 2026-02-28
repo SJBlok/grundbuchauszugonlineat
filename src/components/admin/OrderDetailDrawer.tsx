@@ -99,11 +99,30 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       setAddressResults([]); setSelectedKgEz(null); setPurchasedPdf(null);
       setOverrideType(null); setOverrideSignatur(null); setSearchDebug(null);
       setEditMode(false);
+
+      // Extract hausnummer from adresse if hausnummer is empty
+      let adresseVal = order.adresse || "";
+      let hausnummerVal = order.hausnummer || "";
+      if (!hausnummerVal && adresseVal) {
+        // Try to split "Arnikaweg 124/1" → strasse "Arnikaweg", hausnummer "124/1"
+        const match = adresseVal.match(/^(.+?)\s+(\d+\S*)$/);
+        if (match) {
+          adresseVal = match[1];
+          hausnummerVal = match[2];
+        }
+      }
+
+      // Auto-parse hausnummer into stiege/tuer
+      const parsed = parseHausnummer(hausnummerVal);
+      const stiegeVal = order.stiege || parsed.stiege || "";
+      const tuerVal = order.tuer || parsed.tuer || "";
+      const finalHausnummer = (order.stiege || order.tuer) ? hausnummerVal : parsed.hausnummer;
+
       setEditFields({
-        adresse: order.adresse || "",
-        hausnummer: order.hausnummer || "",
-        stiege: order.stiege || "",
-        tuer: order.tuer || "",
+        adresse: adresseVal,
+        hausnummer: finalHausnummer,
+        stiege: stiegeVal,
+        tuer: tuerVal,
         plz: order.plz || "",
         ort: order.ort || "",
         bundesland: order.bundesland || "",
@@ -111,19 +130,6 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
         grundstuecksnummer: order.grundstuecksnummer || "",
         wohnungs_hinweis: order.wohnungs_hinweis || "",
       });
-
-      // Auto-parse hausnummer if stiege/tuer are still empty
-      if (order.hausnummer && !order.stiege && !order.tuer) {
-        const parsed = parseHausnummer(order.hausnummer);
-        if (parsed.stiege || parsed.tuer) {
-          setEditFields(prev => ({
-            ...prev,
-            hausnummer: parsed.hausnummer,
-            stiege: parsed.stiege || "",
-            tuer: parsed.tuer || "",
-          }));
-        }
-      }
     }
   }, [order]);
 
@@ -178,11 +184,22 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
   const handleCancelEdit = () => {
     setEditMode(false);
+    // Re-derive same as useEffect
+    let adresseVal = order.adresse || "";
+    let hausnummerVal = order.hausnummer || "";
+    if (!hausnummerVal && adresseVal) {
+      const match = adresseVal.match(/^(.+?)\s+(\d+\S*)$/);
+      if (match) { adresseVal = match[1]; hausnummerVal = match[2]; }
+    }
+    const parsed = parseHausnummer(hausnummerVal);
+    const stiegeVal = order.stiege || parsed.stiege || "";
+    const tuerVal = order.tuer || parsed.tuer || "";
+    const finalHausnummer = (order.stiege || order.tuer) ? hausnummerVal : parsed.hausnummer;
     setEditFields({
-      adresse: order.adresse || "",
-      hausnummer: order.hausnummer || "",
-      stiege: order.stiege || "",
-      tuer: order.tuer || "",
+      adresse: adresseVal,
+      hausnummer: finalHausnummer,
+      stiege: stiegeVal,
+      tuer: tuerVal,
       plz: order.plz || "",
       ort: order.ort || "",
       bundesland: order.bundesland || "",
