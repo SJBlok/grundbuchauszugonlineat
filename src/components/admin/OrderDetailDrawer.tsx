@@ -137,7 +137,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
   const fmtDate = (s: string) => new Date(s).toLocaleDateString("de-AT", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
   const fmtCur = (n: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR" }).format(n);
-  const hasKgEz = !!(order.katastralgemeinde?.trim() && order.grundstuecksnummer?.trim());
+  const hasKgEz = !!(editFields.katastralgemeinde?.trim() && editFields.grundstuecksnummer?.trim());
   const isHistorisch = order.product_name?.toLowerCase().includes("historisch");
   const wantsSignatur = order.amtliche_signatur === true;
   const productLabel = isHistorisch ? "Historischer Grundbuchauszug" : "Aktueller Grundbuchauszug";
@@ -524,6 +524,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
             <div className={`mt-0.5 font-mono ${d ? "text-slate-300" : "text-gray-700"}`}>
               {params?.strasse && <span>strasse="{params.strasse}" </span>}
               {params?.hausnummer && <span>hausnr="{params.hausnummer}" </span>}
+              {params?.plz && <span>plz="{params.plz}" </span>}
               {params?.ort && <span>ort="{params.ort}" </span>}
               {params?.bundesland && <span>bl="{params.bundesland}"</span>}
             </div>
@@ -705,7 +706,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                     <CheckCircle2 className="w-4 h-4" /> Einlage prüfen
                   </Button>
                   <p className={`text-[11px] ${d ? "text-slate-600" : "text-gray-400"}`}>
-                    KG <span className="font-mono">{order.katastralgemeinde}</span> / EZ <span className="font-mono">{order.grundstuecksnummer}</span> — €0,41
+                    KG <span className="font-mono">{editFields.katastralgemeinde}</span> / EZ <span className="font-mono">{editFields.grundstuecksnummer}</span> — €0,41
                   </p>
                 </>
               )}
