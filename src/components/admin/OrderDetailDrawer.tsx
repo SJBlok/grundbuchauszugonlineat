@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Copy, Check, Save, Upload, Trash2, ExternalLink,
+  Copy, Check, Save, Upload, Trash2, ExternalLink, Mail,
   Loader2, CheckCircle2, AlertTriangle, Download, Lock, FileText,
   Zap, HardDrive, Search, MoreVertical, ShieldCheck, Pencil,
 } from "lucide-react";
@@ -244,6 +244,102 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     const updated = documents.filter((_: any, i: number) => i !== index);
     setDocuments(updated);
     await onUpdateOrder(order.id, { documents: updated });
+  };
+
+  const handleSendDocumentEmail = async (doc: any) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(doc.url);
+      const blob = await res.blob();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      const docType = doc.name?.includes("historisch") ? "historisch" : "aktuell";
+      const emailRes = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-grundbuch-document`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ order_id: order.id, pdf_base64: base64, document_type: docType }),
+        }
+      );
+      const emailData = await emailRes.json();
+      if (emailData.error) {
+        toast({ title: "Email-Versand fehlgeschlagen", description: emailData.error, variant: "destructive" });
+      } else {
+        toast({ title: "Email versendet", description: `Dokument an ${order.email} gesendet` });
+      }
+    } catch (err: any) {
+      toast({ title: "Email-Versand fehlgeschlagen", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleSendAllDocumentsAndClose = async () => {
+    if (documents.length === 0) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const pdfDocs = documents.filter((doc: any) => doc.name?.endsWith(".pdf"));
+      if (pdfDocs.length === 0) {
+        toast({ title: "Keine PDFs", description: "Keine PDF-Dokumente zum Versenden vorhanden.", variant: "destructive" });
+        return;
+      }
+      const toBase64 = async (url: string) => {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve((reader.result as string).split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      };
+      const firstDoc = pdfDocs[0];
+      const firstBase64 = await toBase64(firstDoc.url);
+      const firstType = firstDoc.name?.includes("historisch") ? "historisch" : "aktuell";
+      const emailBody: Record<string, unknown> = {
+        order_id: order.id,
+        pdf_base64: firstBase64,
+        document_type: firstType,
+      };
+      if (pdfDocs.length > 1) {
+        const secondDoc = pdfDocs[1];
+        emailBody.extra_pdf_base64 = await toBase64(secondDoc.url);
+        emailBody.extra_document_type = secondDoc.name?.includes("historisch") ? "historisch" : "aktuell";
+      }
+      const emailRes = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-grundbuch-document`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify(emailBody),
+        }
+      );
+      const emailData = await emailRes.json();
+      if (emailData.error) {
+        toast({ title: "Email-Versand fehlgeschlagen", description: emailData.error, variant: "destructive" });
+        return;
+      }
+      const timestamp = new Date().toLocaleString("de-AT");
+      const costNote = `[${timestamp}] MANUELL: ${pdfDocs.length} Dokument(e) per Email an ${order.email} versendet`;
+      const updatedNotes = notes ? `${notes}\n${costNote}` : costNote;
+      setNotes(updatedNotes);
+      await onUpdateOrder(order.id, { status: "processed", processing_notes: updatedNotes });
+      toast({ title: "Erfolgreich versendet", description: `${pdfDocs.length} Dokument(e) an ${order.email} gesendet. Status → Verarbeitet.` });
+      onRefresh();
+    } catch (err: any) {
+      toast({ title: "Fehler", description: err.message, variant: "destructive" });
+    }
   };
 
   const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1078,6 +1174,11 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                 <div key={i} className={`flex items-center gap-2 px-3 py-2.5 rounded-lg ${d ? "bg-slate-900/40 hover:bg-slate-800/60" : "bg-gray-50 hover:bg-gray-100"}`}>
                   <FileText className={`w-3.5 h-3.5 shrink-0 ${d ? "text-slate-400" : "text-gray-400"}`} />
                   <span className={`text-sm truncate flex-1 ${d ? "text-slate-200" : "text-foreground"}`}>{doc.name}</span>
+                  {doc.url && doc.name?.endsWith(".pdf") && (
+                    <button onClick={() => handleSendDocumentEmail(doc)} className={`p-1 rounded ${d ? "text-blue-400 hover:text-blue-300" : "text-blue-500 hover:text-blue-600"}`} title={`Per Email an ${order.email} senden`}>
+                      <Mail className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                   {doc.url && (
                     <button onClick={async () => {
                       try {
@@ -1105,6 +1206,11 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                 </div>
               ))}
             </div>
+          )}
+          {documents.some((doc: any) => doc.name?.endsWith(".pdf")) && order.status !== "processed" && (
+            <Button onClick={handleSendAllDocumentsAndClose} className="w-full mt-3 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Mail className="w-4 h-4" /> Alle Dokumente senden & abschließen
+            </Button>
           )}
         </div>
 
