@@ -82,12 +82,27 @@ serve(async (req: Request): Promise<Response> => {
     const addr = results[0].address || {};
     const hasRoad = !!addr.road;
 
+    // Detect Ortschaft: als de originele straatnaam gelijk is aan de ort/village/locality,
+    // of als Nominatim een road retourneert die duidelijk afwijkt van de input (bijv. "Zufahrt ...")
+    const strasseLower = strasse.toLowerCase().trim();
+    const ortLower = (ort || "").toLowerCase().trim();
+    const roadLower = (addr.road || "").toLowerCase().trim();
+    const localityLower = (addr.locality || addr.village || addr.hamlet || "").toLowerCase().trim();
+
+    const isLikelyOrtschaft =
+      (strasseLower === ortLower && ortLower !== "") ||
+      (strasseLower === localityLower && localityLower !== "") ||
+      roadLower.startsWith("zufahrt") ||
+      (!hasRoad && !!addr.locality);
+
     const normalized = {
-      strasse: addr.road || addr.locality || strasse,
+      strasse: isLikelyOrtschaft
+        ? (addr.locality || addr.village || addr.hamlet || strasse)
+        : (addr.road || addr.locality || strasse),
       hausnummer: addr.house_number || hausnummer || "",
       ort: addr.town || addr.city || ort || "",
       bundesland: addr.state || "",
-      isOrtschaft: !hasRoad && !!addr.locality,
+      isOrtschaft: isLikelyOrtschaft,
     };
 
     // Title case strasse
