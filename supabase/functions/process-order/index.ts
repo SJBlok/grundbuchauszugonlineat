@@ -11,7 +11,7 @@ const PROXY_URL = Deno.env.get("UVST_PROXY_URL") || "https://uvst-proxy-producti
 // ── Helpers ──
 
 function titleCase(str: string): string {
-  return str.toLowerCase().replace(/(?:^|\s)\S/g, (c) => c.toUpperCase());
+  return str.toLowerCase().replace(/(?:^|[\s-])\S/g, (c) => c.toUpperCase());
 }
 
 function splitAddress(adresse: string): { strasse: string; hausnummer: string } {
