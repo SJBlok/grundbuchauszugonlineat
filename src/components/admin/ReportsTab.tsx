@@ -212,11 +212,50 @@ export function ReportsTab() {
         <DialogContent className={`max-w-3xl max-h-[85vh] overflow-y-auto p-0 gap-0 ${d ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-white border-gray-200 text-gray-900"}`}>
           {selectedReport && (() => {
             const ordersData = selectedReport.orders_data || [];
+            
+            // Product breakdown
+            const aktuellOrders = ordersData.filter((o: any) => {
+              const name = (o.product_name || "").toLowerCase();
+              return !name.includes("historisch") && !name.includes("kombi");
+            });
+            const historischOrders = ordersData.filter((o: any) => (o.product_name || "").toLowerCase().includes("historisch"));
+            const kombiOrders = ordersData.filter((o: any) => (o.product_name || "").toLowerCase().includes("kombi"));
+            const signaturCount = ordersData.filter((o: any) => o.amtliche_signatur === true).length;
             const priorityCount = ordersData.filter((o: any) => o.fast_delivery === true).length;
             const digitalCount = ordersData.filter((o: any) => o.digital_storage_subscription === true).length;
-            const basisRevenue = ordersData.length * 28.90;
+
+            const aktuellRevenue = aktuellOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
+            const historischRevenue = historischOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
+            const kombiRevenue = kombiOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
             const priorityRevenue = priorityCount * 9.95;
             const digitalRevenue = digitalCount * 7.95;
+
+            // Parse UVST costs from processing_notes
+            let totalUvstCosts = 0;
+            const uvstSearchCosts: number[] = [];
+            const uvstDocCosts: number[] = [];
+            ordersData.forEach((o: any) => {
+              const notes = o.processing_notes || "";
+              // Match cost lines: ... UVST GT_GBA/GT_GBP ... — €X.XX
+              const costMatches = notes.matchAll(/UVST\s+(GT_\w+).*?€([\d.,]+)/g);
+              for (const m of costMatches) {
+                const cost = parseFloat(m[2].replace(",", "."));
+                if (!isNaN(cost)) {
+                  totalUvstCosts += cost;
+                  uvstDocCosts.push(cost);
+                }
+              }
+              // Match search/lookup costs if logged
+              const searchMatches = notes.matchAll(/(?:search|lookup|suche).*?€([\d.,]+)/gi);
+              for (const m of searchMatches) {
+                const cost = parseFloat(m[1].replace(",", "."));
+                if (!isNaN(cost)) {
+                  uvstSearchCosts.push(cost);
+                }
+              }
+            });
+            const totalSearchCost = uvstSearchCosts.reduce((s, c) => s + c, 0);
+            const totalDocCost = uvstDocCosts.reduce((s, c) => s + c, 0);
 
             return (
               <>
@@ -258,27 +297,79 @@ export function ReportsTab() {
                     </div>
                   </div>
 
-                  {/* Revenue breakdown */}
+                   {/* Revenue breakdown */}
                   <Card className={d ? "bg-slate-900/50 border-slate-800" : "border-gray-200"}>
+                    <CardHeader className="pb-0 pt-3 px-4">
+                      <CardTitle className={`text-xs uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>Umsatz</CardTitle>
+                    </CardHeader>
                     <CardContent className="p-0 text-sm">
-                      <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
-                        <span>{ordersData.length}× Grundbuchauszug à € 28,90</span>
-                        <span className="font-medium">{fmtCur(basisRevenue)}</span>
-                      </div>
-                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-amber-400" : "border-gray-100 text-amber-600"}`}>
-                        <span>{priorityCount}× Priority Delivery à € 9,95</span>
-                        <span className="font-medium">{fmtCur(priorityRevenue)}</span>
-                      </div>
-                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-blue-400" : "border-gray-100 text-blue-600"}`}>
-                        <span>{digitalCount}× Digitale Speicherung à € 7,95</span>
-                        <span className="font-medium">{fmtCur(digitalRevenue)}</span>
-                      </div>
+                      {aktuellOrders.length > 0 && (
+                        <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
+                          <span>{aktuellOrders.length}× Aktueller Grundbuchauszug</span>
+                          <span className="font-medium">{fmtCur(aktuellRevenue)}</span>
+                        </div>
+                      )}
+                      {historischOrders.length > 0 && (
+                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-slate-300" : "border-gray-100 text-gray-700"}`}>
+                          <span>{historischOrders.length}× Historischer Grundbuchauszug</span>
+                          <span className="font-medium">{fmtCur(historischRevenue)}</span>
+                        </div>
+                      )}
+                      {kombiOrders.length > 0 && (
+                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-violet-400" : "border-gray-100 text-violet-600"}`}>
+                          <span>{kombiOrders.length}× Grundbuch Kombi-Pack</span>
+                          <span className="font-medium">{fmtCur(kombiRevenue)}</span>
+                        </div>
+                      )}
+                      {signaturCount > 0 && (
+                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-cyan-400" : "border-gray-100 text-cyan-600"}`}>
+                          <span>{signaturCount}× Amtliche Signatur</span>
+                          <span className={`font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>inkl.</span>
+                        </div>
+                      )}
+                      {priorityCount > 0 && (
+                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-amber-400" : "border-gray-100 text-amber-600"}`}>
+                          <span>{priorityCount}× Priority Delivery à € 9,95</span>
+                          <span className="font-medium">{fmtCur(priorityRevenue)}</span>
+                        </div>
+                      )}
+                      {digitalCount > 0 && (
+                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-blue-400" : "border-gray-100 text-blue-600"}`}>
+                          <span>{digitalCount}× Digitale Speicherung à € 7,95</span>
+                          <span className="font-medium">{fmtCur(digitalRevenue)}</span>
+                        </div>
+                      )}
                       <div className={`flex justify-between px-4 py-3 border-t font-semibold ${d ? "border-slate-800 bg-slate-800/50 text-slate-100" : "border-gray-100 bg-gray-50 text-gray-900"}`}>
                         <span>Gesamt</span>
                         <span className="text-emerald-500">{fmtCur(selectedReport.total_revenue)}</span>
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* UVST Cost overview */}
+                  {totalUvstCosts > 0 && (
+                    <Card className={d ? "bg-slate-900/50 border-slate-800" : "border-gray-200"}>
+                      <CardHeader className="pb-0 pt-3 px-4">
+                        <CardTitle className={`text-xs uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>UVST Kosten</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0 text-sm">
+                        {totalSearchCost > 0 && (
+                          <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
+                            <span>API Suchkosten</span>
+                            <span className="font-medium text-red-500">{fmtCur(totalSearchCost)}</span>
+                          </div>
+                        )}
+                        <div className={`flex justify-between px-4 py-3 ${totalSearchCost > 0 ? `border-t ${d ? "border-slate-800" : "border-gray-100"}` : ""} ${d ? "text-slate-300" : "text-gray-700"}`}>
+                          <span>Dokumentabruf ({uvstDocCosts.length}×)</span>
+                          <span className="font-medium text-red-500">{fmtCur(totalDocCost)}</span>
+                        </div>
+                        <div className={`flex justify-between px-4 py-3 border-t font-semibold ${d ? "border-slate-800 bg-slate-800/50 text-slate-100" : "border-gray-100 bg-gray-50 text-gray-900"}`}>
+                          <span>Gesamt UVST</span>
+                          <span className="text-red-500">{fmtCur(totalUvstCosts)}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Orders table */}
                   {ordersData.length > 0 ? (
