@@ -33,7 +33,7 @@ async function proxyPost(endpoint: string, body: Record<string, unknown>, timeou
 function titleCase(str: string): string {
   return str
     .toLowerCase()
-    .replace(/(?:^|\s)\S/g, (char) => char.toUpperCase());
+    .replace(/(?:^|[\s-])\S/g, (char) => char.toUpperCase());
 }
 
 // ── Nominatim adres-normalisatie ──

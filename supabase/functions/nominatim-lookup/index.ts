@@ -93,7 +93,7 @@ serve(async (req: Request): Promise<Response> => {
     // Title case strasse
     normalized.strasse = normalized.strasse
       .toLowerCase()
-      .replace(/(?:^|\s)\S/g, (char: string) => char.toUpperCase());
+      .replace(/(?:^|[\s-])\S/g, (char: string) => char.toUpperCase());
 
     console.log(`Nominatim result:`, JSON.stringify(normalized));
 
