@@ -118,6 +118,7 @@ serve(async (req: Request): Promise<Response> => {
     console.log(`[process-order] Processing ${order.order_number} for ${order.email}`);
 
     const isHistorisch = order.product_name?.toLowerCase().includes("historisch");
+    const isKombi = order.product_name?.toLowerCase().includes("kombi");
     const wantsSignatur = order.amtliche_signatur === true;
     let kgNummer = order.katastralgemeinde?.trim() || "";
     let ezNummer = order.grundstuecksnummer?.trim() || "";
@@ -201,108 +202,105 @@ serve(async (req: Request): Promise<Response> => {
         .eq("id", order.id);
     }
 
-    // ── Step 2: Fetch Grundbuchauszug ──
-    console.log(`[process-order] Fetching ${isHistorisch ? "GT_GBP" : "GT_GBA"} KG ${kgNummer} / EZ ${ezNummer} signiert=${wantsSignatur}`);
-    const extractResult = await proxyPost("/api/property-extract", {
-      katastralgemeinde: kgNummer,
-      einlagezahl: ezNummer,
-      historisch: isHistorisch,
-      signiert: wantsSignatur,
-    });
-
-    const kosten = extractResult.data?.ergebnis?.kosten?.gesamtKostenInklUst || 0;
-
-    // Extract PDF uit PDFOutStream (identiek voor aktuell en historisch)
-    const pdfMatch = extractResult.data?.responseDecoded?.match(
-      /<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/
-    );
-    const pdfBase64 = pdfMatch?.[1]?.trim() || "";
-
-    if (!pdfBase64) {
-      throw new Error("Kein PDF in der UVST-Antwort gefunden");
+    // ── Step 2: Fetch document(s) ──
+    const fetchTypes: Array<{ type: "aktuell" | "historisch"; historisch: boolean; label: string }> = [];
+    if (isKombi) {
+      fetchTypes.push({ type: "aktuell", historisch: false, label: "GT_GBA" });
+      fetchTypes.push({ type: "historisch", historisch: true, label: "GT_GBP" });
+    } else if (isHistorisch) {
+      fetchTypes.push({ type: "historisch", historisch: true, label: "GT_GBP" });
+    } else {
+      fetchTypes.push({ type: "aktuell", historisch: false, label: "GT_GBA" });
     }
 
-    console.log(`[process-order] PDF received, cost: €${kosten}`);
+    let totalKosten = 0;
+    const existingDocs = Array.isArray(order.documents) ? order.documents : [];
+    const updatedDocs = [...existingDocs];
+    const costNotes: string[] = [];
+    const fetchedPdfs: Array<{ type: string; base64: string }> = [];
 
-    // ── Step 3: Upload to Supabase Storage ──
-    const type = isHistorisch ? "historisch" : "aktuell";
-    const fileName = `grundbuch_${kgNummer}_${ezNummer}_${type}${wantsSignatur ? "_signiert" : ""}.pdf`;
-    const storagePath = `${order.order_number}/${Date.now()}_${fileName}`;
-
-    const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
-
-    const { error: uploadErr } = await supabase.storage
-      .from("order-documents")
-      .upload(storagePath, pdfBytes, {
-        contentType: "application/pdf",
-        upsert: false,
+    for (const ft of fetchTypes) {
+      console.log(`[process-order] Fetching ${ft.label} KG ${kgNummer} / EZ ${ezNummer} signiert=${wantsSignatur}`);
+      const extractResult = await proxyPost("/api/property-extract", {
+        katastralgemeinde: kgNummer,
+        einlagezahl: ezNummer,
+        historisch: ft.historisch,
+        signiert: wantsSignatur,
       });
 
-    if (uploadErr) throw new Error(`Storage upload failed: ${uploadErr.message}`);
+      const kosten = extractResult.data?.ergebnis?.kosten?.gesamtKostenInklUst || 0;
+      totalKosten += kosten;
 
-    const { data: signedData } = await supabase.storage
-      .from("order-documents")
-      .createSignedUrl(storagePath, 365 * 24 * 60 * 60);
-
-    const { data: publicData } = supabase.storage
-      .from("order-documents")
-      .getPublicUrl(storagePath);
-
-    const docEntry = {
-      name: fileName,
-      url: signedData?.signedUrl || publicData.publicUrl,
-      storage_path: storagePath,
-      type: "application/pdf",
-      size: pdfBytes.length,
-      added_at: new Date().toISOString(),
-    };
-
-    // Update order: add document, set status, add notes
-    const existingDocs = Array.isArray(order.documents) ? order.documents : [];
-    const updatedDocs = [...existingDocs, docEntry];
-    const timestamp = new Date().toLocaleString("de-AT", { timeZone: "Europe/Vienna" });
-    const costNote = `[${timestamp}] AUTO: UVST ${isHistorisch ? "GT_GBP" : "GT_GBA"} abgerufen — KG ${kgNummer} / EZ ${ezNummer}${wantsSignatur ? " (signiert)" : ""} — Kosten: €${kosten.toFixed(2)}`;
-
-    await supabase
-      .from("orders")
-      .update({
-        documents: updatedDocs,
-        status: "processed",
-        document_visible: order.digital_storage_subscription ? true : false,
-        processing_notes: order.processing_notes
-          ? `${order.processing_notes}\n${costNote}`
-          : costNote,
-      })
-      .eq("id", order.id);
-
-    console.log(`[process-order] Document uploaded, status → processed`);
-
-    // ── Step 4: Send email to customer ──
-    try {
-      const sendRes = await fetch(
-        `${supabaseUrl}/functions/v1/send-grundbuch-document`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${supabaseServiceKey}`,
-          },
-          body: JSON.stringify({
-            order_id: order.id,
-            pdf_base64: pdfBase64,
-            document_type: type,
-          }),
-        }
+      const pdfMatch = extractResult.data?.responseDecoded?.match(
+        /<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/
       );
+      const pdfBase64 = pdfMatch?.[1]?.trim() || "";
+      if (!pdfBase64) throw new Error(`Kein PDF in UVST-Antwort (${ft.label})`);
 
-      const sendData = await sendRes.json();
-      if (sendData.error) {
-        console.error(`[process-order] Email error: ${sendData.error}`);
-      } else {
-        console.log(`[process-order] Email sent to ${order.email}`);
+      console.log(`[process-order] ${ft.label} PDF received, cost: €${kosten}`);
+      fetchedPdfs.push({ type: ft.type, base64: pdfBase64 });
+
+      // Upload to Storage
+      const fileName = `grundbuch_${kgNummer}_${ezNummer}_${ft.type}${wantsSignatur ? "_signiert" : ""}.pdf`;
+      const storagePath = `${order.order_number}/${Date.now()}_${fileName}`;
+      const pdfBytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
+
+      const { error: uploadErr } = await supabase.storage
+        .from("order-documents")
+        .upload(storagePath, pdfBytes, { contentType: "application/pdf", upsert: false });
+      if (uploadErr) throw new Error(`Storage upload failed: ${uploadErr.message}`);
+
+      const { data: signedData } = await supabase.storage
+        .from("order-documents")
+        .createSignedUrl(storagePath, 365 * 24 * 60 * 60);
+      const { data: publicData } = supabase.storage
+        .from("order-documents")
+        .getPublicUrl(storagePath);
+
+      updatedDocs.push({
+        name: fileName,
+        url: signedData?.signedUrl || publicData.publicUrl,
+        storage_path: storagePath,
+        type: "application/pdf",
+        size: pdfBytes.length,
+        added_at: new Date().toISOString(),
+      });
+
+      const timestamp = new Date().toLocaleString("de-AT", { timeZone: "Europe/Vienna" });
+      costNotes.push(`[${timestamp}] AUTO: UVST ${ft.label} — KG ${kgNummer} / EZ ${ezNummer}${wantsSignatur ? " (signiert)" : ""} — €${kosten.toFixed(2)}`);
+    }
+
+    // Update order
+    await supabase.from("orders").update({
+      documents: updatedDocs,
+      status: "processed",
+      document_visible: order.digital_storage_subscription ? true : false,
+      processing_notes: order.processing_notes
+        ? `${order.processing_notes}\n${costNotes.join("\n")}`
+        : costNotes.join("\n"),
+    }).eq("id", order.id);
+
+    console.log(`[process-order] ${fetchedPdfs.length} document(s), total: €${totalKosten.toFixed(2)}`);
+
+    // ── Step 4: Send ONE email with all PDFs ──
+    try {
+      const emailBody: Record<string, unknown> = {
+        order_id: order.id,
+        pdf_base64: fetchedPdfs[0].base64,
+        document_type: fetchedPdfs[0].type,
+      };
+      if (fetchedPdfs.length > 1) {
+        emailBody.extra_pdf_base64 = fetchedPdfs[1].base64;
+        emailBody.extra_document_type = fetchedPdfs[1].type;
       }
-    } catch (emailErr: any) {
-      console.error(`[process-order] Email failed (non-blocking): ${emailErr.message}`);
+      await fetch(`${supabaseUrl}/functions/v1/send-grundbuch-document`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${supabaseServiceKey}` },
+        body: JSON.stringify(emailBody),
+      });
+      console.log(`[process-order] Email sent with ${fetchedPdfs.length} attachment(s)`);
+    } catch (emailErr) {
+      console.error(`[process-order] Email failed:`, emailErr);
     }
 
     return new Response(
@@ -311,8 +309,8 @@ serve(async (req: Request): Promise<Response> => {
         order_number: order.order_number,
         kg: kgNummer,
         ez: ezNummer,
-        kosten,
-        document: docEntry.name,
+        kosten: totalKosten,
+        documents: fetchedPdfs.length,
         email_sent: true,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
