@@ -260,9 +260,17 @@ export function ReportsTab() {
             const priorityCount = ordersData.filter((o: any) => o.fast_delivery === true).length;
             const digitalCount = ordersData.filter((o: any) => o.digital_storage_subscription === true).length;
 
-            const aktuellRevenue = aktuellOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
-            const historischRevenue = historischOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
-            const kombiRevenue = kombiOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
+            // Calculate base product revenue (subtract extras from product_price)
+            const getBasePrice = (o: any) => {
+              let base = o.product_price || 0;
+              if (o.amtliche_signatur) base -= 2.95;
+              if (o.fast_delivery) base -= 9.95;
+              if (o.digital_storage_subscription) base -= 7.95;
+              return base;
+            };
+            const aktuellRevenue = aktuellOrders.reduce((s: number, o: any) => s + getBasePrice(o), 0);
+            const historischRevenue = historischOrders.reduce((s: number, o: any) => s + getBasePrice(o), 0);
+            const kombiRevenue = kombiOrders.reduce((s: number, o: any) => s + getBasePrice(o), 0);
             const signaturRevenue = signaturCount * 2.95;
             const priorityRevenue = priorityCount * 9.95;
             const digitalRevenue = digitalCount * 7.95;
