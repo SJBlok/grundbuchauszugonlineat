@@ -272,6 +272,9 @@ serve(async (req: Request): Promise<Response> => {
     const sessionId = body.sessionId || body.session_id;
     const providedPdfBase64 = body.pdf_base64 || null;
     const documentType = body.document_type || "aktuell";
+    // Kombi-Pack: extra PDF bijlage
+    const extraPdfBase64 = body.extra_pdf_base64 || null;
+    const extraDocumentType = body.extra_document_type || null;
 
     // Determine auth method: portal API key, valid origin, or internal service-to-service call
     const apiKey = req.headers.get("x-api-key");
@@ -540,7 +543,9 @@ serve(async (req: Request): Promise<Response> => {
         
         <p style="margin: 0 0 20px 0; font-size: 15px; color: #52525b; line-height: 1.7;">
           ${hasDocument 
-            ? 'Wir bestätigen den Eingang Ihrer Bestellung für einen Grundbuchauszug. Ihr Dokument wurde erfolgreich abgerufen und liegt dieser E-Mail als Anlage bei.'
+          ? (extraPdfBase64
+              ? 'Wir bestätigen den Eingang Ihrer Bestellung für das Grundbuch Kombi-Pack. Ihre Dokumente (aktueller und historischer Grundbuchauszug) wurden erfolgreich abgerufen und liegen dieser E-Mail als Anlage bei.'
+              : 'Wir bestätigen den Eingang Ihrer Bestellung für einen Grundbuchauszug. Ihr Dokument wurde erfolgreich abgerufen und liegt dieser E-Mail als Anlage bei.')
             : 'Vielen Dank für Ihre Bestellung. <strong>Ihre Bestellung wird manuell bearbeitet.</strong> Die Dokumente werden innerhalb von 24 Stunden per E-Mail bereitgestellt.'}
         </p>
         
@@ -683,6 +688,15 @@ GrundbuchauszugOnline.at
           ContentType: "application/pdf",
         },
       ];
+      // Kombi-Pack: voeg tweede Grundbuchauszug toe
+      if (extraPdfBase64 && extraDocumentType) {
+        attachments.push({
+          Name: `Grundbuchauszug_${order.katastralgemeinde}_${order.grundstuecksnummer}_${extraDocumentType}.pdf`,
+          Content: extraPdfBase64,
+          ContentType: "application/pdf",
+        });
+        console.log(`Extra document (${extraDocumentType}) attached`);
+      }
       // Add Moneybird invoice PDF as reminder
       if (moneybirdInvoicePdf) {
         attachments.push({

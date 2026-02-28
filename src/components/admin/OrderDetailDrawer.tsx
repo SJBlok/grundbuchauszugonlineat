@@ -139,9 +139,10 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const fmtCur = (n: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR" }).format(n);
   const hasKgEz = !!(editFields.katastralgemeinde?.trim() && editFields.grundstuecksnummer?.trim());
   const isHistorisch = order.product_name?.toLowerCase().includes("historisch");
+  const isKombi = order.product_name?.toLowerCase().includes("kombi");
   const wantsSignatur = order.amtliche_signatur === true;
-  const productLabel = isHistorisch ? "Historischer Grundbuchauszug" : "Aktueller Grundbuchauszug";
-  const estimatedCost = isHistorisch ? "~€2,72" : "~€5,04";
+  const productLabel = isKombi ? "Grundbuch Kombi-Pack" : isHistorisch ? "Historischer Grundbuchauszug" : "Aktueller Grundbuchauszug";
+  const estimatedCost = isKombi ? "~€7,76" : isHistorisch ? "~€2,72" : "~€5,04";
   const sc = STATUS_COLORS[order.status] || STATUS_COLORS.open;
   const statusLabel = STATUS_OPTIONS.find(s => s.value === order.status)?.label || order.status;
 
@@ -403,6 +404,103 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       onRefresh();
     } catch (err: any) {
       setGbError(err.message || "Abruf fehlgeschlagen");
+      setGbStep("found");
+    }
+  };
+
+  const handlePurchaseKombi = async () => {
+    if (!selectedKgEz) return;
+    const useSignatur = overrideSignatur ?? wantsSignatur;
+    setGbStep("purchasing");
+    setGbError(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      // 1. Beide auszüge ophalen
+      const [aktuellResult, historischResult] = await Promise.all([
+        fetchAktuell(selectedKgEz.kg, selectedKgEz.ez, useSignatur),
+        fetchHistorisch(selectedKgEz.kg, selectedKgEz.ez, useSignatur),
+      ]);
+      const kostenAktuell = aktuellResult.data.ergebnis?.kosten?.gesamtKostenInklUst || 0;
+      const kostenHistorisch = historischResult.data.ergebnis?.kosten?.gesamtKostenInklUst || 0;
+      const totalKosten = kostenAktuell + kostenHistorisch;
+      // 2. PDFs extracten
+      const aktuellMatch = aktuellResult.data.responseDecoded?.match(/<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/);
+      const aktuellPdf = aktuellMatch?.[1]?.trim() || "";
+      if (!aktuellPdf) throw new Error("Kein PDF für aktuellen Auszug gefunden");
+      const historischMatch = historischResult.data.responseDecoded?.match(/<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/);
+      const historischPdf = historischMatch?.[1]?.trim() || "";
+      if (!historischPdf) throw new Error("Kein PDF für historischen Auszug gefunden");
+      // 3. Beide uploaden
+      for (const { type, pdfBase64 } of [
+        { type: "aktuell" as const, pdfBase64: aktuellPdf },
+        { type: "historisch" as const, pdfBase64: historischPdf },
+      ]) {
+        const fileName = `grundbuch_${selectedKgEz.kg}_${selectedKgEz.ez}_${type}${useSignatur ? "_signiert" : ""}.pdf`;
+        const bytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
+        const blob = new Blob([bytes], { type: "application/pdf" });
+        const file = new File([blob], fileName, { type: "application/pdf" });
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", file);
+        uploadFormData.append("order_id", order.id);
+        uploadFormData.append("order_number", order.order_number);
+        const uploadRes = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-order-document`,
+          {
+            method: "POST",
+            headers: {
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${session?.access_token}`,
+            },
+            body: uploadFormData,
+          }
+        );
+        const uploadData = await uploadRes.json();
+        if (uploadData.error) throw new Error(uploadData.error);
+        setDocuments(prev => [...prev, uploadData.document]);
+      }
+      // 4. Eén email met beide PDFs
+      try {
+        await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-grundbuch-document`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              Authorization: `Bearer ${session?.access_token}`,
+            },
+            body: JSON.stringify({
+              order_id: order.id,
+              pdf_base64: aktuellPdf,
+              document_type: "aktuell",
+              extra_pdf_base64: historischPdf,
+              extra_document_type: "historisch",
+            }),
+          }
+        );
+        toast({ title: "Email versendet", description: `Kombi-Pack an ${order.email} gesendet` });
+      } catch (emailErr: any) {
+        console.error("Email error:", emailErr);
+        toast({ title: "Email-Versand fehlgeschlagen", description: emailErr.message, variant: "destructive" });
+      }
+      // 5. Status + notities
+      const timestamp = new Date().toLocaleString("de-AT");
+      const costNote = [
+        `[${timestamp}] UVST GT_GBA abgerufen — KG ${selectedKgEz.kg} / EZ ${selectedKgEz.ez}${useSignatur ? " (signiert)" : ""} — €${kostenAktuell.toFixed(2)}`,
+        `[${timestamp}] UVST GT_GBP abgerufen — KG ${selectedKgEz.kg} / EZ ${selectedKgEz.ez}${useSignatur ? " (signiert)" : ""} — €${kostenHistorisch.toFixed(2)}`,
+      ].join("\n");
+      const updatedNotes = notes ? `${notes}\n${costNote}` : costNote;
+      setNotes(updatedNotes);
+      await onUpdateOrder(order.id, { status: "processed", processing_notes: updatedNotes });
+      setPurchasedPdf({ type: "kombi", base64: "", kosten: totalKosten });
+      setGbStep("done");
+      toast({
+        title: "Kombi-Pack erfolgreich",
+        description: `Beide Auszüge gespeichert & versendet. Kosten: €${totalKosten.toFixed(2)}`,
+      });
+      onRefresh();
+    } catch (err: any) {
+      setGbError(err.message || "Kombi-Pack Abruf fehlgeschlagen");
       setGbStep("found");
     }
   };
@@ -837,6 +935,28 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                   </label>
                 </div>
 
+                {isKombi && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="default" className="w-full gap-2 bg-violet-600 hover:bg-violet-700">
+                        <Download className="w-4 h-4" /> Kombi-Pack abrufen (aktuell + historisch)
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className={d ? "bg-slate-900 border-slate-700 text-slate-200" : ""}>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Kombi-Pack kostenpflichtig abrufen?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Aktueller (~€5,04) und historischer (~€2,72) Grundbuchauszug werden abgerufen{selectedSignatur ? " (mit amtlicher Signatur)" : ""}. Gesamtkosten: ~€7,76. Beide Dokumente werden in einer Email versendet.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className={d ? "bg-slate-800 border-slate-700 text-slate-300" : ""}>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction onClick={handlePurchaseKombi}>Beide abrufen & senden</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="default" className="w-full gap-2">
@@ -892,10 +1012,19 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                 <span>Grundbuchauszug abgerufen & gespeichert — €{purchasedPdf.kosten.toFixed(2)}</span>
               </div>
               <div className={`p-3 rounded-lg text-xs space-y-1 ${d ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700"}`}>
-                <p>✓ PDF automatisch als Dokument hinzugefügt</p>
-                
-                <p>✓ Email mit PDF an {order.email} gesendet</p>
-                <p>✓ Status auf „Verarbeitet" gesetzt</p>
+                {purchasedPdf?.type === "kombi" ? (
+                  <>
+                    <p>✓ Aktueller + historischer Auszug gespeichert</p>
+                    <p>✓ Eine Email mit beiden PDFs an {order.email} gesendet</p>
+                    <p>✓ Status auf „Verarbeitet" gesetzt</p>
+                  </>
+                ) : (
+                  <>
+                    <p>✓ PDF automatisch als Dokument hinzugefügt</p>
+                    <p>✓ Email mit PDF an {order.email} gesendet</p>
+                    <p>✓ Status auf „Verarbeitet" gesetzt</p>
+                  </>
+                )}
                 <p>✓ Kosten in Notizen protokolliert</p>
                 {order.digital_storage_subscription && order.document_visible && (
                   <p>✓ Kunde kann das Dokument unter „Meine Dokumente" einsehen</p>
