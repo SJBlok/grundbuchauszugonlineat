@@ -212,15 +212,11 @@ serve(async (req: Request): Promise<Response> => {
 
     const kosten = extractResult.data?.ergebnis?.kosten?.gesamtKostenInklUst || 0;
 
-    let pdfBase64 = "";
-    if (isHistorisch) {
-      const match = extractResult.data?.responseDecoded?.match(
-        /<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/
-      );
-      pdfBase64 = match?.[1]?.trim() || "";
-    } else {
-      pdfBase64 = extractResult.data?.response || "";
-    }
+    // Extract PDF uit PDFOutStream (identiek voor aktuell en historisch)
+    const pdfMatch = extractResult.data?.responseDecoded?.match(
+      /<(?:ns2:)?PDFOutStream>([\s\S]*?)<\/(?:ns2:)?PDFOutStream>/
+    );
+    const pdfBase64 = pdfMatch?.[1]?.trim() || "";
 
     if (!pdfBase64) {
       throw new Error("Kein PDF in der UVST-Antwort gefunden");
