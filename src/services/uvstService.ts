@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 const PROXY_URL = import.meta.env.VITE_UVST_PROXY_URL || "https://uvst-proxy-production.up.railway.app";
 const API_KEY = import.meta.env.VITE_UVST_PROXY_API_KEY || "no-key";
 
@@ -24,18 +26,6 @@ function titleCase(str: string): string {
 
 // ── Nominatim adres-normalisatie ──
 
-interface NominatimAddress {
-  house_number?: string;
-  road?: string;
-  locality?: string;
-  suburb?: string;
-  town?: string;
-  city?: string;
-  state?: string;
-  postcode?: string;
-  country?: string;
-}
-
 interface NormalizedAddress {
   strasse: string;
   hausnummer: string;
@@ -51,39 +41,17 @@ async function normalizeWithNominatim(
   ort?: string
 ): Promise<NormalizedAddress | null> {
   try {
-    const query = [strasse, hausnummer, plz, ort, "Austria"]
-      .filter(Boolean)
-      .join(", ");
+    const { data, error } = await supabase.functions.invoke("nominatim-lookup", {
+      body: { strasse, hausnummer, plz, ort },
+    });
 
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?` +
-        new URLSearchParams({
-          q: query,
-          format: "json",
-          addressdetails: "1",
-          limit: "1",
-          countrycodes: "at",
-        }),
-      {
-        headers: { "User-Agent": "GrundbuchauszugOnline/1.0" },
-      }
-    );
+    if (error || !data?.result) {
+      console.warn("Nominatim lookup returned no result:", error);
+      return null;
+    }
 
-    if (!res.ok) return null;
-
-    const results = await res.json();
-    if (!results.length) return null;
-
-    const addr: NominatimAddress = results[0].address;
-    const hasRoad = !!addr.road;
-
-    return {
-      strasse: titleCase(addr.road || addr.locality || strasse),
-      hausnummer: addr.house_number || hausnummer || "",
-      ort: addr.town || addr.city || ort || "",
-      bundesland: addr.state || "",
-      isOrtschaft: !hasRoad && !!addr.locality,
-    };
+    console.log("Nominatim result:", data.result);
+    return data.result as NormalizedAddress;
   } catch (err) {
     console.warn("Nominatim lookup failed, using original data:", err);
     return null;

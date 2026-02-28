@@ -177,7 +177,11 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const handleSearch = async () => {
     setGbStep("searching"); setGbError(null);
     try {
-      const result = await searchAddress({ bundesland: order.bundesland || undefined, ort: order.ort || undefined, plz: order.plz || undefined, strasse: order.adresse || "" });
+      // Split adresse terug in strasse + hausnummer voor Nominatim
+      const adressParts = (order.adresse || "").trim().split(/\s+/);
+      const hausnr = adressParts.length > 1 ? adressParts.pop() : undefined;
+      const strOnly = adressParts.join(" ");
+      const result = await searchAddress({ bundesland: order.bundesland || undefined, ort: order.ort || undefined, plz: order.plz || undefined, strasse: strOnly || order.adresse || "", hausnummer: hausnr });
       setAddressResults(parseAddressResults(result.data.responseDecoded));
       setGbStep("select");
     } catch (err: any) { setGbError(err.message || "Suche fehlgeschlagen"); setGbStep("idle"); }
