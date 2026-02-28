@@ -64,6 +64,11 @@ export async function validateEinlage(katastralgemeinde: string, einlagezahl: st
   return proxyPost("/api/einlage-validate", { katastralgemeinde, einlagezahl });
 }
 
+function sanitizeHausnummer(hausnummer: string): string {
+  if (!hausnummer) return "";
+  return hausnummer.split("/")[0].trim();
+}
+
 export async function searchAddress(params: {
   bundesland?: string;
   ort?: string;
@@ -80,40 +85,62 @@ export async function searchAddress(params: {
   );
 
   let uvstResult;
+  let searchParams: Record<string, unknown> = {};
+
   if (normalized) {
     console.log("Nominatim result:", normalized);
 
     if (normalized.isOrtschaft) {
       console.log("Ortschaft detected, using erweiterte Suche (GT_ADR02)");
-      uvstResult = await proxyPost("/api/address-search", {
+      searchParams = {
         strasse: normalized.strasse,
         hausnummer: normalized.hausnummer || undefined,
         ort: normalized.strasse,
         bundesland: normalized.bundesland || params.bundesland || undefined,
         sucheErweitert: true,
-      });
+      };
     } else {
       console.log("Street address detected, using standard search (GT_ADR)");
-      uvstResult = await proxyPost("/api/address-search", {
+      searchParams = {
         strasse: normalized.strasse,
         hausnummer: normalized.hausnummer || undefined,
         ort: normalized.ort || params.ort || undefined,
         bundesland: normalized.bundesland || params.bundesland || undefined,
-      });
+        sucheErweitert: false,
+      };
     }
+    uvstResult = await proxyPost("/api/address-search", searchParams);
   } else {
     // Fallback: Nominatim niet beschikbaar
     console.warn("Nominatim unavailable, falling back to direct UVST search");
-    uvstResult = await proxyPost("/api/address-search", {
+    const fallbackHausnummer = params.hausnummer ? sanitizeHausnummer(params.hausnummer) : undefined;
+    searchParams = {
       strasse: titleCase(params.strasse),
-      hausnummer: params.hausnummer || undefined,
+      hausnummer: fallbackHausnummer || undefined,
       ort: params.ort || undefined,
       bundesland: params.bundesland || undefined,
-    });
+      sucheErweitert: false,
+    };
+    uvstResult = await proxyPost("/api/address-search", searchParams);
   }
 
-  // Voeg Nominatim info toe aan het resultaat
-  uvstResult._nominatim = normalized || null;
+  // Extract ProduktID uit de XML response
+  let produktId = "onbekend";
+  const produktMatch = uvstResult.data?.responseDecoded?.match(/<ProduktID>([^<]+)<\/ProduktID>/);
+  if (produktMatch) produktId = produktMatch[1];
+
+  // Voeg debug info toe
+  uvstResult._debug = {
+    nominatim: normalized || null,
+    searchParams,
+    uvstProduct: {
+      produktId,
+      gebuehr: uvstResult.data?.ergebnis?.kosten?.gebuehr ?? 0,
+      aufschlag: uvstResult.data?.ergebnis?.kosten?.aufschlag ?? 0,
+      gesamtKosten: uvstResult.data?.ergebnis?.kosten?.gesamtKostenInklUst ?? 0,
+    },
+  };
+
   return uvstResult;
 }
 
