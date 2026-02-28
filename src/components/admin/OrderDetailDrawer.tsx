@@ -298,8 +298,15 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       });
       setNominatimResult(result._nominatim || result._debug?.nominatim || null);
       setSearchDebug(result._debug || null);
-      setAddressResults(parseAddressResults(result.data.responseDecoded));
-      setGbStep("select");
+      const parsed = parseAddressResults(result.data.responseDecoded);
+      setAddressResults(parsed);
+      // Auto-select als er precies 1 resultaat is
+      if (parsed.length === 1) {
+        setSelectedKgEz({ kg: parsed[0].kgNummer, ez: parsed[0].einlagezahl });
+        setGbStep("found");
+      } else {
+        setGbStep("select");
+      }
     } catch (err: any) { setGbError(err.message || "Suche fehlgeschlagen"); setGbStep("idle"); }
   };
 
@@ -689,31 +696,30 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
           {gbError && <SearchDebugPanel />}
 
           {gbStep === "idle" && (
-            <>
-              {hasKgEz && !validationFailed ? (
-                <div className="space-y-2">
+            <div className="space-y-2">
+              {hasKgEz && !validationFailed && (
+                <>
                   <Button onClick={handleValidate} variant="outline" className="w-full gap-2">
                     <CheckCircle2 className="w-4 h-4" /> Einlage prüfen
                   </Button>
                   <p className={`text-[11px] ${d ? "text-slate-600" : "text-gray-400"}`}>
                     KG <span className="font-mono">{order.katastralgemeinde}</span> / EZ <span className="font-mono">{order.grundstuecksnummer}</span> — €0,41
                   </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {validationFailed
-                    ? <p className={`text-sm ${d ? "text-red-400" : "text-red-600"}`}>Einlage nicht gefunden.</p>
-                    : <p className={`text-sm ${d ? "text-amber-400" : "text-amber-600"}`}>Keine KG/EZ vorhanden.</p>
-                  }
-                  <Button onClick={handleSearch} variant="outline" className="w-full gap-2">
-                    <Search className="w-4 h-4" /> Adresse suchen
-                  </Button>
-                  <p className={`text-[11px] ${d ? "text-slate-600" : "text-gray-400"}`}>
-                    Sucht über {order.adresse}, {order.plz} {order.ort}
-                  </p>
-                </div>
+                </>
               )}
-            </>
+              {validationFailed && (
+                <p className={`text-sm ${d ? "text-red-400" : "text-red-600"}`}>Einlage nicht gefunden.</p>
+              )}
+              {!hasKgEz && !validationFailed && (
+                <p className={`text-sm ${d ? "text-amber-400" : "text-amber-600"}`}>Keine KG/EZ vorhanden.</p>
+              )}
+              <Button onClick={handleSearch} variant="outline" className="w-full gap-2">
+                <Search className="w-4 h-4" /> Adresse suchen
+              </Button>
+              <p className={`text-[11px] ${d ? "text-slate-600" : "text-gray-400"}`}>
+                Sucht über {editFields.adresse} {editFields.hausnummer}, {editFields.plz} {editFields.ort}
+              </p>
+            </div>
           )}
 
           {gbStep === "validating" && (
