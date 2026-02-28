@@ -728,33 +728,70 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
             </Button>
           )}
 
-          {gbStep === "select" && (
-            <>
-              {addressResults.length > 0 ? (
-                <div className="space-y-2">
-                  <p className={`text-sm ${d ? "text-slate-300" : "text-foreground"}`}>{addressResults.length} Treffer gefunden:</p>
-                  <div className="space-y-1">
-                    {addressResults.map((r, i) => (
-                      <button key={i} onClick={() => { setSelectedKgEz({ kg: r.kgNummer, ez: r.einlagezahl }); setGbStep("found"); }}
-                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
-                          d ? "bg-slate-900/40 hover:bg-slate-800/70 text-slate-200" : "bg-gray-50 hover:bg-gray-100 text-foreground"
-                        }`}>
-                        <span className="text-sm font-mono">KG {r.kgNummer} ({r.kgName}) — EZ {r.einlagezahl}</span>
-                        <span className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{r.strasse} {r.hausnummer}</span>
-                      </button>
-                    ))}
+          {gbStep === "select" && (() => {
+            const selectedType = overrideType ?? (isHistorisch ? "historisch" : "aktuell");
+            const selectedSignatur = overrideSignatur ?? wantsSignatur;
+
+            return (
+              <>
+                {addressResults.length > 0 ? (
+                  <div className="space-y-3">
+                    {/* Product + Signatur keuze bovenaan */}
+                    <div className={`p-3 rounded-lg space-y-2 ${d ? "bg-slate-900/60" : "bg-gray-50"}`}>
+                      <p className={`text-[11px] font-medium uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>Dokumenttyp wählen</p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={selectedType === "aktuell" ? "default" : "outline"}
+                          size="sm"
+                          className="flex-1 text-xs"
+                          onClick={() => setOverrideType("aktuell")}
+                        >
+                          Aktuell ~€5,04
+                        </Button>
+                        <Button
+                          variant={selectedType === "historisch" ? "default" : "outline"}
+                          size="sm"
+                          className="flex-1 text-xs"
+                          onClick={() => setOverrideType("historisch")}
+                        >
+                          Historisch ~€2,72
+                        </Button>
+                      </div>
+                      <label className={`flex items-center gap-2 cursor-pointer py-1 ${d ? "text-slate-300" : "text-gray-700"}`}>
+                        <input
+                          type="checkbox"
+                          checked={selectedSignatur}
+                          onChange={(e) => setOverrideSignatur(e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                        <span className="text-xs">Amtliche Signatur hinzufügen</span>
+                      </label>
+                    </div>
+
+                    <p className={`text-sm ${d ? "text-slate-300" : "text-foreground"}`}>{addressResults.length} Treffer — Klicken zum Abrufen:</p>
+                    <div className="space-y-1">
+                      {addressResults.map((r, i) => (
+                        <button key={i} onClick={() => { setSelectedKgEz({ kg: r.kgNummer, ez: r.einlagezahl }); setGbStep("found"); }}
+                          className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between ${
+                            d ? "bg-slate-900/40 hover:bg-slate-800/70 text-slate-200" : "bg-gray-50 hover:bg-gray-100 text-foreground"
+                          }`}>
+                          <span className="text-sm font-mono">KG {r.kgNummer} ({r.kgName}) — EZ {r.einlagezahl}</span>
+                          <span className={`text-xs ${d ? "text-slate-500" : "text-gray-400"}`}>{r.strasse} {r.hausnummer}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <SearchDebugPanel />
                   </div>
-                  <SearchDebugPanel />
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className={`text-sm ${d ? "text-red-400" : "text-red-600"}`}>Keine Treffer.</p>
-                  <SearchDebugPanel />
-                  <Button variant="outline" size="sm" onClick={() => setGbStep("idle")}>Erneut</Button>
-                </div>
-              )}
-            </>
-          )}
+                ) : (
+                  <div className="space-y-2">
+                    <p className={`text-sm ${d ? "text-red-400" : "text-red-600"}`}>Keine Treffer.</p>
+                    <SearchDebugPanel />
+                    <Button variant="outline" size="sm" onClick={() => setGbStep("idle")}>Erneut</Button>
+                  </div>
+                )}
+              </>
+            );
+          })()}
 
           {gbStep === "found" && selectedKgEz && (() => {
             const selectedType = overrideType ?? (isHistorisch ? "historisch" : "aktuell");
