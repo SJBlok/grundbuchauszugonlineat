@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { parseHausnummer } from "@/utils/parseHausnummer";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -202,6 +203,7 @@ export function CombinedOrderStep({
 
     try {
       const productName = selectedProduct === "kombi" ? "Grundbuch Kombi-Pack" : selectedProduct === "historisch" ? "Grundbuchauszug historisch" : "Aktueller Grundbuchauszug";
+      const parsed = parseHausnummer(formData.hausnummer || "");
       const { data: orderResult, error } = await supabase.functions.invoke(
         "create-order",
         {
@@ -211,7 +213,10 @@ export function CombinedOrderStep({
             grundbuchsgericht: formData.grundbuchsgericht || "",
             bundesland: formData.bundesland,
             wohnungs_hinweis: formData.wohnungsHinweis || null,
-            adresse: [formData.strasse, formData.hausnummer].filter(Boolean).join(" ") || null,
+            adresse: formData.strasse || null,
+            hausnummer: parsed.hausnummer || null,
+            stiege: parsed.stiege || null,
+            tuer: parsed.tuer || null,
             plz: formData.plz || null,
             ort: formData.ort || null,
             vorname: formData.vorname,
