@@ -89,6 +89,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const [overrideType, setOverrideType] = useState<"aktuell" | "historisch" | null>(null);
   const [overrideSignatur, setOverrideSignatur] = useState<boolean | null>(null);
   const [nominatimResult, setNominatimResult] = useState<any>(null);
+  const [searchDebug, setSearchDebug] = useState<any>(null);
 
   useEffect(() => {
     if (order) {
@@ -96,7 +97,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       try { setDocuments(Array.isArray(order.documents) ? order.documents : []); } catch { setDocuments([]); }
       setGbStep("idle"); setGbError(null); setValidationFailed(false);
       setAddressResults([]); setSelectedKgEz(null); setPurchasedPdf(null);
-      setOverrideType(null); setOverrideSignatur(null);
+      setOverrideType(null); setOverrideSignatur(null); setSearchDebug(null);
       setEditMode(false);
       setEditFields({
         adresse: order.adresse || "",
@@ -262,7 +263,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   };
 
   const handleSearch = async () => {
-    setGbStep("searching"); setGbError(null); setNominatimResult(null);
+    setGbStep("searching"); setGbError(null); setNominatimResult(null); setSearchDebug(null);
     try {
       const strasse = editMode ? editFields.adresse : (order.adresse || "");
       const hausnummer = editMode ? editFields.hausnummer : (order.hausnummer || "");
@@ -276,7 +277,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
         strasse: strasse,
         hausnummer: hausnummer || undefined,
       });
-      setNominatimResult(result._nominatim || null);
+      setNominatimResult(result._nominatim || result._debug?.nominatim || null);
+      setSearchDebug(result._debug || null);
       setAddressResults(parseAddressResults(result.data.responseDecoded));
       setGbStep("select");
     } catch (err: any) { setGbError(err.message || "Suche fehlgeschlagen"); setGbStep("idle"); }
@@ -441,6 +443,98 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     );
   };
 
+  const SearchDebugPanel = () => {
+    if (!searchDebug) return null;
+    const nom = searchDebug.nominatim;
+    const params = searchDebug.searchParams;
+    const product = searchDebug.uvstProduct;
+    const isErweitert = params?.sucheErweitert === true;
+    const isOrtschaft = nom?.isOrtschaft === true;
+    const produktLabel = product?.produktId === "GT_ADR" ? "GT_ADR (Standard)" : product?.produktId === "GT_ADR02" ? "GT_ADR02 (Erweitert)" : product?.produktId || "—";
+
+    return (
+      <div className={`mt-3 rounded-lg border text-[12px] overflow-hidden ${
+        d ? "bg-slate-900/60 border-slate-800" : "bg-gray-50 border-gray-200"
+      }`}>
+        <div className={`px-3 py-2 flex items-center justify-between border-b ${
+          d ? "bg-slate-900/80 border-slate-800" : "bg-gray-100/80 border-gray-200"
+        }`}>
+          <span className={`font-medium uppercase tracking-wider text-[10px] ${d ? "text-slate-500" : "text-gray-400"}`}>
+            Search Debug
+          </span>
+          <span className={`font-mono ${
+            product?.gesamtKosten > 0.41
+              ? (d ? "text-amber-400" : "text-amber-600")
+              : (d ? "text-emerald-400" : "text-emerald-600")
+          }`}>
+            {product ? `€${product.gesamtKosten.toFixed(2)}` : "—"}
+          </span>
+        </div>
+        <div className="px-3 py-2 space-y-2">
+          <div>
+            <span className={`font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Nominatim:</span>
+            {nom ? (
+              <div className={`mt-0.5 font-mono ${d ? "text-slate-300" : "text-gray-700"}`}>
+                <span>{nom.strasse}</span>
+                {nom.hausnummer && <span> {nom.hausnummer}</span>}
+                {nom.ort && <span>, {nom.ort}</span>}
+                {nom.bundesland && <span> ({nom.bundesland})</span>}
+                {isOrtschaft && (
+                  <Badge variant="outline" className={`ml-2 text-[10px] py-0 px-1.5 ${
+                    d ? "border-violet-500/50 text-violet-400" : "border-violet-300 text-violet-600"
+                  }`}>
+                    Ortschaft
+                  </Badge>
+                )}
+              </div>
+            ) : (
+              <span className={`ml-1 ${d ? "text-red-400" : "text-red-500"}`}>nicht verfügbar (Fallback)</span>
+            )}
+          </div>
+          <div>
+            <span className={`font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>UVST Query:</span>
+            <div className={`mt-0.5 font-mono ${d ? "text-slate-300" : "text-gray-700"}`}>
+              {params?.strasse && <span>strasse="{params.strasse}" </span>}
+              {params?.hausnummer && <span>hausnr="{params.hausnummer}" </span>}
+              {params?.ort && <span>ort="{params.ort}" </span>}
+              {params?.bundesland && <span>bl="{params.bundesland}"</span>}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div>
+              <span className={`font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Produkt: </span>
+              <Badge variant="outline" className={`text-[10px] py-0 px-1.5 font-mono ${
+                isErweitert || product?.produktId === "GT_ADR02"
+                  ? (d ? "border-amber-500/50 text-amber-400" : "border-amber-300 text-amber-600")
+                  : (d ? "border-emerald-500/50 text-emerald-400" : "border-emerald-300 text-emerald-600")
+              }`}>
+                {produktLabel}
+              </Badge>
+            </div>
+            <div>
+              <span className={`font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>Kosten: </span>
+              <span className="font-mono">
+                €{product?.gebuehr?.toFixed(2) || "0.00"} + €{product?.aufschlag?.toFixed(2) || "0.00"}
+              </span>
+            </div>
+          </div>
+          {isErweitert && (
+            <div className={`flex items-center gap-1.5 ${d ? "text-amber-400" : "text-amber-600"}`}>
+              <AlertTriangle className="w-3 h-3" />
+              <span>sucheErweitert=true (Ortschaft/Fuzzy-Match)</span>
+            </div>
+          )}
+          {!isErweitert && product?.produktId === "GT_ADR02" && (
+            <div className={`flex items-center gap-1.5 ${d ? "text-blue-400" : "text-blue-600"}`}>
+              <AlertTriangle className="w-3 h-3" />
+              <span>UVST Auto-Upgrade: GT_ADR → GT_ADR02 (keine exakte Übereinstimmung)</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const SectionTitle = ({ children, right }: { children: string; right?: React.ReactNode }) => (
     <div className="flex items-center justify-between mb-3">
       <p className={`text-xs font-medium uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>{children}</p>
@@ -573,6 +667,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
               <span>{gbError}</span>
             </div>
           )}
+          {gbError && <SearchDebugPanel />}
 
           {gbStep === "idle" && (
             <>
@@ -616,21 +711,6 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
 
           {gbStep === "select" && (
             <>
-              {/* Nominatim debug info */}
-              {nominatimResult && (
-                <div className={`text-xs rounded-md border p-3 mb-3 font-mono space-y-1 ${d ? "bg-slate-800/50 border-slate-700 text-slate-300" : "bg-slate-50 border-slate-200 text-slate-600"}`}>
-                  <p className="font-sans font-medium text-[11px] uppercase tracking-wide mb-1.5" style={{ color: nominatimResult.isOrtschaft ? "#f59e0b" : "#10b981" }}>
-                    {nominatimResult.isOrtschaft ? "⚡ Ortschaft → Erweiterte Suche (GT_ADR02)" : "✓ Straße → Standard Suche (GT_ADR)"}
-                  </p>
-                  <p>Straße: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.strasse}</span></p>
-                  {nominatimResult.hausnummer && <p>Hausnr: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.hausnummer}</span></p>}
-                  <p>Ort: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.ort}</span></p>
-                  {nominatimResult.bundesland && <p>Bundesland: <span className={d ? "text-white" : "text-slate-900"}>{nominatimResult.bundesland}</span></p>}
-                </div>
-              )}
-              {!nominatimResult && (
-                <p className={`text-xs italic mb-2 ${d ? "text-slate-500" : "text-gray-400"}`}>Nominatim: keine Normalisierung (Fallback)</p>
-              )}
               {addressResults.length > 0 ? (
                 <div className="space-y-2">
                   <p className={`text-sm ${d ? "text-slate-300" : "text-foreground"}`}>{addressResults.length} Treffer gefunden:</p>
@@ -645,10 +725,12 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                       </button>
                     ))}
                   </div>
+                  <SearchDebugPanel />
                 </div>
               ) : (
                 <div className="space-y-2">
                   <p className={`text-sm ${d ? "text-red-400" : "text-red-600"}`}>Keine Treffer.</p>
+                  <SearchDebugPanel />
                   <Button variant="outline" size="sm" onClick={() => setGbStep("idle")}>Erneut</Button>
                 </div>
               )}
