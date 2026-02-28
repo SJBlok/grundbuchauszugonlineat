@@ -814,6 +814,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
                   <span>Einlage gefunden — KG <span className="font-mono">{selectedKgEz.kg}</span> / EZ <span className="font-mono">{selectedKgEz.ez}</span></span>
                 </div>
 
+                <SearchDebugPanel />
+
                 {/* Product keuze */}
                 <div className={`p-3 rounded-lg space-y-2 ${d ? "bg-slate-900/60" : "bg-gray-50"}`}>
                   <div className="flex gap-2">
