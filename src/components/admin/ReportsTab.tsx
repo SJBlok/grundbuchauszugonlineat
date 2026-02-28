@@ -227,6 +227,7 @@ export function ReportsTab() {
             const aktuellRevenue = aktuellOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
             const historischRevenue = historischOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
             const kombiRevenue = kombiOrders.reduce((s: number, o: any) => s + (o.product_price || 0), 0);
+            const signaturRevenue = signaturCount * 2.95;
             const priorityRevenue = priorityCount * 9.95;
             const digitalRevenue = digitalCount * 7.95;
 
@@ -286,7 +287,7 @@ export function ReportsTab() {
 
                 <div className="p-6 space-y-5">
                   {/* Summary cards */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
                       <p className={`text-3xl font-bold ${d ? "text-slate-100" : "text-gray-900"}`}>{selectedReport.orders_count}</p>
                       <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>Bestellungen</p>
@@ -294,6 +295,10 @@ export function ReportsTab() {
                     <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
                       <p className={`text-3xl font-bold ${d ? "text-slate-100" : "text-gray-900"}`}>{fmtCur(selectedReport.total_revenue)}</p>
                       <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>Umsatz</p>
+                    </div>
+                    <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
+                      <p className={`text-3xl font-bold text-red-500`}>{fmtCur(totalUvstCosts)}</p>
+                      <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>UVST Kosten</p>
                     </div>
                   </div>
 
@@ -303,42 +308,30 @@ export function ReportsTab() {
                       <CardTitle className={`text-xs uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>Umsatz</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0 text-sm">
-                      {aktuellOrders.length > 0 && (
-                        <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
-                          <span>{aktuellOrders.length}× Aktueller Grundbuchauszug</span>
-                          <span className="font-medium">{fmtCur(aktuellRevenue)}</span>
-                        </div>
-                      )}
-                      {historischOrders.length > 0 && (
-                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-slate-300" : "border-gray-100 text-gray-700"}`}>
-                          <span>{historischOrders.length}× Historischer Grundbuchauszug</span>
-                          <span className="font-medium">{fmtCur(historischRevenue)}</span>
-                        </div>
-                      )}
-                      {kombiOrders.length > 0 && (
-                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-violet-400" : "border-gray-100 text-violet-600"}`}>
-                          <span>{kombiOrders.length}× Grundbuch Kombi-Pack</span>
-                          <span className="font-medium">{fmtCur(kombiRevenue)}</span>
-                        </div>
-                      )}
-                      {signaturCount > 0 && (
-                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-cyan-400" : "border-gray-100 text-cyan-600"}`}>
-                          <span>{signaturCount}× Amtliche Signatur</span>
-                          <span className={`font-medium ${d ? "text-slate-400" : "text-gray-500"}`}>inkl.</span>
-                        </div>
-                      )}
-                      {priorityCount > 0 && (
-                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-amber-400" : "border-gray-100 text-amber-600"}`}>
-                          <span>{priorityCount}× Priority Delivery à € 9,95</span>
-                          <span className="font-medium">{fmtCur(priorityRevenue)}</span>
-                        </div>
-                      )}
-                      {digitalCount > 0 && (
-                        <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-blue-400" : "border-gray-100 text-blue-600"}`}>
-                          <span>{digitalCount}× Digitale Speicherung à € 7,95</span>
-                          <span className="font-medium">{fmtCur(digitalRevenue)}</span>
-                        </div>
-                      )}
+                      <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
+                        <span>{aktuellOrders.length}× Aktueller Grundbuchauszug</span>
+                        <span className="font-medium">{fmtCur(aktuellRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-slate-300" : "border-gray-100 text-gray-700"}`}>
+                        <span>{historischOrders.length}× Historischer Grundbuchauszug</span>
+                        <span className="font-medium">{fmtCur(historischRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-violet-400" : "border-gray-100 text-violet-600"}`}>
+                        <span>{kombiOrders.length}× Grundbuch Kombi-Pack</span>
+                        <span className="font-medium">{fmtCur(kombiRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-cyan-400" : "border-gray-100 text-cyan-600"}`}>
+                        <span>{signaturCount}× Amtliche Signatur à € 2,95</span>
+                        <span className="font-medium">{fmtCur(signaturRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-amber-400" : "border-gray-100 text-amber-600"}`}>
+                        <span>{priorityCount}× Priority Delivery à € 9,95</span>
+                        <span className="font-medium">{fmtCur(priorityRevenue)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-blue-400" : "border-gray-100 text-blue-600"}`}>
+                        <span>{digitalCount}× Digitale Speicherung à € 7,95</span>
+                        <span className="font-medium">{fmtCur(digitalRevenue)}</span>
+                      </div>
                       <div className={`flex justify-between px-4 py-3 border-t font-semibold ${d ? "border-slate-800 bg-slate-800/50 text-slate-100" : "border-gray-100 bg-gray-50 text-gray-900"}`}>
                         <span>Gesamt</span>
                         <span className="text-emerald-500">{fmtCur(selectedReport.total_revenue)}</span>
@@ -347,29 +340,25 @@ export function ReportsTab() {
                   </Card>
 
                   {/* UVST Cost overview */}
-                  {totalUvstCosts > 0 && (
-                    <Card className={d ? "bg-slate-900/50 border-slate-800" : "border-gray-200"}>
-                      <CardHeader className="pb-0 pt-3 px-4">
-                        <CardTitle className={`text-xs uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>UVST Kosten</CardTitle>
-                      </CardHeader>
-                      <CardContent className="p-0 text-sm">
-                        {totalSearchCost > 0 && (
-                          <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
-                            <span>API Suchkosten</span>
-                            <span className="font-medium text-red-500">{fmtCur(totalSearchCost)}</span>
-                          </div>
-                        )}
-                        <div className={`flex justify-between px-4 py-3 ${totalSearchCost > 0 ? `border-t ${d ? "border-slate-800" : "border-gray-100"}` : ""} ${d ? "text-slate-300" : "text-gray-700"}`}>
-                          <span>Dokumentabruf ({uvstDocCosts.length}×)</span>
-                          <span className="font-medium text-red-500">{fmtCur(totalDocCost)}</span>
-                        </div>
-                        <div className={`flex justify-between px-4 py-3 border-t font-semibold ${d ? "border-slate-800 bg-slate-800/50 text-slate-100" : "border-gray-100 bg-gray-50 text-gray-900"}`}>
-                          <span>Gesamt UVST</span>
-                          <span className="text-red-500">{fmtCur(totalUvstCosts)}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                  <Card className={d ? "bg-slate-900/50 border-slate-800" : "border-gray-200"}>
+                    <CardHeader className="pb-0 pt-3 px-4">
+                      <CardTitle className={`text-xs uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>UVST Kosten</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0 text-sm">
+                      <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
+                        <span>API Suchkosten</span>
+                        <span className="font-medium text-red-500">{fmtCur(totalSearchCost)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-slate-300" : "border-gray-100 text-gray-700"}`}>
+                        <span>Dokumentabruf ({uvstDocCosts.length}×)</span>
+                        <span className="font-medium text-red-500">{fmtCur(totalDocCost)}</span>
+                      </div>
+                      <div className={`flex justify-between px-4 py-3 border-t font-semibold ${d ? "border-slate-800 bg-slate-800/50 text-slate-100" : "border-gray-100 bg-gray-50 text-gray-900"}`}>
+                        <span>Gesamt UVST</span>
+                        <span className="text-red-500">{fmtCur(totalUvstCosts)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Orders table */}
                   {ordersData.length > 0 ? (
