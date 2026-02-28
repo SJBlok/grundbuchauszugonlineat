@@ -128,9 +128,36 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log(`[create-order] Order created: ${order.order_number}`);
 
+    // ── Step 2: Always send confirmation email + create Moneybird invoice first ──
+    try {
+      console.log(`[create-order] Sending confirmation + Moneybird for ${order.order_number}`);
+      const sendDocUrl = `${supabaseUrl}/functions/v1/send-grundbuch-document`;
+      fetch(sendDocUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          order_id: order.id,
+          // No pdf_base64 → confirmation email + Moneybird invoice creation
+        }),
+      }).then(async (res) => {
+        const data = await res.json();
+        if (data.success) {
+          console.log(`[create-order] Confirmation + Moneybird sent for ${order.order_number}`);
+        } else {
+          console.error(`[create-order] Confirmation failed: ${data.error}`);
+        }
+      }).catch((err) => {
+        console.error(`[create-order] Confirmation error: ${err.message}`);
+      });
+    } catch (triggerErr: any) {
+      console.error(`[create-order] Failed to trigger confirmation: ${triggerErr.message}`);
+    }
+
+    // ── Step 3: For express orders, also trigger auto-processing ──
     if (body.fast_delivery) {
-      // ── Fast delivery: process-order handles everything ──
-      // process-order → fetches document → sends "Mit Dokument" email + Moneybird invoice
       try {
         console.log(`[create-order] fast_delivery enabled, triggering auto-processing for ${order.order_number}`);
         const processUrl = `${supabaseUrl}/functions/v1/process-order`;
@@ -153,34 +180,6 @@ serve(async (req: Request): Promise<Response> => {
         });
       } catch (triggerErr: any) {
         console.error(`[create-order] Failed to trigger auto-processing: ${triggerErr.message}`);
-      }
-    } else {
-      // ── Manuell: send confirmation email + Moneybird invoice (without document) ──
-      try {
-        console.log(`[create-order] Manuell order, sending confirmation + Moneybird for ${order.order_number}`);
-        const sendDocUrl = `${supabaseUrl}/functions/v1/send-grundbuch-document`;
-        fetch(sendDocUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${supabaseServiceKey}`,
-          },
-          body: JSON.stringify({
-            order_id: order.id,
-            // No pdf_base64 → "Manuell" template + Moneybird invoice
-          }),
-        }).then(async (res) => {
-          const data = await res.json();
-          if (data.success) {
-            console.log(`[create-order] Confirmation + Moneybird sent for ${order.order_number}`);
-          } else {
-            console.error(`[create-order] Confirmation failed: ${data.error}`);
-          }
-        }).catch((err) => {
-          console.error(`[create-order] Confirmation error: ${err.message}`);
-        });
-      } catch (triggerErr: any) {
-        console.error(`[create-order] Failed to trigger confirmation: ${triggerErr.message}`);
       }
     }
 
