@@ -3,17 +3,29 @@ import { supabase } from "@/integrations/supabase/client";
 const PROXY_URL = import.meta.env.VITE_UVST_PROXY_URL || "https://uvst-proxy-production.up.railway.app";
 const API_KEY = import.meta.env.VITE_UVST_PROXY_API_KEY || "no-key";
 
-async function proxyPost(endpoint: string, body: Record<string, unknown>) {
-  const res = await fetch(`${PROXY_URL}${endpoint}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  if (!res.ok || !data.success) {
-    throw new Error(data?.error?.errorMsg || `Fehler ${res.status}`);
+async function proxyPost(endpoint: string, body: Record<string, unknown>, timeoutMs = 90000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${PROXY_URL}${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data?.error?.errorMsg || `Fehler ${res.status}`);
+    }
+    return data;
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      throw new Error("Zeitüberschreitung — der UVST-Server antwortet nicht. Bitte erneut versuchen.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
   }
-  return data;
 }
 
 // ── Helpers ──
