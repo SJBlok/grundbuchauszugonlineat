@@ -358,13 +358,6 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       if (uploadData.error) throw new Error(uploadData.error);
       setDocuments(prev => [...prev, uploadData.document]);
 
-      // 5. Lokale download
-      const downloadUrl = URL.createObjectURL(blob);
-      const downloadLink = document.createElement("a");
-      downloadLink.href = downloadUrl;
-      downloadLink.download = fileName;
-      downloadLink.click();
-      URL.revokeObjectURL(downloadUrl);
 
       // 6. Status + notities updaten
       const timestamp = new Date().toLocaleString("de-AT");
@@ -406,7 +399,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
       // 8. Done
       setPurchasedPdf({ type, base64: pdfBase64, kosten });
       setGbStep("done");
-      toast({ title: "Grundbuchauszug erfolgreich", description: `${fileName} wurde gespeichert, heruntergeladen und per Email versendet.` });
+      toast({ title: "Grundbuchauszug erfolgreich", description: `${fileName} wurde gespeichert und per Email versendet.` });
       onRefresh();
     } catch (err: any) {
       setGbError(err.message || "Abruf fehlgeschlagen");
@@ -900,7 +893,7 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
               </div>
               <div className={`p-3 rounded-lg text-xs space-y-1 ${d ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700"}`}>
                 <p>✓ PDF automatisch als Dokument hinzugefügt</p>
-                <p>✓ PDF lokal heruntergeladen</p>
+                
                 <p>✓ Email mit PDF an {order.email} gesendet</p>
                 <p>✓ Status auf „Verarbeitet" gesetzt</p>
                 <p>✓ Kosten in Notizen protokolliert</p>
