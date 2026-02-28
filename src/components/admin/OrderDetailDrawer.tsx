@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { parseHausnummer } from "@/utils/parseHausnummer";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -109,6 +110,19 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
         grundstuecksnummer: order.grundstuecksnummer || "",
         wohnungs_hinweis: order.wohnungs_hinweis || "",
       });
+
+      // Auto-parse hausnummer if stiege/tuer are still empty
+      if (order.hausnummer && !order.stiege && !order.tuer) {
+        const parsed = parseHausnummer(order.hausnummer);
+        if (parsed.stiege || parsed.tuer) {
+          setEditFields(prev => ({
+            ...prev,
+            hausnummer: parsed.hausnummer,
+            stiege: parsed.stiege || "",
+            tuer: parsed.tuer || "",
+          }));
+        }
+      }
     }
   }, [order]);
 

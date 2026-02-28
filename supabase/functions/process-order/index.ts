@@ -23,6 +23,11 @@ function splitAddress(adresse: string): { strasse: string; hausnummer: string } 
   return { strasse: titleCase(trimmed), hausnummer: "" };
 }
 
+function sanitizeHausnummer(hausnummer: string | null | undefined): string {
+  if (!hausnummer) return "";
+  return hausnummer.split("/")[0].trim();
+}
+
 async function normalizeWithNominatim(
   strasse: string,
   hausnummer?: string,
@@ -135,12 +140,15 @@ serve(async (req: Request): Promise<Response> => {
 
     if (!kgNummer || !ezNummer) {
       const adresse = order.adresse || "";
-      if (!adresse) {
+      const orderHausnummer = sanitizeHausnummer(order.hausnummer);
+      if (!adresse && !orderHausnummer) {
         throw new Error("Keine KG/EZ und keine Adresse vorhanden — manuelle Bearbeitung erforderlich");
       }
 
-      console.log(`[process-order] Searching address: ${adresse}, ${order.plz} ${order.ort}`);
-      const { strasse, hausnummer } = splitAddress(adresse);
+      console.log(`[process-order] Searching address: ${adresse} ${orderHausnummer}, ${order.plz} ${order.ort}`);
+      // Use separate hausnummer field if available, otherwise split from adresse
+      const strasse = adresse ? titleCase(adresse) : "";
+      const hausnummer = orderHausnummer || splitAddress(adresse).hausnummer;
 
       // Nominatim pre-processing
       const normalized = await normalizeWithNominatim(strasse, hausnummer, order.plz || undefined, order.ort || undefined);

@@ -48,6 +48,9 @@ type CreateOrderBody = {
   bundesland: string;
   wohnungs_hinweis?: string | null;
   adresse?: string | null;
+  hausnummer?: string | null;
+  stiege?: string | null;
+  tuer?: string | null;
   plz?: string | null;
   ort?: string | null;
   vorname: string;
@@ -100,6 +103,9 @@ serve(async (req: Request): Promise<Response> => {
           bundesland: body.bundesland ?? "",
           wohnungs_hinweis: body.wohnungs_hinweis ?? null,
           adresse: body.adresse ?? null,
+          hausnummer: body.hausnummer ?? null,
+          stiege: body.stiege ?? null,
+          tuer: body.tuer ?? null,
           plz: body.plz ?? null,
           ort: body.ort ?? null,
           vorname: body.vorname,
