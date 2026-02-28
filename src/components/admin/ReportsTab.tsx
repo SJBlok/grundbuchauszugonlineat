@@ -267,32 +267,8 @@ export function ReportsTab() {
             const priorityRevenue = priorityCount * 9.95;
             const digitalRevenue = digitalCount * 7.95;
 
-            // Parse UVST costs from processing_notes
-            let totalUvstCosts = 0;
-            const uvstSearchCosts: number[] = [];
-            const uvstDocCosts: number[] = [];
-            ordersData.forEach((o: any) => {
-              const notes = o.processing_notes || "";
-              // Match cost lines: ... UVST GT_GBA/GT_GBP ... — €X.XX
-              const costMatches = notes.matchAll(/UVST\s+(GT_\w+).*?€([\d.,]+)/g);
-              for (const m of costMatches) {
-                const cost = parseFloat(m[2].replace(",", "."));
-                if (!isNaN(cost)) {
-                  totalUvstCosts += cost;
-                  uvstDocCosts.push(cost);
-                }
-              }
-              // Match search/lookup costs if logged
-              const searchMatches = notes.matchAll(/(?:search|lookup|suche).*?€([\d.,]+)/gi);
-              for (const m of searchMatches) {
-                const cost = parseFloat(m[1].replace(",", "."));
-                if (!isNaN(cost)) {
-                  uvstSearchCosts.push(cost);
-                }
-              }
-            });
-            const totalSearchCost = uvstSearchCosts.reduce((s, c) => s + c, 0);
-            const totalDocCost = uvstDocCosts.reduce((s, c) => s + c, 0);
+
+
 
             return (
               <>
@@ -325,7 +301,7 @@ export function ReportsTab() {
 
                 <div className="p-6 space-y-5">
                   {/* Summary cards */}
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
                       <p className={`text-3xl font-bold ${d ? "text-slate-100" : "text-gray-900"}`}>{selectedReport.orders_count}</p>
                       <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>Bestellungen</p>
@@ -333,10 +309,6 @@ export function ReportsTab() {
                     <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
                       <p className={`text-3xl font-bold ${d ? "text-slate-100" : "text-gray-900"}`}>{fmtCur(selectedReport.total_revenue)}</p>
                       <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>Umsatz</p>
-                    </div>
-                    <div className={`rounded-lg p-4 text-center ${d ? "bg-slate-900/50 border border-slate-800" : "bg-gray-50"}`}>
-                      <p className={`text-3xl font-bold text-red-500`}>{fmtCur(totalUvstCosts)}</p>
-                      <p className={`text-sm ${d ? "text-slate-400" : "text-gray-500"}`}>UVST Kosten</p>
                     </div>
                   </div>
 
@@ -378,25 +350,7 @@ export function ReportsTab() {
                   </Card>
 
                   {/* UVST Cost overview */}
-                  <Card className={d ? "bg-slate-900/50 border-slate-800" : "border-gray-200"}>
-                    <CardHeader className="pb-0 pt-3 px-4">
-                      <CardTitle className={`text-xs uppercase tracking-wider ${d ? "text-slate-500" : "text-gray-400"}`}>UVST Kosten</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0 text-sm">
-                      <div className={`flex justify-between px-4 py-3 ${d ? "text-slate-300" : "text-gray-700"}`}>
-                        <span>API Suchkosten</span>
-                        <span className="font-medium text-red-500">{fmtCur(totalSearchCost)}</span>
-                      </div>
-                      <div className={`flex justify-between px-4 py-3 border-t ${d ? "border-slate-800 text-slate-300" : "border-gray-100 text-gray-700"}`}>
-                        <span>Dokumentabruf ({uvstDocCosts.length}×)</span>
-                        <span className="font-medium text-red-500">{fmtCur(totalDocCost)}</span>
-                      </div>
-                      <div className={`flex justify-between px-4 py-3 border-t font-semibold ${d ? "border-slate-800 bg-slate-800/50 text-slate-100" : "border-gray-100 bg-gray-50 text-gray-900"}`}>
-                        <span>Gesamt UVST</span>
-                        <span className="text-red-500">{fmtCur(totalUvstCosts)}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
+
 
                   {/* Orders table */}
                   {ordersData.length > 0 ? (
