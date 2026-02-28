@@ -421,8 +421,8 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   };
 
   // ── Helpers ──
-  const InfoRow = ({ label, value, copyable, mono }: { label: string; value?: string | null; copyable?: boolean; mono?: boolean }) => {
-    if (!value && !copyable) return null;
+  const InfoRow = ({ label, value, copyable, mono, alwaysShow }: { label: string; value?: string | null; copyable?: boolean; mono?: boolean; alwaysShow?: boolean }) => {
+    if (!value && !copyable && !alwaysShow) return null;
     return (
       <div className={`flex items-center justify-between py-2 ${d ? "border-slate-800/30" : "border-border/15"}`}>
         <span className={`text-[13px] ${d ? "text-slate-400" : "text-gray-500"}`}>{label}</span>
@@ -438,10 +438,10 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
     );
   };
 
-  const EditableRow = ({ label, field, mono }: { label: string; field: string; mono?: boolean }) => {
+  const EditableRow = ({ label, field, mono, alwaysShow }: { label: string; field: string; mono?: boolean; alwaysShow?: boolean }) => {
     const value = editFields[field as keyof typeof editFields] || "";
     if (!editMode) {
-      return <InfoRow label={label} value={value || (order as any)[field]} copyable={!!value} mono={mono} />;
+      return <InfoRow label={label} value={value || (order as any)[field]} copyable={!!value} mono={mono} alwaysShow={alwaysShow} />;
     }
     return (
       <div className={`flex items-center justify-between py-1.5 ${d ? "border-slate-800/30" : "border-border/15"}`}>
@@ -643,9 +643,9 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
           <InfoRow label="E-Mail" value={order.email} copyable />
           {order.firma && <InfoRow label="Firma" value={order.firma} />}
           <EditableRow label="Straße" field="adresse" />
-          <EditableRow label="Hausnr." field="hausnummer" mono />
-          <EditableRow label="Stiege" field="stiege" mono />
-          <EditableRow label="Top/Tür" field="tuer" mono />
+          <EditableRow label="Hausnr." field="hausnummer" mono alwaysShow />
+          <EditableRow label="Stiege" field="stiege" mono alwaysShow />
+          <EditableRow label="Top/Tür" field="tuer" mono alwaysShow />
           <EditableRow label="PLZ" field="plz" />
           <EditableRow label="Ort" field="ort" />
           <EditableRow label="Bundesland" field="bundesland" />
