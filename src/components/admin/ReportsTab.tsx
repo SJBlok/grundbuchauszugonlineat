@@ -77,6 +77,24 @@ export function ReportsTab() {
     };
   }, [orders]);
 
+  const todayReport = useMemo(() => {
+    const todayStr = new Date().toISOString().split("T")[0];
+    const todayOrders = orders.filter(o => o.created_at.startsWith(todayStr));
+    // Don't show if an official report already exists for today
+    const hasOfficialReport = reports.some(r => r.report_date === todayStr);
+    if (hasOfficialReport) return null;
+    return {
+      id: "__today__",
+      report_date: todayStr,
+      orders_count: todayOrders.length,
+      total_revenue: todayOrders.reduce((s, o) => s + o.product_price, 0),
+      orders_data: todayOrders,
+      email_sent: false,
+      sent_at: null,
+      _isPreview: true,
+    } as DailyReport & { _isPreview?: boolean };
+  }, [orders, reports]);
+
   const chartData = useMemo(() => reports.slice(0, 14).reverse().map(r => ({
     date: new Date(r.report_date).toLocaleDateString("de-AT", { day: "2-digit", month: "2-digit" }),
     orders: r.orders_count, revenue: r.total_revenue,
@@ -182,6 +200,24 @@ export function ReportsTab() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {/* Today's preliminary report */}
+              {todayReport && (
+                <TableRow
+                  className={`cursor-pointer transition-colors ${d ? "border-slate-800/50 hover:bg-slate-800/30 bg-slate-900/30" : "border-gray-50 hover:bg-gray-50 bg-amber-50/30"}`}
+                  onClick={() => setSelectedReport(todayReport)}
+                >
+                  <TableCell className={`text-sm font-medium ${d ? "text-slate-200" : "text-gray-800"}`}>
+                    Heute
+                  </TableCell>
+                  <TableCell className={`text-sm text-right ${d ? "text-slate-300" : "text-gray-700"}`}>{todayReport.orders_count}</TableCell>
+                  <TableCell className={`text-sm text-right font-medium ${d ? "text-slate-200" : "text-gray-800"}`}>{fmtCur(todayReport.total_revenue)}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={`text-[11px] ${d ? "bg-amber-500/15 text-amber-400 border-amber-500/30" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
+                      Vorläufig
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              )}
               {reports.slice(0, 14).map(r => (
                 <TableRow
                   key={r.id}
@@ -277,10 +313,12 @@ export function ReportsTab() {
                         )}
                       </div>
                     </div>
-                    <Badge variant="outline" className={`text-xs ${selectedReport.email_sent
+                    <Badge variant="outline" className={`text-xs ${(selectedReport as any)._isPreview
+                      ? (d ? "bg-amber-500/15 text-amber-400 border-amber-500/30" : "bg-amber-50 text-amber-700 border-amber-200")
+                      : selectedReport.email_sent
                       ? (d ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-emerald-50 text-emerald-700 border-emerald-200")
                       : (d ? "bg-slate-500/15 text-slate-400 border-slate-500/30" : "bg-gray-50 text-gray-500 border-gray-200")}`}>
-                      {selectedReport.email_sent ? <><CheckCircle className="w-3 h-3 mr-1" />Gesendet</> : <><Clock className="w-3 h-3 mr-1" />Ausstehend</>}
+                      {(selectedReport as any)._isPreview ? "Vorläufig" : selectedReport.email_sent ? <><CheckCircle className="w-3 h-3 mr-1" />Gesendet</> : <><Clock className="w-3 h-3 mr-1" />Ausstehend</>}
                     </Badge>
                   </div>
                 </div>
