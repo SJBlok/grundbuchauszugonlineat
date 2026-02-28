@@ -273,8 +273,10 @@ export function OrderDetailDrawer({ order, open, onOpenChange, onUpdateOrder, on
   const handleValidate = async () => {
     setGbStep("validating"); setGbError(null);
     try {
-      await validateEinlage(order.katastralgemeinde, order.grundstuecksnummer);
-      setSelectedKgEz({ kg: order.katastralgemeinde, ez: order.grundstuecksnummer });
+      const kg = editFields.katastralgemeinde;
+      const ez = editFields.grundstuecksnummer;
+      await validateEinlage(kg, ez);
+      setSelectedKgEz({ kg, ez });
       setGbStep("found");
     } catch { setValidationFailed(true); setGbStep("idle"); }
   };

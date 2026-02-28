@@ -161,6 +161,7 @@ serve(async (req: Request): Promise<Response> => {
           searchResult = await proxyPost("/api/address-search", {
             strasse: normalized.strasse,
             hausnummer: normalized.hausnummer || undefined,
+            plz: order.plz || undefined,
             ort: normalized.strasse,
             bundesland: normalized.bundesland || order.bundesland || undefined,
             sucheErweitert: true,
@@ -169,6 +170,7 @@ serve(async (req: Request): Promise<Response> => {
           searchResult = await proxyPost("/api/address-search", {
             strasse: normalized.strasse,
             hausnummer: normalized.hausnummer || undefined,
+            plz: order.plz || undefined,
             ort: normalized.ort || order.ort || undefined,
             bundesland: normalized.bundesland || order.bundesland || undefined,
           });
@@ -178,6 +180,7 @@ serve(async (req: Request): Promise<Response> => {
         searchResult = await proxyPost("/api/address-search", {
           bundesland: order.bundesland || undefined,
           ort: order.ort || undefined,
+          plz: order.plz || undefined,
           strasse,
           hausnummer: hausnummer || undefined,
         });
